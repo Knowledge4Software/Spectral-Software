@@ -1,0 +1,19 @@
+from spectral_code.utils.errors import unknown_component_error
+from spectral_code.spectral.laplacian import LaplacianSpectrum
+from spectral_code.spectral.solvers.factory import create_solver
+
+SPECTRAL_REGISTRY = {
+    "laplacian": LaplacianSpectrum,
+}
+
+
+def create_spectral_analyzer(mode: str, solver_name: str, k: int,
+                             solver_kwargs: dict, spectral_kwargs: dict):
+
+    if mode not in SPECTRAL_REGISTRY:
+        raise unknown_component_error("spectral mode", mode, SPECTRAL_REGISTRY)
+
+    solver = create_solver(solver_name, k, **solver_kwargs)
+
+    cls = SPECTRAL_REGISTRY[mode]
+    return cls(solver=solver, **spectral_kwargs)
