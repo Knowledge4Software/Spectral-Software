@@ -1,4 +1,5 @@
 numpy
+py2cfg
 scipy
 networkx
 tree-sitter

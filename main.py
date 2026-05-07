@@ -1,3 +1,4 @@
+import textwrap
 from spectral_code.pipeline import Pipeline
 from spectral_code.config import PipelineConfig
 
@@ -5,9 +6,9 @@ from spectral_code.config import PipelineConfig
 def pretty_print(result):
     profile = result["profile"]
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("PIPELINE PROFILE")
-    print("="*50)
+    print("=" * 50)
 
     print(f"Nodes: {profile['num_nodes']}")
     print(f"Edges: {profile['num_edges']}")
@@ -25,16 +26,20 @@ def pretty_print(result):
     print("\n--- Eigenvalues (first 10) ---")
     print(result["eigenvalues"][::-1][:10])
 
-    print("="*50 + "\n")
+    print("=" * 50 + "\n")
 
 
 if __name__ == "__main__":
-    code = """
-        def add(a, b):
-            return a + b
-        """
+    code = textwrap.dedent("""
+x = 5
+if x > 0:
+    y = x
+else:
+    y = -x
+""")
 
     config = PipelineConfig(
+        graph_type="cfg",
         eigen_solver="dense",
         k_eigen=None,
     )
