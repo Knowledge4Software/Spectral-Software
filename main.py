@@ -23,7 +23,7 @@ def pretty_print(result):
     print(f"Peak   : {profile['memory_peak']}")
 
     print("\n--- Eigenvalues (first 10) ---")
-    print(result["eigenvalues"][:10])
+    print(result["eigenvalues"][::-1][:10])
 
     print("="*50 + "\n")
 
