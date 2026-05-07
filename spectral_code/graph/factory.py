@@ -1,8 +1,10 @@
 from spectral_code.utils.errors import unknown_component_error
 from spectral_code.graph.ast_graph import ASTGraphBuilder
+from spectral_code.graph.cfg_graph import CFGGraphBuilder
 
 GRAPH_REGISTRY = {
     "ast": ASTGraphBuilder,
+    "cfg": CFGGraphBuilder,
 }
 
 
