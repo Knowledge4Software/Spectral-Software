@@ -1,0 +1,97 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.env/
+.venv/
+env/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage / testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Pyre
+.pyre/
+
+# profiling / runtime outputs
+*.prof
+*.out
+
+# generated spectral outputs
+outputs/
+results/
+cache/
+tmp/
+
+# Tree-sitter build artifacts
+build/
+
+# dotenv
+.env
+
+# local configs
+local_config.py
+
+# notebook artifacts
+*.nbconvert.ipynb
+
+# serialized python objects
+*.pkl
+*.pickle
+
+# generated graphs / matrices
+*.npy
+*.npz
+
+# OS generated files
+ehthumbs.db
+Desktop.ini
