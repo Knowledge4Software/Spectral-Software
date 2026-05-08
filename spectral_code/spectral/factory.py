@@ -1,9 +1,11 @@
 from spectral_code.utils.errors import unknown_component_error
 from spectral_code.spectral.laplacian import LaplacianSpectrum
+from spectral_code.spectral.normalized_laplacian import NormalizedLaplacianSpectrum
 from spectral_code.spectral.solvers.factory import create_solver
 
 SPECTRAL_REGISTRY = {
     "laplacian": LaplacianSpectrum,
+    "normalized_laplacian": NormalizedLaplacianSpectrum,
 }
 
 
