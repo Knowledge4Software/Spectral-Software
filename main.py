@@ -16,6 +16,7 @@ def pretty_print(result):
     print("\n--- Time (seconds) ---")
     print(f"Preprocessing : {profile['preprocessing_time']:.6f}")
     print(f"Graph Build   : {profile['graph_time']:.6f}")
+    print(f"Visualization : {profile['visualization_time']:.6f}")
     print(f"Spectral      : {profile['spectral_time']:.6f}")
     print(f"Total         : {profile['total_time']:.6f}")
 
@@ -26,12 +27,14 @@ def pretty_print(result):
     print("\n--- Eigenvalues (first 10) ---")
     print(result["eigenvalues"][::-1][:10])
 
+    print("\nVisualization:")
+    print(result["visualization"])
+
     print("=" * 50 + "\n")
 
 
 if __name__ == "__main__":
     code = textwrap.dedent("""
-x = 5
 if x > 0:
     y = x
 else:
@@ -42,6 +45,9 @@ else:
         graph_type="cfg",
         eigen_solver="dense",
         k_eigen=None,
+        visualization_enabled=True,
+        visualization_output_dir="artifacts/graph_visualizations",
+        visualization_format="png",
     )
 
     pipeline = Pipeline(config)

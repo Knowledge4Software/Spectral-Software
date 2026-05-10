@@ -1,6 +1,8 @@
 numpy
 py2cfg
+pydot
 scipy
+matplotlib
 networkx
 tree-sitter
 tree-sitter-python
