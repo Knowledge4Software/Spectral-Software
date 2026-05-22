@@ -108,10 +108,46 @@ class MatplotlibGraphVisualizer(GraphVisualizer):
             fig_scale = self.figure_scale
             font_size = self.font_size
 
+        color_map = {
+            "cfg": "lightcoral",
+            "ast": "skyblue",
+            "ddg": "lightgreen",
+            "pdg": "plum"
+        }
+        node_color = color_map.get(graph_type, "lightblue")
+
         figsize = (
-            max(8, math.sqrt(graph.number_of_nodes()) * 1.7),
-            max(6, math.sqrt(graph.number_of_nodes()) * 1.1),
+            max(8, math.sqrt(graph.number_of_nodes()) * 1.7) * fig_scale,
+            max(6, math.sqrt(graph.number_of_nodes()) * 1.1) * fig_scale,
         )
+        
+        fig, ax = plt.subplots(
+            figsize=figsize,
+            dpi=self.dpi
+        )
+        
+        # Draw Nodes and Edges
+        nx.draw_networkx_nodes(G, pos, ax=ax, node_size=self.node_size, node_color=node_color, edgecolors='black')
+        nx.draw_networkx_edges(G, pos, ax=ax, edge_color='dimgray', width=1.0)
+        
+        # Clean labels and wrap text
+        labels = {}
+        for node, data in G.nodes(data=True):
+            raw_label = str(data.get('label', node)).replace('"', '').split('\\n')[0]
+            labels[node] = textwrap.shorten(raw_label, width=self.max_label_width)
+            
+        nx.draw_networkx_labels(G, pos, labels=labels, ax=ax, font_size=font_size)
+
+        ax.set_title(
+            title or f"Graph: {graph_type.upper()} | Nodes: {G.number_of_nodes()} | Edges: {G.number_of_edges()}",
+            fontsize=font_size + 4,
+            pad=10,
+            fontweight="bold"
+        )
+        ax.axis("off")
+
+        fig.savefig(image_path, bbox_inches="tight", pad_inches=0.1)
+        plt.close(fig)
         fig, ax = plt.subplots(figsize=figsize, dpi=self.dpi)
 
         node_colors = [self._node_color(data, graph_type) for _, data in G.nodes(data=True)]

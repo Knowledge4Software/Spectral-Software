@@ -1,15 +1,12 @@
 from spectral_code.utils.errors import unknown_component_error
-from spectral_code.graph.ast_graph import ASTGraphBuilder
-from spectral_code.graph.cfg_graph import CFGGraphBuilder
-
-GRAPH_REGISTRY = {
-    "ast": ASTGraphBuilder,
-    "cfg": CFGGraphBuilder,
-}
-
+from spectral_code.graph.joern_graph import JoernGraphBuilder
 
 def create_graph_builder(name: str, **kwargs):
-    if name not in GRAPH_REGISTRY:
-        raise unknown_component_error("graph builder", name, GRAPH_REGISTRY)
+    # Mapping old names and new names directly to JoernGraphBuilder implementation
+    valid_names = ["ast", "cfg", "ddg", "pdg"]
+    
+    if name not in valid_names:
+        raise unknown_component_error("graph builder", name, valid_names)
 
-    return GRAPH_REGISTRY[name](**kwargs)
+    # By passing repr_type, JoernGraphBuilder decides internally what to export
+    return JoernGraphBuilder(repr_type=name, **kwargs)
