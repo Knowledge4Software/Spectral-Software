@@ -4,11 +4,10 @@ from spectral_code.preprocessing.base import Preprocessor
 
 class SimplePreprocessor(Preprocessor):
     def process(self, code: str) -> str:
-        # remove block comments, line comments and python comments
-        code = re.sub(r"/\*.*?\*/", "", code, flags=re.S)
-        code = re.sub(r"//.*?$", "", code, flags=re.M)
-        code = re.sub(r"#.*?$", "", code, flags=re.M)
-
+        # Preprocessing regex can incorrectly ruin URLs (// in strings).
+        # We'll skip comment stripping because Joern's Java parser inherently ignores comments
+        # and doesn't get messed up.
+        
         cleaned_lines = []
         for line in code.splitlines():
             line = line.rstrip()
