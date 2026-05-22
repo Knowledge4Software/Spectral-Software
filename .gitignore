@@ -71,6 +71,12 @@ outputs/
 results/
 cache/
 tmp/
+artifacts/
+
+# Joern / Joern-cli temp and outputs
+*.bin
+joern_temp_*/
+temp_out/
 
 # Tree-sitter build artifacts
 build/
