@@ -3,3 +3,9 @@ pydot
 scipy
 matplotlib
 networkx
+pandas
+tqdm
+jupyter
+ipykernel
+ipywidgets
+seaborn

@@ -101,3 +101,5 @@ local_config.py
 # OS generated files
 ehthumbs.db
 Desktop.ini
+
+workspace/

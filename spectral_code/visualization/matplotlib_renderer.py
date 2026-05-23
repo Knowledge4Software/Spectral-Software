@@ -75,7 +75,7 @@ class MatplotlibGraphVisualizer(GraphVisualizer):
             from networkx.drawing.nx_pydot import write_dot
             write_dot(graph, str(dot_path))
         except Exception:
-            # اگر pydot/graphviz نبود، PNG همچنان ساخته می‌شود.
+            # If pydot/graphviz is not available, image rendering still proceeds.
             return
 
     def _layout(self, graph: nx.Graph):
