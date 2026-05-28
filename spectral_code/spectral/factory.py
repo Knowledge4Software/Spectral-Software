@@ -2,6 +2,7 @@ from spectral_code.utils.errors import unknown_component_error
 from spectral_code.spectral.base import SpectralAnalyzer
 from spectral_code.spectral.laplacian import LaplacianSpectrum
 from spectral_code.spectral.normalized_laplacian import NormalizedLaplacianSpectrum
+from spectral_code.spectral.directed_laplacian import DirectedLaplacianSpectrum
 from spectral_code.spectral.solvers.factory import create_solver
 
 class DummySpectralAnalyzer(SpectralAnalyzer):
@@ -11,6 +12,7 @@ class DummySpectralAnalyzer(SpectralAnalyzer):
 SPECTRAL_REGISTRY = {
     "laplacian": LaplacianSpectrum,
     "normalized_laplacian": NormalizedLaplacianSpectrum,
+    "directed_laplacian": DirectedLaplacianSpectrum,
     "none": DummySpectralAnalyzer
 }
 

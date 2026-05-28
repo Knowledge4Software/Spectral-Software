@@ -1,68 +1,51 @@
 import os
 import sys
-import pickle
 import json
-import networkx as nx
-from tqdm import tqdm
+import pickle
+import time
 
-# Setup paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
-from spectral_code.utils.dataset import load_graph_from_json
+from spectral_code.preprocessing.cleaner import clean_and_compose_graphs
 
-FEATURES_DIR = os.path.join(BASE_DIR, "outputs", "dataset_features")
-GRAPH_OUT_DIR = os.path.join(BASE_DIR, "outputs", "clean_graphs")
-os.makedirs(GRAPH_OUT_DIR, exist_ok=True)
+RAW_FEATURES_DIR = os.path.join(BASE_DIR, "outputs", "dataset_features")
+CLEAN_GRAPHS_DIR = os.path.join(BASE_DIR, "outputs", "clean_graphs")
+TIMING_FILE = os.path.join(BASE_DIR, "outputs", "timing_stats.json")
+os.makedirs(CLEAN_GRAPHS_DIR, exist_ok=True)
 
-GRAPH_TYPES = ["ast", "cfg", "ddg", "pdg"]
+BASE_LAYERS = ["ast", "cfg", "ddg", "pdg"]
 
 def main():
-    if not os.path.exists(FEATURES_DIR):
-        print(f"[-] Directory not found: {FEATURES_DIR}")
-        return
-
-    json_files = [f for f in os.listdir(FEATURES_DIR) if f.endswith(".json")]
-    print(f"[*] Found {len(json_files)} JSON files on disk. Processing sequentially...")
-
-    # Dictionary format: graph_db[method_id][gtype] = networkx_graph_object
-    graph_db = {}
-    total_graphs_saved = 0
-
-    for file_name in tqdm(json_files, desc="Cleaning Graphs"):
-        method_id = os.path.splitext(file_name)[0]
-        json_path = os.path.join(FEATURES_DIR, file_name)
-        
-        for gtype in GRAPH_TYPES:
-            try:
-                graph = load_graph_from_json(json_path, graph_type=gtype)
-                if graph is not None and graph.number_of_nodes() > 0:
-                    # Convert to undirected graph
-                    undirected_graph = graph.to_undirected()
-                    
-                    # Correct NetworkX function for isolated nodes
-                    isolated_nodes = list(nx.isolates(undirected_graph))
-                    undirected_graph.remove_nodes_from(isolated_nodes)
-                    
-                    # If graph still has valid structure, save it
-                    if undirected_graph.number_of_nodes() > 0:
-                        if method_id not in graph_db:
-                            graph_db[method_id] = {}
-                        graph_db[method_id][gtype] = undirected_graph
-                        total_graphs_saved += 1
-            except Exception as e:
-                print(f"\n[-] Error processing Method {method_id} [{gtype}]: {e}")
-
-    # Save the entire clean graph database into a pickle file
-    output_path = os.path.join(GRAPH_OUT_DIR, "cleaned_graphs_db.pkl")
-    print(f"\n[*] Writing {total_graphs_saved} graphs to high-performance binary file...")
+    preprocessing_start_time = time.perf_counter()
     
-    with open(output_path, "wb") as f:
-        pickle.dump(graph_db, f, protocol=pickle.HIGHEST_PROTOCOL)
+    cleaned_graphs_db, methods_cleaned, layers_cleaned = clean_and_compose_graphs(
+        RAW_FEATURES_DIR, BASE_LAYERS
+    )
 
-    print(f"[+] Success! Cleaned graphs database saved perfectly to '{output_path}'")
-    print(f"[+] Final file size: {os.path.getsize(output_path) / (1024*1024):.2f} MB")
+    output_pkl_path = os.path.join(CLEAN_GRAPHS_DIR, "cleaned_graphs_db.pkl")
+    with open(output_pkl_path, "wb") as f:
+        pickle.dump(cleaned_graphs_db, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    total_duration = time.perf_counter() - preprocessing_start_time
+
+    stats = {}
+    if os.path.exists(TIMING_FILE):
+        try:
+            with open(TIMING_FILE, "r") as f:
+                stats = json.load(f)
+        except Exception:
+            pass
+
+    stats["total_preprocessing_time"] = total_duration
+    stats["total_methods_cleaned"] = methods_cleaned
+    stats["total_layers_cleaned"] = layers_cleaned + methods_cleaned
+    
+    with open(TIMING_FILE, "w") as f:
+        json.dump(stats, f, indent=4)
+
+    print(f"\n[+] Processed {methods_cleaned} methods with 5 strictly directed layers.")
 
 if __name__ == "__main__":
     main()
