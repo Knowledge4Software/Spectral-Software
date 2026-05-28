@@ -68,6 +68,7 @@ htmlcov/
 
 # generated spectral outputs
 outputs/
+data/
 results/
 cache/
 tmp/

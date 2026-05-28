@@ -9,3 +9,6 @@ jupyter
 ipykernel
 ipywidgets
 seaborn
+scikit-learn
+xgboost
+
