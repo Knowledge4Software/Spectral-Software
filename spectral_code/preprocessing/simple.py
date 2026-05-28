@@ -1,17 +1,17 @@
-import re
-from spectral_code.preprocessing.base import Preprocessor
+import networkx as nx
+from .base import Preprocessor
 
+class SimpleGraphPreprocessor(Preprocessor):
+    def __init__(self):
+        super().__init__()
 
-class SimplePreprocessor(Preprocessor):
-    def process(self, code: str) -> str:
-        # Preprocessing regex can incorrectly ruin URLs (// in strings).
-        # We'll skip comment stripping because Joern's Java parser inherently ignores comments
-        # and doesn't get messed up.
+    def process(self, graph: nx.DiGraph) -> nx.DiGraph:
+        if graph is None:
+            return nx.create_empty_copy(graph)
+            
+        cleaned_graph = graph.copy()
         
-        cleaned_lines = []
-        for line in code.splitlines():
-            line = line.rstrip()
-            if line.strip():
-                cleaned_lines.append(line)
-
-        return "\n".join(cleaned_lines)
+        isolated_nodes = [node for node in cleaned_graph.nodes() if cleaned_graph.in_degree(node) == 0 and cleaned_graph.out_degree(node) == 0]
+        cleaned_graph.remove_nodes_from(isolated_nodes)
+        
+        return cleaned_graph

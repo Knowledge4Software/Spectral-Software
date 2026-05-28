@@ -1,8 +1,9 @@
 from spectral_code.utils.errors import unknown_component_error
-from spectral_code.preprocessing.simple import SimplePreprocessor
+# Fixed the import name to match simple.py exactly
+from spectral_code.preprocessing.simple import SimpleGraphPreprocessor
 
 PREPROCESSOR_REGISTRY = {
-    "simple": SimplePreprocessor,
+    "simple": SimpleGraphPreprocessor,
     None: lambda **kwargs: None,
 }
 

@@ -1,34 +1,37 @@
-from __future__ import annotations
-
 import numpy as np
 import networkx as nx
+from .base import BaseSpectralTransform, SpectralAnalyzer
+from .solvers.dense import DenseEigenSolver
+from .solvers.base import EigenSolver
 
-from spectral_code.spectral.base import SpectralAnalyzer
-from spectral_code.spectral.solvers.base import EigenSolver
+class NormalizedLaplacianTransform(BaseSpectralTransform):
+    def __init__(self, solver=None):
+        self.solver = solver or DenseEigenSolver()
 
+    def transform(self, graph: nx.Graph) -> np.ndarray:
+        if graph is None or graph.number_of_nodes() == 0:
+            return np.array([], dtype=np.float64)
+        
+        # Ensure graph is undirected for valid symmetric laplacian
+        if graph.is_directed():
+            graph = graph.to_undirected()
+            
+        L = nx.normalized_laplacian_matrix(graph).toarray()
+        
+        eigenvalues, _ = self.solver.solve(L)
+        return np.sort(eigenvalues)
 
 class NormalizedLaplacianSpectrum(SpectralAnalyzer):
     def __init__(self, solver: EigenSolver):
         self.solver = solver
 
     def analyze(self, graph: nx.Graph):
-        # AST/CFG in this project are directed; for spectral comparison we symmetrize.
-        G = graph.to_undirected() if graph.is_directed() else graph
+        if graph is None or graph.number_of_nodes() == 0:
+            return np.array([], dtype=np.float64), np.array([], dtype=np.float64)
 
-        A = nx.to_numpy_array(G, dtype=float)
-        if A.size == 0:
-            return np.array([]), np.array([[]])
+        if graph.is_directed():
+            graph = graph.to_undirected()
 
-        degrees = A.sum(axis=1)
-        inv_sqrt_deg = np.zeros_like(degrees)
-        nonzero = degrees > 0
-        inv_sqrt_deg[nonzero] = 1.0 / np.sqrt(degrees[nonzero])
-
-        D_inv_sqrt = np.diag(inv_sqrt_deg)
-        I = np.eye(A.shape[0], dtype=float)
-
-        # L = I - D^{-1/2} A D^{-1/2}
-        L = I - D_inv_sqrt @ A @ D_inv_sqrt
-
+        L = nx.normalized_laplacian_matrix(graph).toarray()
         eigvals, eigvecs = self.solver.solve(L)
         return eigvals, eigvecs
