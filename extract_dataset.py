@@ -5,18 +5,22 @@ import time
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 from spectral_code.preprocessing.data_unpacker import unpack_jsonl_to_java
 from spectral_code.preprocessing.joern_runner import run_joern_parse, run_joern_export
 from spectral_code.preprocessing.graph_parser import process_single_method
+
+JOERN_PARSE_BAT = os.getenv("JOERN_PARSE_BAT")
+JOERN_EXPORT_BAT = os.getenv("JOERN_EXPORT_BAT")
 
 DATA_FILE = os.path.join("data", "data.jsonl")
 OUTPUT_DIR = os.path.join("outputs", "dataset_features")
 BATCH_TEMP_DIR = os.path.join("outputs", "batch_java_src")
 JOERN_BASE_OUT = os.path.join("outputs", "joern_raw_graphs")
 TIMING_FILE = os.path.join("outputs", "timing_stats.json")
-
-JOERN_PARSE_BAT = r"C:\joern-cli\joern-parse.bat"
-JOERN_EXPORT_BAT = r"C:\joern-cli\joern-export.bat"
 
 GRAPH_TYPES = ["ast", "cfg", "ddg", "pdg"]
 
@@ -31,7 +35,7 @@ def main():
     method_ids = unpack_jsonl_to_java(DATA_FILE, BATCH_TEMP_DIR)
     if not method_ids:
         return
-        
+    
     total_methods = len(method_ids)
     batch_cpg = os.path.abspath(os.path.join("outputs", "batch_cpg.bin"))
     

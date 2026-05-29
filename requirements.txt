@@ -10,4 +10,3 @@ ipykernel
 ipywidgets
 seaborn
 scikit-learn
-

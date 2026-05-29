@@ -67,8 +67,21 @@ class PrecomputedSpectralModel:
 
 
 import json
+from sklearn.metrics import (
+            precision_recall_curve,
+            accuracy_score,
+            precision_score,
+            recall_score,
+            f1_score
+        )
 
-def run_fast_grid_search(features_db_path, bcb_data_dir, n_samples=1000, out_filename="trained_models.json"):
+def run_fast_grid_search(
+        features_db_path,
+        bcb_data_dir,
+        n_samples=1000,
+        optimize_for="accuracy",
+        out_filename="trained_models.json"
+    ):
     print("[*] Loading your precomputed lossless features...")
     if not os.path.exists(features_db_path):
         print(f"[-] Database not found: {features_db_path}")
@@ -111,18 +124,36 @@ def run_fast_grid_search(features_db_path, bcb_data_dir, n_samples=1000, out_fil
         
         # 2. Learn the EXACT optimal threshold without static 15-step buckets
         # This uses the Precision-Recall curve logic to evaluate every possible cutoff internally
-        from sklearn.metrics import precision_recall_curve
-        precision, recall, pr_thresholds = precision_recall_curve(labels, scores)
+        precision, recall, _ = precision_recall_curve(labels, scores)
+        pr_thresholds = np.arange(0.0, 1.01, 0.01)
         
-        # Calculate F1-Score for each possible threshold (prevent div by zero)
-        numerator = 2 * precision * recall
-        denominator = precision + recall
-        with np.errstate(divide='ignore', invalid='ignore'):
-            f1_scores = np.where(denominator == 0, 0, numerator / denominator)
-            
-        # Get the index of the highest F1 score
-        best_idx = np.argmax(f1_scores)
-        best_f1 = f1_scores[best_idx]
+        metric_scores = []
+
+        for i, th in enumerate(pr_thresholds):
+
+            preds = (scores >= th).astype(int)
+
+            if optimize_for == "f1":
+                score = f1_score(labels, preds, zero_division=0)
+
+            elif optimize_for == "precision":
+                score = precision_score(labels, preds, zero_division=0)
+
+            elif optimize_for == "recall":
+                score = recall_score(labels, preds, zero_division=0)
+
+            elif optimize_for == "accuracy":
+                score = accuracy_score(labels, preds)
+
+            else:
+                raise ValueError(f"Unsupported metric: {optimize_for}")
+
+            metric_scores.append(score)
+
+        metric_scores = np.array(metric_scores)
+
+        best_idx = np.argmax(metric_scores)
+        best_metric = metric_scores[best_idx]
         
         # Scikit-learn's precision_recall_curve returns N thresholds for N+1 precision/recall values
         if best_idx < len(pr_thresholds):
@@ -130,16 +161,24 @@ def run_fast_grid_search(features_db_path, bcb_data_dir, n_samples=1000, out_fil
         else:
             best_th = pr_thresholds[-1] if len(pr_thresholds) > 0 else 1.0
             
-        print(f"[+] Trained: Layer={gtype.upper()}, K={k if k else 'Full'}, Metric={metric} | Exactly Learned Thresh={best_th:.4f} -> F1={best_f1:.3f}")
-        
+        print(
+            f"[+] Trained: "
+            f"Layer={gtype.upper()}, "
+            f"K={k if k else 'Full'}, "
+            f"Metric={metric} | "
+            f"Thresh={best_th:.4f} -> "
+            f"{optimize_for.upper()}={best_metric:.3f}"
+        )
+
         trained_models.append({
+            "optimized_for": optimize_for,
+            "best_metric": float(best_metric),
             "graph_type": gtype,
             "k_eigen": k,
             "metric": metric,
             "best_threshold": float(best_th),
             "train_precision": float(precision[best_idx]),
             "train_recall": float(recall[best_idx]),
-            "train_f1_score": float(best_f1)
         })
 
     # Save to outputs
@@ -163,7 +202,9 @@ class PrecomputedFusedSpectralModel:
     def predict(self, pair):
         return int(self.score_pair(pair) >= self.threshold)
 
-def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="ast", n_samples=1000, k_values=None, metrics=None, out_filename="trained_fused_models.json"):
+def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="ast", 
+        n_samples=1000, k_values=None, metrics=None, out_filename="trained_fused_models.json",
+        optimize_for="accuracy"):
     print(f"[*] Loading your precomputed lossless features for FUSED models (Primary: {primary_graph.upper()})...")
     if not os.path.exists(features_db_path):
         print(f"[-] Database not found: {features_db_path}")
@@ -204,33 +245,61 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
             
         scores = np.array(scores)
         labels = np.array(labels)
+
+        precision, recall, _ = precision_recall_curve(labels, scores)
+        pr_thresholds = np.arange(0.0, 1.01, 0.01)
         
-        from sklearn.metrics import precision_recall_curve
-        precision, recall, pr_thresholds = precision_recall_curve(labels, scores)
-        
-        numerator = 2 * precision * recall
-        denominator = precision + recall
-        with np.errstate(divide='ignore', invalid='ignore'):
-            f1_scores = np.where(denominator == 0, 0, numerator / denominator)
-            
-        best_idx = np.argmax(f1_scores)
-        best_f1 = f1_scores[best_idx]
+        metric_scores = []
+
+        for i, th in enumerate(pr_thresholds):
+
+            preds = (scores >= th).astype(int)
+
+            if optimize_for == "f1":
+                score = f1_score(labels, preds, zero_division=0)
+
+            elif optimize_for == "precision":
+                score = precision_score(labels, preds, zero_division=0)
+
+            elif optimize_for == "recall":
+                score = recall_score(labels, preds, zero_division=0)
+
+            elif optimize_for == "accuracy":
+                score = accuracy_score(labels, preds)
+
+            else:
+                raise ValueError(f"Unsupported metric: {optimize_for}")
+
+            metric_scores.append(score)
+
+        metric_scores = np.array(metric_scores)
+
+        best_idx = np.argmax(metric_scores)
+        best_metric = metric_scores[best_idx]
         
         if best_idx < len(pr_thresholds):
             best_th = pr_thresholds[best_idx]
         else:
             best_th = pr_thresholds[-1] if len(pr_thresholds) > 0 else 1.0
             
-        print(f"[+] Trained Fused: Layer={fused_name}, K={k if k else 'Full'}, Metric={metric} | Exactly Learned Thresh={best_th:.4f} -> F1={best_f1:.3f}")
+        print(
+            f"[+] Trained: "
+            f"Layer={gtype.upper()}, "
+            f"K={k if k else 'Full'}, "
+            f"Metric={metric} | "
+            f"Thresh={best_th:.4f} -> "
+            f"{optimize_for.upper()}={best_metric:.3f}"
+        )
         
         trained_fused_models.append({
+            "optimized_for": optimize_for,
+            "best_metric": float(best_metric),
             "graph_type": fused_name,
             "k_eigen": k,
             "metric": metric,
             "best_threshold": float(best_th),
             "train_precision": float(precision[best_idx]),
-            "train_recall": float(recall[best_idx]),
-            "train_f1_score": float(best_f1)
+            "train_recall": float(recall[best_idx])
         })
 
     # Save to outputs
