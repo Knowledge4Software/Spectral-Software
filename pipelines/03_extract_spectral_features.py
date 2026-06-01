@@ -17,7 +17,7 @@ from spectral_code.utils.project_paths import (
 )
 from spectral_code.spectral.runner import run_spectral_feature_extraction
 
-GRAPH_TYPES = ["ast", "cfg", "ddg", "pdg"]
+GRAPH_TYPES = ["ast", "cfg", "ddg", "pdg", "cpg"]
 
 def main():
     extraction_start_time = time.perf_counter()
