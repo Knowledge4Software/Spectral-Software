@@ -197,5 +197,5 @@ class MatplotlibGraphVisualizer(GraphVisualizer):
         label = str(label).replace("\r", " ").replace("\n", " | ")
         label = label.strip()
         if len(label) > self.max_label_width:
-            label = textwrap.shorten(label, width=self.max_label_width, placeholder="…")
+            label = textwrap.shorten(label, width=self.max_label_width, placeholder="...")
         return label

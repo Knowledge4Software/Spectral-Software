@@ -1,5 +1,4 @@
 numpy
-pydot
 scipy
 matplotlib
 networkx
@@ -10,3 +9,8 @@ ipykernel
 ipywidgets
 seaborn
 scikit-learn
+python-dotenv
+pygments
+pillow
+pydot
+javalang

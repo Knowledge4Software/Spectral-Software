@@ -15,10 +15,10 @@ class GridSearchConfig:
     lang: str = "java"
     
     # Storage Paths
-    outputs_dir: str = "outputs"
-    cache_file: str = "outputs/spectral_features_cache.pkl"
-    results_csv: str = "outputs/grid_search_results.csv"
-    models_dir: str = "outputs/models"
+    outputs_dir: str = r"C:\Users\koush\PyProjects\outputs"
+    cache_file: str = r"C:\Users\koush\PyProjects\outputs/spectral_features_cache.pkl"
+    results_csv: str = r"C:\Users\koush\PyProjects\outputs/grid_search_results.csv"
+    models_dir: str = r"C:\Users\koush\PyProjects\outputs/models"
 
     def __post_init__(self):
         os.makedirs(self.outputs_dir, exist_ok=True)
