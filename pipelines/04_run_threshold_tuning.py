@@ -8,7 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
 from spectral_code.utils.project_paths import SPECTRAL_FEATURES_DIR, OUTPUT_ROOT, ensure_dirs
-from spectral_code.evaluation.tuning import run_fast_grid_search
+from spectral_code.evaluation.tuning import run_fast_grid_search , run_fused_fast_grid_search
 
 def main():
     ensure_dirs()
@@ -21,7 +21,7 @@ def main():
     print(f"[*] Features: {FEATURES_DB_PATH}")
     
     # Set n_samples=None to use the full training dataset
-    run_fast_grid_search(str(FEATURES_DB_PATH), str(BCB_DATA_DIR), n_samples=None)
+    run_fused_fast_grid_search(str(FEATURES_DB_PATH), str(BCB_DATA_DIR), n_samples=None)
 
 if __name__ == "__main__":
     main()

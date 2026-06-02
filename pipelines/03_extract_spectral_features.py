@@ -35,7 +35,7 @@ def main():
         features_out_dir=str(SPECTRAL_FEATURES_DIR),
         timing_file=str(TIMING_STATS_FILE),
         graph_types=GRAPH_TYPES,
-        mode="normalized_laplacian"
+        mode="directed_laplacian"
     )
 
     total_duration = time.perf_counter() - extraction_start_time
