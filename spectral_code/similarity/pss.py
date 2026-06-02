@@ -29,19 +29,28 @@ class PSSSimilarity(BaseSimilarity):
         if len(ev1_true) == 0 or len(ev2_true) == 0:
             return 0.0
             
-        # 2. According to the PSS paper: first normalize the entire spectrum
-        v1_norm = self._l2_normalize(ev1_true)
-        v2_norm = self._l2_normalize(ev2_true)
+        # 2. According to "Program Spectral Similarity":
+        # To compare graphs of different sizes (N1 != N2) fairly, we use 
+        # linear interpolation to "resample" the smaller spectrum to the size of the larger one.
+        # This compares the "Shape" of the connectivity distribution.
         
-        # 3. Then compute distance only up to the minimum length (Equation 2 in paper)
-        min_length = min(len(v1_norm), len(v2_norm))
-        v1_truncated = v1_norm[:min_length]
-        v2_truncated = v2_norm[:min_length]
+        len1, len2 = len(ev1_true), len(ev2_true)
+        if len1 == len2:
+            v1, v2 = ev1_true, ev2_true
+        else:
+            max_len = max(len1, len2)
+            # Resample both to max_len
+            v1 = np.interp(np.linspace(0, 1, max_len), np.linspace(0, 1, len1), ev1_true)
+            v2 = np.interp(np.linspace(0, 1, max_len), np.linspace(0, 1, len2), ev2_true)
         
-        # 4. Euclidean Distance Calculation on truncated normalized vectors
-        distance = np.linalg.norm(v1_truncated - v2_truncated)
+        # 3. L2-Normalize the resampled vectors
+        v1_n = self._l2_normalize(v1)
+        v2_n = self._l2_normalize(v2)
         
-        # 5. Official Normalization to [0, 1] for a single layer: (sqrt(2) - distance) / sqrt(2)
+        # 4. Euclidean Distance Calculation
+        distance = np.linalg.norm(v1_n - v2_n)
+        
+        # 5. Normalization to [0, 1]
         similarity = (np.sqrt(2) - distance) / np.sqrt(2)
         
         return float(np.clip(similarity, 0.0, 1.0))

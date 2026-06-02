@@ -80,7 +80,10 @@ def run_fast_grid_search(
         bcb_data_dir,
         n_samples=1000,
         optimize_for="accuracy",
-        out_filename="trained_models.json"
+        out_filename="trained_models.json",
+        graph_types=None,
+        k_values=None,
+        metrics=None
     ):
     print("[*] Loading your precomputed lossless features...")
     if not os.path.exists(features_db_path):
@@ -98,9 +101,12 @@ def run_fast_grid_search(
     else:
         pairs = loader.sample_pairs(split="train", n=n_samples)
 
-    graph_types = ["ast", "cfg", "ddg", "pdg", "cpg"] # 5 graphs
-    k_values = [25, 50, 100, None]                    # 4 K values (None = Full)
-    metrics = ["pss", "heat_kernel"]                  # 2 Metrics
+    if graph_types is None:
+        graph_types = ["ast", "cfg", "ddg", "pdg", "cpg"] # 5 graphs
+    if k_values is None:
+        k_values = [25, 50, 100, None]                    # 4 K values (None = Full)
+    if metrics is None:
+        metrics = ["pss", "heat_kernel", "wasserstein", "jensenshannon"]                  # 4 Metrics
 
     trained_models = []
     
@@ -224,7 +230,7 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
     if k_values is None:
         k_values = [25, 50, 100, None]                    # 4 K values (None = Full)
     if metrics is None:
-        metrics = ["pss", "heat_kernel"]                  # Defaults
+        metrics = ["pss", "heat_kernel", "wasserstein", "jensenshannon"]                  # Defaults
 
     trained_fused_models = []
     
@@ -284,7 +290,7 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
             
         print(
             f"[+] Trained: "
-            f"Layer={gtype.upper()}, "
+            f"Layer={fused_name}, "
             f"K={k if k else 'Full'}, "
             f"Metric={metric} | "
             f"Thresh={best_th:.4f} -> "
