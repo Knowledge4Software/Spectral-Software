@@ -20,34 +20,24 @@ def main():
     print(f"[*] Starting Comprehensive Hyperparameter Tuning (Threshold Optimization)...")
     print(f"[*] Features: {FEATURES_DB_PATH}")
     
-    # Configuration for the "mashit" run (all combinations)
-    # k_values=[None] means we use the FULL spectrum (as requested: "فقط روی full کار کن")
+    # Configuration for the PSS AST run as requested
     k_values = [None] 
-    metrics = ["pss", "heat_kernel", "wasserstein", "jensenshannon"]
+    metrics = ["pss"]
+    graph_types = ["ast"]
     
-    # 1. Run Unfused Grid Search for all graph types and all 4 metrics
-    print("\n[>>] STEP 1: Running Unfused Grid Search (Single Graph Layers)...")
+    # 1. Run Unfused Grid Search for AST with PSS
+    print(f"\n[>>] STEP 1: Running Grid Search for AST using PSS Metric...")
     run_fast_grid_search(
         str(FEATURES_DB_PATH), 
         str(BCB_DATA_DIR), 
-        n_samples=None, 
+        n_samples=1000, # Using sample for speed as per feedback
         k_values=k_values, 
         metrics=metrics,
-        out_filename="trained_unfused_models.json"
+        graph_types=graph_types,
+        out_filename="trained_pss_ast.json"
     )
     
-    # 2. Run Fused Grid Search (AST + others) for all 4 metrics
-    print("\n[>>] STEP 2: Running Fused Grid Search (AST + Secondary Layers)...")
-    run_fused_fast_grid_search(
-        str(FEATURES_DB_PATH), 
-        str(BCB_DATA_DIR), 
-        n_samples=None, 
-        k_values=k_values, 
-        metrics=metrics,
-        out_filename="trained_fused_models.json"
-    )
-    
-    print("\n[+] All tuning completed. Results saved to trained_unfused_models.json and trained_fused_models.json.")
+    print("\n[+] Tuning completed. Results saved to trained_topk_largest_ast.json.")
 
 if __name__ == "__main__":
     main()

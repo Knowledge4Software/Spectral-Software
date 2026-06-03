@@ -59,6 +59,27 @@ class PrecomputedSpectralModel:
             
         elif self.metric_name == "jensenshannon":
             return self.js_metric.compute(v1, v2)
+
+        elif self.metric_name == "topk_largest":
+            # Strip zeros first
+            def strip(ev):
+                nz = np.nonzero(np.round(ev, 10))[0]
+                return ev[:nz[-1] + 1] if len(nz) > 0 else np.array([0.0])
+            
+            v1_s = strip(v1)
+            v2_s = strip(v2)
+            
+            # Take last 58 (largest)
+            v1_sort = np.sort(v1_s)
+            v2_sort = np.sort(v2_s)
+            
+            K = min(len(v1_s), len(v2_s))
+            if K == 0: return 0.0
+            v1_top = np.sort(v1_s)[-K:]
+            v2_top = np.sort(v2_s)[-K:]
+            
+            dist = np.linalg.norm(v1_top - v2_top)
+            return 1.0 / (1.0 + dist)
             
         return 0.0
 

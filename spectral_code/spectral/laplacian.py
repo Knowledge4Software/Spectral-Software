@@ -10,6 +10,11 @@ class LaplacianSpectrum(SpectralAnalyzer):
         self.solver = solver
 
     def analyze(self, graph: nx.Graph):
+        # Convert to undirected to ensure a symmetric Laplacian Matrix
+        # Standard Laplacian Spectral methods are defined for undirected graphs.
+        if graph.is_directed():
+            graph = graph.to_undirected()
+            
         A = nx.to_numpy_array(graph)
         D = np.diag(A.sum(axis=1))
         L = D - A
