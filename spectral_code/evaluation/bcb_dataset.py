@@ -59,11 +59,7 @@ class BigCloneBenchLoader:
     def __init__(self, data_dir: str | Path, type_labels_path: str | Path | None = None):
         self.data_dir = Path(data_dir)
         self.code_map = self._load_code_map(self.data_dir / "data.jsonl")
-        self.splits = {
-            "train": self._load_split(self.data_dir / "train.txt"),
-            "valid": self._load_split(self.data_dir / "valid.txt"),
-            "test": self._load_split(self.data_dir / "test.txt"),
-        }
+        self.splits = self._load_available_splits(self.data_dir)
         self.type_map = self._load_type_map(type_labels_path) if type_labels_path else {}
 
     @staticmethod
@@ -83,6 +79,19 @@ class BigCloneBenchLoader:
                 left, right, label = line.strip().split("\t")
                 rows.append((int(left), int(right), int(label)))
         return rows
+
+    @classmethod
+    def _load_available_splits(cls, data_dir: Path) -> dict[str, list[tuple[int, int, int]]]:
+        splits: dict[str, list[tuple[int, int, int]]] = {}
+        for split in ("train", "valid", "test"):
+            path = data_dir / f"{split}.txt"
+            if path.exists():
+                splits[split] = cls._load_split(path)
+
+        if "train" not in splits:
+            raise FileNotFoundError(f"Required split not found: {data_dir / 'train.txt'}")
+
+        return splits
 
     @staticmethod
     def _canonical_type_name(raw: str) -> str:
@@ -127,6 +136,10 @@ class BigCloneBenchLoader:
         return mapping
 
     def get_pairs(self, split: str) -> list[ClonePair]:
+        if split not in self.splits:
+            available = ", ".join(sorted(self.splits))
+            raise ValueError(f"Unknown split '{split}'. Available splits: {available}")
+
         pairs: list[ClonePair] = []
         for left, right, label in self.splits[split]:
             key = tuple(sorted((left, right)))

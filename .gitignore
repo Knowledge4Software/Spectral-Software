@@ -66,11 +66,10 @@ htmlcov/
 *.prof
 *.out
 
-# generated spectral outputs
+# datasets and generated spectral outputs
+data/
+bench_data/
 outputs/
-data/*
-!data/*.txt
-!data/*.csv
 results/
 cache/
 tmp/

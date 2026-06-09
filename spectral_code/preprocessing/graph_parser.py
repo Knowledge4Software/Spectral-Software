@@ -3,6 +3,7 @@ import json
 import networkx as nx
 import re
 from multiprocessing import Pool, cpu_count
+from tqdm import tqdm
 
 def _quick_analyze_dot(fpath):
     """
@@ -11,16 +12,15 @@ def _quick_analyze_dot(fpath):
     """
     try:
         with open(fpath, "r", encoding="utf-8") as f:
-            content = f.read(4096)
+            full_content = f.read()
             
             # Find m_{idx} in digraph name or label
-            found_idx = re.search(r'm_(\d+)', content)
+            found_idx = re.search(r'm_(\d+)', full_content)
             if not found_idx: return None
             
             idx = found_idx.group(1)
             
             # Count nodes roughly (score)
-            full_content = content + f.read()
             nodes = re.findall(r'^\s*"\d+"\s*\[label', full_content, re.MULTILINE)
             
             # Return tuple for build_dot_index: (id, path, score)
@@ -40,15 +40,19 @@ def build_dot_index(joern_base_out, graph_types):
         folder = os.path.join(joern_base_out, gtype)
         if not os.path.exists(folder): continue
         
-        files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(".dot")]
+        entries = os.scandir(folder)
+        files = [
+            entry.path
+            for entry in tqdm(entries, desc=f"Scanning {gtype.upper()} DOT files", unit="file")
+            if entry.is_file() and entry.name.endswith(".dot")
+        ]
         
         # Parallelize the metadata scan with tqdm
-        from tqdm import tqdm
         with Pool(processes=cpu_count()) as pool:
             results = list(tqdm(pool.imap_unordered(_quick_analyze_dot, files), 
                                 total=len(files), 
                                 desc=f"Indexing {gtype.upper()}", 
-                                leave=False))
+                                unit="dot"))
             
         for res in results:
             if res:

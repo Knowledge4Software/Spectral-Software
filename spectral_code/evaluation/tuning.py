@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+import json
 from tqdm import tqdm
 from itertools import product
 from spectral_code.evaluation.bcb_dataset import BigCloneBenchLoader
@@ -86,8 +87,6 @@ class PrecomputedSpectralModel:
     def predict(self, pair):
         return int(self.score_pair(pair) >= self.threshold)
 
-
-import json
 from sklearn.metrics import (
             precision_recall_curve,
             accuracy_score,
@@ -95,6 +94,98 @@ from sklearn.metrics import (
             recall_score,
             f1_score
         )
+
+
+def _metric_score(labels, preds, optimize_for):
+    if optimize_for == "f1":
+        return f1_score(labels, preds, zero_division=0)
+
+    if optimize_for == "precision":
+        return precision_score(labels, preds, zero_division=0)
+
+    if optimize_for == "recall":
+        return recall_score(labels, preds, zero_division=0)
+
+    if optimize_for == "accuracy":
+        return accuracy_score(labels, preds)
+
+    raise ValueError(f"Unsupported metric: {optimize_for}")
+
+
+def _candidate_thresholds(scores):
+    unique_scores = np.unique(scores)
+    candidates = {0.0, 1.0}
+
+    for score in unique_scores:
+        candidates.add(float(score))
+
+    if len(unique_scores) > 1:
+        midpoints = (unique_scores[:-1] + unique_scores[1:]) / 2.0
+        candidates.update(float(th) for th in midpoints)
+
+    return np.array(sorted(candidates))
+
+
+def _find_best_threshold(scores, labels, optimize_for):
+    thresholds = _candidate_thresholds(scores)
+    best_th = 0.0
+    best_metric = -1.0
+
+    for th in thresholds:
+        preds = (scores >= th).astype(int)
+        score = _metric_score(labels, preds, optimize_for)
+
+        if score > best_metric or (score == best_metric and th > best_th):
+            best_metric = score
+            best_th = th
+
+    return float(best_th), float(best_metric)
+
+
+def _pair_method_ids(pairs):
+    needed = set()
+    for pair in pairs:
+        needed.add(str(pair.left_id))
+        needed.add(str(pair.right_id))
+    return needed
+
+
+def _load_features_db(features_db_path, needed_ids=None):
+    if not os.path.exists(features_db_path):
+        print(f"[-] Database not found: {features_db_path}")
+        return None
+
+    if str(features_db_path).lower().endswith(".json"):
+        with open(features_db_path, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+
+        if manifest.get("format") != "spectral_feature_shards_v1":
+            raise ValueError(f"Unsupported feature manifest: {features_db_path}")
+
+        features_db = {}
+        for shard_path in tqdm(manifest["shards"], desc="Loading feature shards", unit="shard"):
+            with open(shard_path, "rb") as f:
+                shard = pickle.load(f)
+
+            if needed_ids is None:
+                features_db.update(shard)
+            else:
+                for method_id in needed_ids:
+                    if method_id in shard:
+                        features_db[method_id] = shard[method_id]
+
+            if needed_ids is not None and len(features_db) >= len(needed_ids):
+                break
+
+        return features_db
+
+    with open(features_db_path, "rb") as f:
+        features_db = pickle.load(f)
+
+    if needed_ids is None:
+        return features_db
+
+    return {method_id: features_db[method_id] for method_id in needed_ids if method_id in features_db}
 
 def run_fast_grid_search(
         features_db_path,
@@ -106,14 +197,6 @@ def run_fast_grid_search(
         k_values=None,
         metrics=None
     ):
-    print("[*] Loading your precomputed lossless features...")
-    if not os.path.exists(features_db_path):
-        print(f"[-] Database not found: {features_db_path}")
-        return None
-        
-    with open(features_db_path, "rb") as f:
-        features_db = pickle.load(f)
-        
     print(f"[*] Loading Clone Pairs from BigCloneBench (Train dataset, {'Full' if n_samples is None else n_samples} samples)...")
     loader = BigCloneBenchLoader(data_dir=bcb_data_dir)
     # Using 'train' data to find the optimal thresholds (hyperparameter tuning)
@@ -121,6 +204,12 @@ def run_fast_grid_search(
         pairs = loader.get_pairs("train")
     else:
         pairs = loader.sample_pairs(split="train", n=n_samples)
+
+    print("[*] Loading precomputed lossless features for selected pairs...")
+    features_db = _load_features_db(features_db_path, needed_ids=_pair_method_ids(pairs))
+    if features_db is None:
+        return None
+    print(f"[*] Loaded spectral features for {len(features_db)} methods used by selected pairs.")
 
     if graph_types is None:
         graph_types = ["ast", "cfg", "ddg", "pdg", "cpg"] # 5 graphs
@@ -149,53 +238,18 @@ def run_fast_grid_search(
         scores = np.array(scores)
         labels = np.array(labels)
         
-        # 2. Learn the EXACT optimal threshold without static 15-step buckets
-        # This uses the Precision-Recall curve logic to evaluate every possible cutoff internally
-        precision, recall, _ = precision_recall_curve(labels, scores)
-        pr_thresholds = np.arange(0.0, 1.01, 0.01)
-        
-        metric_scores = []
-
-        for i, th in enumerate(pr_thresholds):
-
-            preds = (scores >= th).astype(int)
-
-            if optimize_for == "f1":
-                score = f1_score(labels, preds, zero_division=0)
-
-            elif optimize_for == "precision":
-                score = precision_score(labels, preds, zero_division=0)
-
-            elif optimize_for == "recall":
-                score = recall_score(labels, preds, zero_division=0)
-
-            elif optimize_for == "accuracy":
-                score = accuracy_score(labels, preds)
-
-            else:
-                raise ValueError(f"Unsupported metric: {optimize_for}")
-
-            metric_scores.append(score)
-
-        metric_scores = np.array(metric_scores)
-
-        best_idx = np.argmax(metric_scores)
-        best_metric = metric_scores[best_idx]
-        
-        # Scikit-learn's precision_recall_curve returns N thresholds for N+1 precision/recall values
-        if best_idx < len(pr_thresholds):
-            best_th = pr_thresholds[best_idx]
-        else:
-            best_th = pr_thresholds[-1] if len(pr_thresholds) > 0 else 1.0
+        best_th, best_metric = _find_best_threshold(scores, labels, optimize_for)
             
         print(
             f"[+] Trained: "
             f"Layer={gtype.upper()}, "
             f"K={k if k else 'Full'}, "
             f"Metric={metric} | "
-            f"Thresh={best_th:.4f} -> "
+            f"Thresh={best_th:.6f} -> "
             f"{optimize_for.upper()}={best_metric:.3f}"
         )
+
+        best_preds = (scores >= best_th).astype(int)
 
         trained_models.append({
             "optimized_for": optimize_for,
@@ -204,8 +258,10 @@ def run_fast_grid_search(
             "k_eigen": k,
             "metric": metric,
             "best_threshold": float(best_th),
-            "train_precision": float(precision[best_idx]),
-            "train_recall": float(recall[best_idx]),
+            "train_accuracy": float(accuracy_score(labels, best_preds)),
+            "train_precision": float(precision_score(labels, best_preds, zero_division=0)),
+            "train_recall": float(recall_score(labels, best_preds, zero_division=0)),
+            "train_f1": float(f1_score(labels, best_preds, zero_division=0)),
         })
 
     # Save to outputs
@@ -232,20 +288,18 @@ class PrecomputedFusedSpectralModel:
 def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="ast", 
         n_samples=1000, k_values=None, metrics=None, out_filename="trained_fused_models.json",
         optimize_for="accuracy"):
-    print(f"[*] Loading your precomputed lossless features for FUSED models (Primary: {primary_graph.upper()})...")
-    if not os.path.exists(features_db_path):
-        print(f"[-] Database not found: {features_db_path}")
-        return None
-        
-    with open(features_db_path, "rb") as f:
-        features_db = pickle.load(f)
-        
     print(f"[*] Loading Clone Pairs from BigCloneBench (Train dataset, {'Full' if n_samples is None else n_samples} samples)...")
     loader = BigCloneBenchLoader(data_dir=bcb_data_dir)
     if n_samples is None:
         pairs = loader.get_pairs("train")
     else:
         pairs = loader.sample_pairs(split="train", n=n_samples)
+
+    print(f"[*] Loading precomputed lossless features for FUSED models (Primary: {primary_graph.upper()})...")
+    features_db = _load_features_db(features_db_path, needed_ids=_pair_method_ids(pairs))
+    if features_db is None:
+        return None
+    print(f"[*] Loaded spectral features for {len(features_db)} methods used by selected pairs.")
 
     secondary_graphs = ["cfg", "ddg", "pdg", "cpg"]   # 4 secondary graphs
     if k_values is None:
@@ -273,50 +327,18 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
         scores = np.array(scores)
         labels = np.array(labels)
 
-        precision, recall, _ = precision_recall_curve(labels, scores)
-        pr_thresholds = np.arange(0.0, 1.01, 0.01)
-        
-        metric_scores = []
-
-        for i, th in enumerate(pr_thresholds):
-
-            preds = (scores >= th).astype(int)
-
-            if optimize_for == "f1":
-                score = f1_score(labels, preds, zero_division=0)
-
-            elif optimize_for == "precision":
-                score = precision_score(labels, preds, zero_division=0)
-
-            elif optimize_for == "recall":
-                score = recall_score(labels, preds, zero_division=0)
-
-            elif optimize_for == "accuracy":
-                score = accuracy_score(labels, preds)
-
-            else:
-                raise ValueError(f"Unsupported metric: {optimize_for}")
-
-            metric_scores.append(score)
-
-        metric_scores = np.array(metric_scores)
-
-        best_idx = np.argmax(metric_scores)
-        best_metric = metric_scores[best_idx]
-        
-        if best_idx < len(pr_thresholds):
-            best_th = pr_thresholds[best_idx]
-        else:
-            best_th = pr_thresholds[-1] if len(pr_thresholds) > 0 else 1.0
+        best_th, best_metric = _find_best_threshold(scores, labels, optimize_for)
             
         print(
             f"[+] Trained: "
             f"Layer={fused_name}, "
             f"K={k if k else 'Full'}, "
             f"Metric={metric} | "
-            f"Thresh={best_th:.4f} -> "
+            f"Thresh={best_th:.6f} -> "
             f"{optimize_for.upper()}={best_metric:.3f}"
         )
+
+        best_preds = (scores >= best_th).astype(int)
         
         trained_fused_models.append({
             "optimized_for": optimize_for,
@@ -325,8 +347,10 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
             "k_eigen": k,
             "metric": metric,
             "best_threshold": float(best_th),
-            "train_precision": float(precision[best_idx]),
-            "train_recall": float(recall[best_idx])
+            "train_accuracy": float(accuracy_score(labels, best_preds)),
+            "train_precision": float(precision_score(labels, best_preds, zero_division=0)),
+            "train_recall": float(recall_score(labels, best_preds, zero_division=0)),
+            "train_f1": float(f1_score(labels, best_preds, zero_division=0)),
         })
 
     # Save to outputs

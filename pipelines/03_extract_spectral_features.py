@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import time
+import shutil
 from pathlib import Path
 
 # Ensure project root is in sys.path
@@ -24,11 +25,20 @@ def main():
     
     # Initialize directory structure
     ensure_dirs()
+
+    force_rebuild = os.getenv("SPECTRAL_FORCE_REBUILD", "1").strip().lower() not in {"0", "false", "no"}
+    if force_rebuild and SPECTRAL_FEATURES_DIR.exists():
+        print(f"[*] Removing old spectral outputs: {SPECTRAL_FEATURES_DIR}")
+        shutil.rmtree(SPECTRAL_FEATURES_DIR)
+        SPECTRAL_FEATURES_DIR.mkdir(parents=True, exist_ok=True)
     
-    GRAPH_DB_PATH = CLEAN_GRAPHS_DIR / "cleaned_graphs_db.pkl"
+    GRAPH_DB_PATH = CLEAN_GRAPHS_DIR / "graph_shards_manifest.json"
     
     print(f"[*] Starting Spectral Feature Extraction (Eigenvalues)...")
     print(f"[*] Graph DB: {GRAPH_DB_PATH}")
+    print(f"[*] Max graph nodes per layer: {os.getenv('SPECTRAL_MAX_NODES', '2000')}")
+    print(f"[*] Approx top-K for oversized graphs: {os.getenv('SPECTRAL_APPROX_TOPK', '300')}")
+    print(f"[*] Force rebuild spectral outputs: {force_rebuild}")
     
     run_spectral_feature_extraction(
         graph_db_path=str(GRAPH_DB_PATH),

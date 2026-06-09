@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-import pickle
+import shutil
 import time
 from pathlib import Path
 
@@ -16,25 +16,30 @@ from spectral_code.utils.project_paths import (
     TIMING_STATS_FILE, 
     ensure_dirs
 )
-from spectral_code.preprocessing.cleaner import clean_and_compose_graphs
+from spectral_code.preprocessing.cleaner import clean_and_compose_graphs_sharded
 
 BASE_LAYERS = ["ast", "cfg", "ddg", "pdg"]
+SHARD_SIZE = int(os.getenv("GRAPH_SHARD_SIZE", "1000"))
 
 def main():
     preprocessing_start_time = time.perf_counter()
     
     # Initialize directory structure
     ensure_dirs()
-    
-    print(f"[*] Loading raw JSON features from {RAW_FEATURES_DIR}...")
-    cleaned_graphs_db, methods_cleaned, layers_cleaned = clean_and_compose_graphs(
-        str(RAW_FEATURES_DIR), BASE_LAYERS
-    )
 
-    output_pkl_path = CLEAN_GRAPHS_DIR / "cleaned_graphs_db.pkl"
-    print(f"[*] Saving unified graph DB to {output_pkl_path}...")
-    with open(output_pkl_path, "wb") as f:
-        pickle.dump(cleaned_graphs_db, f, protocol=pickle.HIGHEST_PROTOCOL)
+    if CLEAN_GRAPHS_DIR.exists():
+        shutil.rmtree(CLEAN_GRAPHS_DIR)
+    CLEAN_GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
+
+    shard_dir = CLEAN_GRAPHS_DIR / "cleaned_graphs_shards"
+    print(f"[*] Loading raw JSON features from {RAW_FEATURES_DIR}...")
+    print(f"[*] Writing cleaned graph shards to {shard_dir}...")
+    manifest_path, methods_cleaned, layers_cleaned = clean_and_compose_graphs_sharded(
+        str(RAW_FEATURES_DIR),
+        BASE_LAYERS,
+        str(shard_dir),
+        shard_size=SHARD_SIZE,
+    )
 
     total_duration = time.perf_counter() - preprocessing_start_time
 
@@ -50,12 +55,15 @@ def main():
     stats["total_preprocessing_time"] = total_duration
     stats["total_methods_cleaned"] = methods_cleaned
     stats["total_layers_cleaned"] = layers_cleaned + methods_cleaned
+    stats["clean_graphs_manifest"] = manifest_path
+    stats["clean_graphs_shard_size"] = SHARD_SIZE
     
     with open(TIMING_STATS_FILE, "w") as f:
         json.dump(stats, f, indent=4)
 
     print(f"\n[+] Success! Processed {methods_cleaned} methods.")
     print(f"[+] Total layers cleaned: {layers_cleaned}")
+    print(f"[+] Graph manifest: {manifest_path}")
     print(f"[+] Prep time: {total_duration:.2f}s.")
 
 if __name__ == "__main__":

@@ -1,9 +1,45 @@
 import os
 import json
+import pickle
 import networkx as nx
 from tqdm import tqdm
 from spectral_code.preprocessing.simple import SimpleGraphPreprocessor
 from spectral_code.utils.dataset import load_graph_from_json
+
+
+def _clean_method_file(file_path: str, base_layers: list[str], preprocessor: SimpleGraphPreprocessor):
+    method_id = os.path.basename(file_path).replace(".json", "")
+    method_layers = {}
+    layers_cleaned = 0
+
+    temp_layers = {}
+    for gtype in base_layers:
+        raw_graph = load_graph_from_json(file_path, graph_type=gtype)
+        if raw_graph is not None and raw_graph.number_of_nodes() > 0:
+            raw_graph = nx.DiGraph(raw_graph)
+            cleaned = preprocessor.process(raw_graph)
+            cleaned = nx.DiGraph(cleaned)
+
+            if cleaned.number_of_nodes() == 0:
+                cleaned = raw_graph
+
+            temp_layers[gtype] = cleaned
+            layers_cleaned += 1
+        else:
+            temp_layers[gtype] = None
+
+        method_layers[gtype] = temp_layers[gtype]
+
+    valid_graphs = [g for g in temp_layers.values() if g is not None]
+    if valid_graphs:
+        cpg = nx.DiGraph(valid_graphs[0].copy())
+        for graph in valid_graphs[1:]:
+            cpg = nx.compose(cpg, graph)
+        method_layers["cpg"] = nx.DiGraph(cpg)
+    else:
+        method_layers["cpg"] = None
+
+    return method_id, method_layers, layers_cleaned
 
 def clean_and_compose_graphs(raw_features_dir: str, base_layers: list[str], limit: int = None):
     json_files = [f for f in os.listdir(raw_features_dir) if f.endswith('.json')]
@@ -50,3 +86,60 @@ def clean_and_compose_graphs(raw_features_dir: str, base_layers: list[str], limi
             cleaned_graphs_db[method_id]["cpg"] = None
             
     return cleaned_graphs_db, total_methods_cleaned, total_layers_cleaned
+
+
+def clean_and_compose_graphs_sharded(
+    raw_features_dir: str,
+    base_layers: list[str],
+    output_dir: str,
+    shard_size: int = 1000,
+    limit: int = None,
+):
+    json_files = [f for f in os.listdir(raw_features_dir) if f.endswith(".json")]
+    if limit is not None:
+        json_files = json_files[:limit]
+
+    os.makedirs(output_dir, exist_ok=True)
+    preprocessor = SimpleGraphPreprocessor()
+
+    total_methods_cleaned = 0
+    total_layers_cleaned = 0
+    shard = {}
+    shard_paths = []
+    shard_index = 0
+
+    def flush_shard():
+        nonlocal shard, shard_index
+        if not shard:
+            return
+        shard_index += 1
+        shard_path = os.path.join(output_dir, f"graphs_{shard_index:06d}.pkl")
+        with open(shard_path, "wb") as f:
+            pickle.dump(shard, f, protocol=pickle.HIGHEST_PROTOCOL)
+        shard_paths.append(shard_path)
+        shard = {}
+
+    for file_name in tqdm(json_files, desc="Cleaning & composing graph shards", unit="method"):
+        file_path = os.path.join(raw_features_dir, file_name)
+        method_id, method_layers, layers_cleaned = _clean_method_file(file_path, base_layers, preprocessor)
+        shard[method_id] = method_layers
+        total_methods_cleaned += 1
+        total_layers_cleaned += layers_cleaned
+
+        if len(shard) >= shard_size:
+            flush_shard()
+
+    flush_shard()
+
+    manifest = {
+        "format": "cleaned_graph_shards_v1",
+        "shard_size": shard_size,
+        "total_methods": total_methods_cleaned,
+        "total_base_layers_cleaned": total_layers_cleaned,
+        "shards": shard_paths,
+    }
+    manifest_path = os.path.join(os.path.dirname(output_dir), "graph_shards_manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    return manifest_path, total_methods_cleaned, total_layers_cleaned
