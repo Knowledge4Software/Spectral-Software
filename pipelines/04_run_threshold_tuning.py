@@ -39,16 +39,21 @@ def main():
         )
     )
     bcb_data_dir = Path(
-        os.getenv("BCB_DATA_DIR", str(PROJECT_ROOT / "bench_data" / "bcb_full_type1"))
+        os.getenv(
+            "BCB_DATA_DIR",
+            str(PROJECT_ROOT / "bench_data" / f"bcb_full_type{os.getenv('BCB_CLONE_TYPE', '1')}")
+        )
     )
     n_samples = _parse_optional_int(os.getenv("TUNING_N_SAMPLES", "full"))
+    optimize_for = os.getenv("TUNING_OPTIMIZE_FOR", "f1").strip().lower()
 
     # Default run: compare all graph representations with Full eigenvalues + PSS.
     experiment = TuningExperiment(
-        name="type1_all_graphs_full_pss",
+        name=f"type{os.getenv('BCB_CLONE_TYPE', '1')}_all_graphs_full_pss_{optimize_for}",
         graph_types=["ast", "cfg", "ddg", "pdg", "cpg"],
         metrics=["pss"],
         k_values=[None],
+        optimize_for=optimize_for,
     )
 
     # Optional experiments. Uncomment one of these if you want a narrower or wider run.

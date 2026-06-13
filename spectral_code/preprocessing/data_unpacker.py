@@ -29,6 +29,32 @@ def _count_jsonl_records(data_file: str) -> int:
             pbar.update(len(chunk))
     return line_count
 
+
+def _method_size_metrics(code: str) -> dict[str, int]:
+    lines = code.splitlines() or [""]
+    return {
+        "chars": len(code),
+        "lines": len(lines),
+        "longest_line": max(len(line) for line in lines),
+    }
+
+
+def _skip_reasons(
+    metrics: dict[str, int],
+    max_lines: int = 0,
+    max_chars: int = 0,
+    max_longest_line: int = 0,
+) -> list[str]:
+    reasons = []
+    if max_lines > 0 and metrics["lines"] > max_lines:
+        reasons.append(f"lines>{max_lines}")
+    if max_chars > 0 and metrics["chars"] > max_chars:
+        reasons.append(f"chars>{max_chars}")
+    if max_longest_line > 0 and metrics["longest_line"] > max_longest_line:
+        reasons.append(f"longest_line>{max_longest_line}")
+    return reasons
+
+
 def rename_java_method(code_str: str, idx: str) -> str:
     new_name = f"m_{idx}"
     wrapped = f'class Wrapper_{idx} {{\n{code_str}\n}}'
@@ -82,17 +108,38 @@ def rename_java_method(code_str: str, idx: str) -> str:
             else:
                 lines[i] = line[:m.start(1)] + new_name + line[m.end(1):]
             return '\n'.join(lines)
-            
     return re.sub(r'\b(\w+)\s*\(', f'{new_name}(', code_str, count=1)
 
-def unpack_jsonl_to_java(data_file: str, output_tmp_dir: str):
+def unpack_jsonl_to_java(
+    data_file: str,
+    output_tmp_dir: str,
+    max_lines: int = 0,
+    max_chars: int = 0,
+    max_longest_line: int = 0,
+    skipped_report_path: str | None = None,
+):
     if not os.path.exists(data_file):
         print(f"[-] Data file not found: {data_file}")
         return []
 
     total_records = _count_jsonl_records(data_file)
     method_ids = []
-    with open(data_file, "r", encoding="utf-8") as f:
+    skipped_count = 0
+
+    skipped_file = None
+    if skipped_report_path:
+        os.makedirs(os.path.dirname(skipped_report_path), exist_ok=True)
+        skipped_file = open(skipped_report_path, "w", encoding="utf-8")
+
+    try:
+        f = open(data_file, "r", encoding="utf-8")
+        iterator_context = f
+    except Exception:
+        if skipped_file:
+            skipped_file.close()
+        raise
+
+    with iterator_context as f:
         iterator = tqdm(f, total=total_records, desc="Unpacking Java files", unit="method")
         for line in iterator:
             line = line.strip()
@@ -101,6 +148,20 @@ def unpack_jsonl_to_java(data_file: str, output_tmp_dir: str):
             record = json.loads(line)
             idx = str(record.get("idx", "unknown"))
             code = record.get('func', '')
+
+            metrics = _method_size_metrics(code)
+            reasons = _skip_reasons(metrics, max_lines, max_chars, max_longest_line)
+            if reasons:
+                skipped_count += 1
+                if skipped_file:
+                    skipped_file.write(json.dumps({
+                        "idx": idx,
+                        "reasons": reasons,
+                        **metrics,
+                    }, ensure_ascii=False))
+                    skipped_file.write("\n")
+                iterator.set_postfix(methods=len(method_ids), skipped=skipped_count, refresh=False)
+                continue
 
             # Safely rename the method to m_{idx} and bypass constructor missing-return-type restrictions
             code = rename_java_method(code, idx)
@@ -118,6 +179,9 @@ def unpack_jsonl_to_java(data_file: str, output_tmp_dir: str):
             with open(out_path, "w", encoding="utf-8") as jf:
                 jf.write(java_content)
             method_ids.append(idx)
-            iterator.set_postfix(methods=len(method_ids), refresh=False)
+            iterator.set_postfix(methods=len(method_ids), skipped=skipped_count, refresh=False)
+
+    if skipped_file:
+        skipped_file.close()
 
     return method_ids

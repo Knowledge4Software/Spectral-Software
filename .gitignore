@@ -77,7 +77,12 @@ artifacts/
 
 # Joern / Joern-cli temp and outputs
 *.bin
+*.chunks.json
 joern_temp_*/
+joern_raw_graphs*/
+batch_java_src*/
+batch_cpg*.parse.log
+batch_cpg*_chunks/
 temp_out/
 
 # Tree-sitter build artifacts

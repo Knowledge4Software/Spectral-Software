@@ -27,12 +27,20 @@ def main():
     # Initialize directory structure
     ensure_dirs()
 
+    raw_json_count = len(list(RAW_FEATURES_DIR.glob("*.json")))
+    if raw_json_count == 0:
+        raise RuntimeError(
+            f"No raw feature JSON files found in {RAW_FEATURES_DIR}. "
+            "Run pipeline 01 first and confirm it writes dataset_features/*.json."
+        )
+
     if CLEAN_GRAPHS_DIR.exists():
         shutil.rmtree(CLEAN_GRAPHS_DIR)
     CLEAN_GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
     shard_dir = CLEAN_GRAPHS_DIR / "cleaned_graphs_shards"
     print(f"[*] Loading raw JSON features from {RAW_FEATURES_DIR}...")
+    print(f"[*] Raw feature JSON files: {raw_json_count:,}")
     print(f"[*] Writing cleaned graph shards to {shard_dir}...")
     manifest_path, methods_cleaned, layers_cleaned = clean_and_compose_graphs_sharded(
         str(RAW_FEATURES_DIR),

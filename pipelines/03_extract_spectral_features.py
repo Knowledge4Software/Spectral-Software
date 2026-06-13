@@ -26,27 +26,34 @@ def main():
     # Initialize directory structure
     ensure_dirs()
 
+    GRAPH_DB_PATH = CLEAN_GRAPHS_DIR / "graph_shards_manifest.json"
+    if not GRAPH_DB_PATH.exists():
+        raise FileNotFoundError(
+            f"Graph DB not found at {GRAPH_DB_PATH}. "
+            "Run pipeline 01 successfully, then pipeline 02 before pipeline 03."
+        )
+
     force_rebuild = os.getenv("SPECTRAL_FORCE_REBUILD", "1").strip().lower() not in {"0", "false", "no"}
     if force_rebuild and SPECTRAL_FEATURES_DIR.exists():
         print(f"[*] Removing old spectral outputs: {SPECTRAL_FEATURES_DIR}")
         shutil.rmtree(SPECTRAL_FEATURES_DIR)
         SPECTRAL_FEATURES_DIR.mkdir(parents=True, exist_ok=True)
-    
-    GRAPH_DB_PATH = CLEAN_GRAPHS_DIR / "graph_shards_manifest.json"
-    
+
     print(f"[*] Starting Spectral Feature Extraction (Eigenvalues)...")
     print(f"[*] Graph DB: {GRAPH_DB_PATH}")
     print(f"[*] Max graph nodes per layer: {os.getenv('SPECTRAL_MAX_NODES', '2000')}")
     print(f"[*] Approx top-K for oversized graphs: {os.getenv('SPECTRAL_APPROX_TOPK', '300')}")
     print(f"[*] Force rebuild spectral outputs: {force_rebuild}")
     
-    run_spectral_feature_extraction(
+    output_path = run_spectral_feature_extraction(
         graph_db_path=str(GRAPH_DB_PATH),
         features_out_dir=str(SPECTRAL_FEATURES_DIR),
         timing_file=str(TIMING_STATS_FILE),
         graph_types=GRAPH_TYPES,
         mode="directed_laplacian"
     )
+    if output_path is None:
+        raise RuntimeError("Spectral feature extraction failed.")
 
     total_duration = time.perf_counter() - extraction_start_time
     print(f"\n[+] Success! Spectral features saved to {SPECTRAL_FEATURES_DIR}")

@@ -32,9 +32,9 @@ def _normalize_identifiers_and_literals(code: str) -> str:
     """
     code = _strip_comments_and_whitespace(code)
 
-    code = re.sub(r'"(?:\\.|[^"\\])*"', " <STR> ", code)
-    code = re.sub(r"'(?:\\.|[^'\\])*'", " <CHR> ", code)
-    code = re.sub(r"\b\d+(?:\.\d+)?\b", " <NUM> ", code)
+    code = re.sub(r'"(?:\\.|[^"\\])*"', " $ ", code)
+    code = re.sub(r"'(?:\\.|[^'\\])*'", " $ ", code)
+    code = re.sub(r"\b\d+(?:\.\d+)?\b", " # ", code)
 
     keywords = {
         "if", "else", "for", "while", "do", "switch", "case", "break", "continue",
@@ -48,7 +48,7 @@ def _normalize_identifiers_and_literals(code: str) -> str:
 
     def repl(m: re.Match[str]) -> str:
         token = m.group(0)
-        return token if token in keywords else "<ID>"
+        return token if token in keywords else "@"
 
     code = re.sub(r"\b[A-Za-z_][A-Za-z0-9_]*\b", repl, code)
     code = re.sub(r"\s+", " ", code)

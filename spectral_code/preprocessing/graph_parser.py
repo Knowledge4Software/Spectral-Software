@@ -3,6 +3,7 @@ import json
 import networkx as nx
 import re
 from multiprocessing import Pool, cpu_count
+from pathlib import Path
 from tqdm import tqdm
 
 def _quick_analyze_dot(fpath):
@@ -40,11 +41,9 @@ def build_dot_index(joern_base_out, graph_types):
         folder = os.path.join(joern_base_out, gtype)
         if not os.path.exists(folder): continue
         
-        entries = os.scandir(folder)
         files = [
-            entry.path
-            for entry in tqdm(entries, desc=f"Scanning {gtype.upper()} DOT files", unit="file")
-            if entry.is_file() and entry.name.endswith(".dot")
+            str(path)
+            for path in tqdm(Path(folder).rglob("*.dot"), desc=f"Scanning {gtype.upper()} DOT files", unit="file")
         ]
         
         # Parallelize the metadata scan with tqdm

@@ -39,6 +39,12 @@ def run_spectral_feature_extraction(graph_db_path: str, features_out_dir: str, t
     manifest_info = _load_graph_shard_manifest(graph_db_path)
     if manifest_info:
         _, manifest = manifest_info
+        if manifest.get("total_methods", 0) <= 0 or not manifest.get("shards"):
+            raise RuntimeError(
+                f"Graph shard manifest is empty: {graph_db_path}. "
+                "Run pipeline 01 and pipeline 02 first, and confirm pipeline 02 processed methods."
+            )
+
         feature_shard_dir = Path(features_out_dir) / "spectral_feature_shards"
         feature_shard_dir.mkdir(parents=True, exist_ok=True)
         feature_shards = []

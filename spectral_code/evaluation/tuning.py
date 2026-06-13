@@ -150,6 +150,24 @@ def _pair_method_ids(pairs):
     return needed
 
 
+def _has_feature_record(features_db, method_id) -> bool:
+    return method_id in features_db or str(method_id) in features_db
+
+
+def _filter_pairs_with_features(pairs, features_db):
+    filtered = [
+        pair for pair in pairs
+        if _has_feature_record(features_db, pair.left_id)
+        and _has_feature_record(features_db, pair.right_id)
+    ]
+    dropped = len(pairs) - len(filtered)
+    if dropped:
+        print(f"[*] Dropped {dropped:,} pairs with missing method features.")
+    if not filtered:
+        raise RuntimeError("No pairs remain after dropping pairs with missing method features.")
+    return filtered
+
+
 def _load_features_db(features_db_path, needed_ids=None):
     if not os.path.exists(features_db_path):
         print(f"[-] Database not found: {features_db_path}")
@@ -210,6 +228,7 @@ def run_fast_grid_search(
     if features_db is None:
         return None
     print(f"[*] Loaded spectral features for {len(features_db)} methods used by selected pairs.")
+    pairs = _filter_pairs_with_features(pairs, features_db)
 
     if graph_types is None:
         graph_types = ["ast", "cfg", "ddg", "pdg", "cpg"] # 5 graphs
@@ -300,6 +319,7 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
     if features_db is None:
         return None
     print(f"[*] Loaded spectral features for {len(features_db)} methods used by selected pairs.")
+    pairs = _filter_pairs_with_features(pairs, features_db)
 
     secondary_graphs = ["cfg", "ddg", "pdg", "cpg"]   # 4 secondary graphs
     if k_values is None:
