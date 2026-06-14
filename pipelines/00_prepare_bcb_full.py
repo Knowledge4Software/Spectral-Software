@@ -19,15 +19,26 @@ def _copy_unescape(value: str) -> str:
     if value == r"\N":
         return ""
 
-    replacements = {
-        r"\n": "\n",
-        r"\r": "\r",
-        r"\t": "\t",
-        r"\\": "\\",
-    }
-    for old, new in replacements.items():
-        value = value.replace(old, new)
-    return value
+    result: list[str] = []
+    i = 0
+    while i < len(value):
+        char = value[i]
+        if char != "\\" or i + 1 >= len(value):
+            result.append(char)
+            i += 1
+            continue
+
+        escaped = value[i + 1]
+        replacements = {
+            "n": "\n",
+            "r": "\r",
+            "t": "\t",
+            "\\": "\\",
+        }
+        result.append(replacements.get(escaped, escaped))
+        i += 2
+
+    return "".join(result)
 
 
 def _normalize_pair(left_id: int, right_id: int) -> tuple[int, int]:
@@ -118,12 +129,13 @@ def _is_requested_clone_type(
     clone_type: int,
     type3_min_similarity: float,
     type3_max_similarity: float,
+    type4_max_similarity: float,
 ) -> bool:
     syntactic_type = parts[4]
     if clone_type in (1, 2):
         return syntactic_type == str(clone_type)
 
-    if clone_type == 3:
+    if clone_type in (3, 4):
         if syntactic_type != "3" or len(parts) < 7:
             return False
 
@@ -133,6 +145,9 @@ def _is_requested_clone_type(
             return False
 
         min_similarity = min(similarity_line, similarity_token)
+        if clone_type == 4:
+            return min_similarity < type4_max_similarity
+
         # BigCloneBench stores Type-4 candidates as syntactic_type=3 with low similarity.
         return type3_min_similarity <= min_similarity < type3_max_similarity
 
@@ -144,6 +159,7 @@ def collect_clone_type_pairs(
     clone_type: int,
     type3_min_similarity: float = 0.50,
     type3_max_similarity: float = 0.95,
+    type4_max_similarity: float = 0.50,
 ) -> list[tuple[int, int, int]]:
     pairs: set[tuple[int, int]] = set()
 
@@ -151,7 +167,13 @@ def collect_clone_type_pairs(
         parts = line.split("\t")
         if len(parts) < 5:
             continue
-        if not _is_requested_clone_type(parts, clone_type, type3_min_similarity, type3_max_similarity):
+        if not _is_requested_clone_type(
+            parts,
+            clone_type,
+            type3_min_similarity,
+            type3_max_similarity,
+            type4_max_similarity,
+        ):
             continue
 
         left_id = int(parts[0])
@@ -185,12 +207,12 @@ def filter_lecture_type_positives(
     enabled: bool,
 ) -> tuple[list[tuple[int, int, int]], dict[str, int]]:
     stats = {
-        "strict_lecture_filter_enabled": int(enabled),
+        "strict_lecture_filter_enabled": int(enabled and clone_type != 4),
         "strict_lecture_candidates": len(positives),
         "strict_lecture_missing_code": 0,
         "strict_lecture_rejected": 0,
     }
-    if not enabled:
+    if not enabled or clone_type == 4:
         return positives, stats
 
     filtered: list[tuple[int, int, int]] = []
@@ -319,7 +341,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build a single-clone-type BCB benchmark from the full BCB dump.")
     parser.add_argument("--dump", type=Path, default=DEFAULT_DUMP_PATH)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--clone-type", type=int, choices=[1, 2, 3], default=DEFAULT_CLONE_TYPE)
+    parser.add_argument("--clone-type", type=int, choices=[1, 2, 3, 4], default=DEFAULT_CLONE_TYPE)
     parser.add_argument(
         "--type3-min-similarity",
         type=float,
@@ -336,6 +358,15 @@ def main() -> None:
         help=(
             "Exclusive upper bound for LEAST(similarity_line, similarity_token) in Type-3 positives. "
             "This removes near-Type-2 template clones from the lecture-clean Type-3 benchmark."
+        ),
+    )
+    parser.add_argument(
+        "--type4-max-similarity",
+        type=float,
+        default=0.50,
+        help=(
+            "Exclusive upper bound for LEAST(similarity_line, similarity_token) in Type-4 positives. "
+            "BCB represents Type-4-like pairs as syntactic_type=3 below this threshold."
         ),
     )
     parser.add_argument(
@@ -366,6 +397,8 @@ def main() -> None:
         raise ValueError("--target-pairs must be at least 1.")
     if args.clone_type == 3 and args.type3_min_similarity >= args.type3_max_similarity:
         raise ValueError("--type3-min-similarity must be lower than --type3-max-similarity.")
+    if args.clone_type == 4 and args.type4_max_similarity <= 0:
+        raise ValueError("--type4-max-similarity must be greater than 0.")
     if args.output_dir == DEFAULT_OUTPUT_DIR:
         args.output_dir = PROJECT_ROOT / "bench_data" / f"bcb_full_type{args.clone_type}"
 
@@ -377,6 +410,7 @@ def main() -> None:
         args.clone_type,
         args.type3_min_similarity,
         args.type3_max_similarity,
+        args.type4_max_similarity,
     )
     positive_code_ids = {left_id for left_id, _, _ in positives} | {right_id for _, right_id, _ in positives}
     code_ids, positive_code_map = collect_code_ids(args.dump, positive_code_ids)
@@ -443,6 +477,7 @@ def main() -> None:
         "max_positive_pairs": max_positive_pairs,
         "type3_min_similarity": args.type3_min_similarity if args.clone_type == 3 else None,
         "type3_max_similarity": args.type3_max_similarity if args.clone_type == 3 else None,
+        "type4_max_similarity": args.type4_max_similarity if args.clone_type == 4 else None,
         "type3_semantics": (
             "syntactic_type=3 and type3_min_similarity <= "
             "LEAST(similarity_line, similarity_token) < type3_max_similarity; "
@@ -450,7 +485,12 @@ def main() -> None:
             if args.clone_type == 3
             else None
         ),
-        "strict_lecture_filter": bool(args.strict_lecture_filter),
+        "type4_semantics": (
+            "syntactic_type=3 and LEAST(similarity_line, similarity_token) < type4_max_similarity."
+            if args.clone_type == 4
+            else None
+        ),
+        "strict_lecture_filter": bool(args.strict_lecture_filter and args.clone_type != 4),
         **strict_filter_stats,
         f"type_{args.clone_type}_clones": len(positives),
         "positive_clones": len(positives),
@@ -467,7 +507,7 @@ def main() -> None:
     print(f"    Output Dir: {args.output_dir}")
     print(f"    Functions written: {written_functions}")
     print(f"    Type-{args.clone_type} clones: {len(positives)}")
-    if args.strict_lecture_filter:
+    if strict_filter_stats["strict_lecture_filter_enabled"]:
         print(f"    Strict lecture rejected: {strict_filter_stats['strict_lecture_rejected']}")
     print(f"    Non-clones: {len(negatives)}")
     print(f"    Total pairs: {len(rows)}")

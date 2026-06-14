@@ -154,6 +154,22 @@ def _has_feature_record(features_db, method_id) -> bool:
     return method_id in features_db or str(method_id) in features_db
 
 
+def _get_feature_record(features_db, method_id):
+    return features_db.get(method_id) or features_db.get(str(method_id))
+
+
+def _has_informative_eigenvalues(record, graph_type, eps=1e-10) -> bool:
+    if not record:
+        return False
+
+    values = record.get(graph_type, {}).get("eigenvalues", np.array([]))
+    values = np.asarray(values, dtype=np.float64)
+    if values.size == 0 or not np.all(np.isfinite(values)):
+        return False
+
+    return bool(np.any(np.abs(values) > eps))
+
+
 def _filter_pairs_with_features(pairs, features_db):
     filtered = [
         pair for pair in pairs
@@ -165,6 +181,29 @@ def _filter_pairs_with_features(pairs, features_db):
         print(f"[*] Dropped {dropped:,} pairs with missing method features.")
     if not filtered:
         raise RuntimeError("No pairs remain after dropping pairs with missing method features.")
+    return filtered
+
+
+def _filter_pairs_with_graph_features(pairs, features_db, graph_type):
+    filtered = []
+    for pair in pairs:
+        left_data = _get_feature_record(features_db, pair.left_id)
+        right_data = _get_feature_record(features_db, pair.right_id)
+        if (
+            _has_informative_eigenvalues(left_data, graph_type)
+            and _has_informative_eigenvalues(right_data, graph_type)
+        ):
+            filtered.append(pair)
+
+    dropped = len(pairs) - len(filtered)
+    if dropped:
+        print(f"[*] {graph_type.upper()}: dropped {dropped:,} pairs with missing/all-zero spectra.")
+
+    labels = {pair.label for pair in filtered}
+    if len(labels) < 2:
+        print(f"[!] {graph_type.upper()}: skipped because valid pairs do not contain both labels.")
+        return []
+
     return filtered
 
 
@@ -241,8 +280,16 @@ def run_fast_grid_search(
     
     total_base_combos = len(graph_types) * len(k_values) * len(metrics)
     print(f"[*] Starting Exact Continuous 'Training' Phase over {total_base_combos} core configurations...")
+    graph_pairs_by_type = {
+        gtype: _filter_pairs_with_graph_features(pairs, features_db, gtype)
+        for gtype in graph_types
+    }
     
     for gtype, k, metric in product(graph_types, k_values, metrics):
+        graph_pairs = graph_pairs_by_type[gtype]
+        if not graph_pairs:
+            continue
+
         # 1. Precalculate all scores for the current config just ONCE
         model = PrecomputedSpectralModel(features_db, gtype, k, None, metric)
         
@@ -250,7 +297,7 @@ def run_fast_grid_search(
         labels = []
         
         desc_inner = f"Testing pairs for {gtype.upper()}-K{k if k else 'Full'}-{metric}"
-        for pair in tqdm(pairs, desc=desc_inner, leave=False):
+        for pair in tqdm(graph_pairs, desc=desc_inner, leave=False):
             scores.append(model.score_pair(pair))
             labels.append(pair.label)
             
@@ -277,6 +324,8 @@ def run_fast_grid_search(
             "k_eigen": k,
             "metric": metric,
             "best_threshold": float(best_th),
+            "valid_pairs": int(len(labels)),
+            "dropped_pairs": int(len(pairs) - len(labels)),
             "train_accuracy": float(accuracy_score(labels, best_preds)),
             "train_precision": float(precision_score(labels, best_preds, zero_division=0)),
             "train_recall": float(recall_score(labels, best_preds, zero_division=0)),
@@ -331,8 +380,17 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
     
     total_base_combos = len(secondary_graphs) * len(k_values) * len(metrics)
     print(f"[*] Starting Exact Continuous Fused 'Training' Phase over {total_base_combos} core configurations...")
+    primary_valid_pairs = _filter_pairs_with_graph_features(pairs, features_db, primary_graph)
+    secondary_valid_pairs = {
+        gtype: _filter_pairs_with_graph_features(primary_valid_pairs, features_db, gtype)
+        for gtype in secondary_graphs
+    }
     
     for sec_gtype, k, metric in product(secondary_graphs, k_values, metrics):
+        fused_pairs = secondary_valid_pairs[sec_gtype]
+        if not fused_pairs:
+            continue
+
         fused_name = f"{primary_graph.upper()}+{sec_gtype.upper()}"
         model = PrecomputedFusedSpectralModel(features_db, primary_graph, sec_gtype, k, None, metric)
         
@@ -340,7 +398,7 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
         labels = []
         
         desc_inner = f"Testing pairs for {fused_name}-K{k if k else 'Full'}-{metric}"
-        for pair in tqdm(pairs, desc=desc_inner, leave=False):
+        for pair in tqdm(fused_pairs, desc=desc_inner, leave=False):
             scores.append(model.score_pair(pair))
             labels.append(pair.label)
             
@@ -367,6 +425,8 @@ def run_fused_fast_grid_search(features_db_path, bcb_data_dir, primary_graph="as
             "k_eigen": k,
             "metric": metric,
             "best_threshold": float(best_th),
+            "valid_pairs": int(len(labels)),
+            "dropped_pairs": int(len(pairs) - len(labels)),
             "train_accuracy": float(accuracy_score(labels, best_preds)),
             "train_precision": float(precision_score(labels, best_preds, zero_division=0)),
             "train_recall": float(recall_score(labels, best_preds, zero_division=0)),

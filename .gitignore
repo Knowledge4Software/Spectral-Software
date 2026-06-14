@@ -96,6 +96,7 @@ local_config.py
 
 # notebook artifacts
 *.nbconvert.ipynb
+analysis_outputs/
 
 # serialized python objects
 *.pkl

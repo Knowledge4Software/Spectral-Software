@@ -1,8 +1,30 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-# Load .env if it exists
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv() -> bool:
+        env_path = Path(__file__).resolve().parents[2] / ".env"
+        if not env_path.exists():
+            return False
+
+        loaded = False
+        with env_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+                    loaded = True
+        return loaded
+
+
+# Load .env if python-dotenv is installed and a file exists.
 load_dotenv()
 
 # Project Root (Spectral-Software folder)
