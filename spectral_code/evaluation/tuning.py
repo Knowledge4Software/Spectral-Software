@@ -20,7 +20,9 @@ class PrecomputedSpectralModel:
         
         self.pss_metric = PSSSimilarity()
         self.hk_metric = HeatKernelSimilarity()
-        self.wasserstein_metric = WassersteinSimilarity()
+        self.wasserstein_metric = WassersteinSimilarity(
+            gamma=float(os.getenv("WASSERSTEIN_GAMMA", "0.1"))
+        )
         self.js_metric = JensenShannonSimilarity()
 
     def score_pair(self, pair):

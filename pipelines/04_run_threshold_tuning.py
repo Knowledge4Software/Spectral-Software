@@ -8,7 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
-from spectral_code.utils.project_paths import SPECTRAL_FEATURES_DIR, ensure_dirs
+from spectral_code.utils.project_paths import ensure_dirs
 from spectral_code.evaluation.tuning import run_fast_grid_search
 
 
@@ -29,30 +29,49 @@ def _parse_optional_int(raw: str | None) -> int | None:
     return int(raw)
 
 
+def _parse_csv(raw: str | None, default: list[str]) -> list[str]:
+    if raw is None or raw.strip() == "":
+        return default
+    values = [value.strip().lower() for value in raw.split(",") if value.strip()]
+    return values or default
+
+
+def _parse_k_values(raw: str | None, default: list[int | None]) -> list[int | None]:
+    if raw is None or raw.strip() == "":
+        return default
+    values = [_parse_optional_int(value) for value in raw.split(",") if value.strip()]
+    return values or default
+
+
 def main():
     ensure_dirs()
 
+    clone_type = os.getenv("BCB_CLONE_TYPE", "1").strip()
     features_db_path = Path(
         os.getenv(
             "FEATURES_DB_PATH",
-            str(SPECTRAL_FEATURES_DIR / "spectral_features_manifest.json"),
+            str(PROJECT_ROOT.parent / "outputs" / f"type{clone_type}" / "spectral_features" / "spectral_features_manifest.json"),
         )
     )
     bcb_data_dir = Path(
         os.getenv(
             "BCB_DATA_DIR",
-            str(PROJECT_ROOT / "bench_data" / f"bcb_full_type{os.getenv('BCB_CLONE_TYPE', '1')}")
+            str(PROJECT_ROOT / "bench_data" / f"bcb_full_type{clone_type}")
         )
     )
     n_samples = _parse_optional_int(os.getenv("TUNING_N_SAMPLES", "full"))
     optimize_for = os.getenv("TUNING_OPTIMIZE_FOR", "f1").strip().lower()
+    graph_types = _parse_csv(os.getenv("TUNING_GRAPH_TYPES"), ["ast", "cfg", "ddg", "pdg", "cpg"])
+    metrics = _parse_csv(os.getenv("TUNING_METRICS"), ["pss"])
+    k_values = _parse_k_values(os.getenv("TUNING_K_VALUES"), [None])
+    metric_label = "-".join(metrics)
+    k_label = "-".join("full" if k is None else str(k) for k in k_values)
 
-    # Default run: compare all graph representations with Full eigenvalues + PSS.
     experiment = TuningExperiment(
-        name=f"type{os.getenv('BCB_CLONE_TYPE', '1')}_all_graphs_full_pss_{optimize_for}",
-        graph_types=["ast", "cfg", "ddg", "pdg", "cpg"],
-        metrics=["pss"],
-        k_values=[None],
+        name=f"type{clone_type}_all_graphs_k{k_label}_{metric_label}_{optimize_for}",
+        graph_types=graph_types,
+        metrics=metrics,
+        k_values=k_values,
         optimize_for=optimize_for,
     )
 
