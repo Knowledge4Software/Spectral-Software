@@ -18,7 +18,7 @@ from spectral_code.utils.project_paths import (
 )
 from spectral_code.spectral.runner import run_spectral_feature_extraction
 
-GRAPH_TYPES = ["ast", "cfg", "ddg", "pdg", "cpg"]
+GRAPH_TYPES = [g.strip().lower() for g in os.getenv("SPECTRAL_GRAPH_TYPES", "ast,cfg,ddg,pdg,cpg").split(",") if g.strip()]
 
 def main():
     extraction_start_time = time.perf_counter()
@@ -54,6 +54,15 @@ def main():
     )
     if output_path is None:
         raise RuntimeError("Spectral feature extraction failed.")
+
+    with open(TIMING_STATS_FILE, "r", encoding="utf-8") as f:
+        stats = json.load(f)
+    computed_total = sum(int(stats.get(f"spectral_computed_graphs_{gtype}", 0)) for gtype in GRAPH_TYPES)
+    if computed_total == 0:
+        raise RuntimeError(
+            "Spectral extraction completed but produced zero usable graph spectra. "
+            "Check pipeline 01/02 outputs and selected SPECTRAL_GRAPH_TYPES."
+        )
 
     total_duration = time.perf_counter() - extraction_start_time
     print(f"\n[+] Success! Spectral features saved to {SPECTRAL_FEATURES_DIR}")

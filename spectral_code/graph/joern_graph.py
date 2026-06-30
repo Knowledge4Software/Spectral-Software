@@ -3,12 +3,45 @@ import tempfile
 import subprocess
 import shutil
 import uuid
+from pathlib import Path
 import networkx as nx
 
 from spectral_code.graph.base import GraphBuilder
 
-JOERN_PARSE_BAT = r"C:\joern-cli\joern-parse.bat"
-JOERN_EXPORT_BAT = r"C:\joern-cli\joern-export.bat"
+
+def _joern_executable(env_name: str, windows_name: str, posix_name: str) -> str:
+    def existing_command(value: str | None) -> str | None:
+        if not value:
+            return None
+        path = Path(value)
+        if path.is_absolute() or path.parent != Path("."):
+            return str(path) if path.exists() else None
+        return shutil.which(value)
+
+    joern_home = os.getenv("JOERN_HOME")
+    joern_home_candidates = []
+    if joern_home:
+        joern_home_path = Path(joern_home)
+        joern_home_candidates.extend([joern_home_path / windows_name, joern_home_path / posix_name])
+
+    common_candidates = []
+    if os.name == "nt":
+        common_candidates.extend([Path("C:/joern-cli") / windows_name, Path("C:/tools/joern-cli") / windows_name])
+
+    candidates = [
+        existing_command(os.getenv(env_name)),
+        *(str(path) for path in joern_home_candidates if path.exists()),
+        shutil.which(windows_name),
+        shutil.which(posix_name),
+        *(str(path) for path in common_candidates if path.exists()),
+        os.getenv(env_name),
+        windows_name if os.name == "nt" else posix_name,
+    ]
+    return next(str(candidate) for candidate in candidates if candidate)
+
+
+JOERN_PARSE_BAT = _joern_executable("JOERN_PARSE_BAT", "joern-parse.bat", "joern-parse")
+JOERN_EXPORT_BAT = _joern_executable("JOERN_EXPORT_BAT", "joern-export.bat", "joern-export")
 
 class JoernGraphBuilder(GraphBuilder):
     def __init__(self, repr_type: str = "cfg", **kwargs):

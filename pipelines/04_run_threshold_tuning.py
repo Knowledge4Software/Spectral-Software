@@ -10,6 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from spectral_code.utils.project_paths import ensure_dirs
 from spectral_code.evaluation.tuning import run_fast_grid_search
+from spectral_code.utils.dataset_paths import bcb_type_dir, output_root_for
 
 
 @dataclass(frozen=True)
@@ -50,13 +51,13 @@ def main():
     features_db_path = Path(
         os.getenv(
             "FEATURES_DB_PATH",
-            str(PROJECT_ROOT.parent / "outputs" / f"type{clone_type}" / "spectral_features" / "spectral_features_manifest.json"),
+            str(output_root_for("bcb", clone_type) / "spectral_features" / "spectral_features_manifest.json"),
         )
     )
     bcb_data_dir = Path(
         os.getenv(
             "BCB_DATA_DIR",
-            str(PROJECT_ROOT / "bench_data" / f"bcb_full_type{clone_type}")
+            str(bcb_type_dir(clone_type))
         )
     )
     n_samples = _parse_optional_int(os.getenv("TUNING_N_SAMPLES", "full"))

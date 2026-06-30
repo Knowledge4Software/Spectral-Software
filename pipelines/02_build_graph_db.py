@@ -18,7 +18,7 @@ from spectral_code.utils.project_paths import (
 )
 from spectral_code.preprocessing.cleaner import clean_and_compose_graphs_sharded
 
-BASE_LAYERS = ["ast", "cfg", "ddg", "pdg"]
+BASE_LAYERS = [g.strip().lower() for g in os.getenv("PIPELINE_BASE_LAYERS", "ast,cfg,ddg,pdg").split(",") if g.strip()]
 SHARD_SIZE = int(os.getenv("GRAPH_SHARD_SIZE", "1000"))
 
 def main():
@@ -48,6 +48,11 @@ def main():
         str(shard_dir),
         shard_size=SHARD_SIZE,
     )
+    if layers_cleaned == 0:
+        raise RuntimeError(
+            "No usable base graph layers were cleaned from raw features. "
+            "Check pipeline 01 export/indexing logs and the selected PIPELINE_BASE_LAYERS."
+        )
 
     total_duration = time.perf_counter() - preprocessing_start_time
 

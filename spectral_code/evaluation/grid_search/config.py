@@ -2,6 +2,9 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
+from spectral_code.utils.dataset_paths import OUTPUTS_ROOT
+
+
 @dataclass
 class GridSearchConfig:
     graph_types: list[str] = field(default_factory=lambda: ["ast", "cfg", "ddg", "pdg"])
@@ -15,10 +18,10 @@ class GridSearchConfig:
     lang: str = "java"
     
     # Storage Paths
-    outputs_dir: str = r"C:\Users\koush\PyProjects\outputs"
-    cache_file: str = r"C:\Users\koush\PyProjects\outputs/spectral_features_cache.pkl"
-    results_csv: str = r"C:\Users\koush\PyProjects\outputs/grid_search_results.csv"
-    models_dir: str = r"C:\Users\koush\PyProjects\outputs/models"
+    outputs_dir: str = field(default_factory=lambda: str(OUTPUTS_ROOT))
+    cache_file: str = field(default_factory=lambda: str(OUTPUTS_ROOT / "spectral_features_cache.pkl"))
+    results_csv: str = field(default_factory=lambda: str(OUTPUTS_ROOT / "grid_search_results.csv"))
+    models_dir: str = field(default_factory=lambda: str(OUTPUTS_ROOT / "models"))
 
     def __post_init__(self):
         os.makedirs(self.outputs_dir, exist_ok=True)

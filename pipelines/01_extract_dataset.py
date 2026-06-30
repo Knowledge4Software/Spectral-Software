@@ -4,7 +4,7 @@ import json
 import shutil
 import time
 from tqdm import tqdm
-from multiprocessing import Pool, cpu_count
+from multiprocessing import cpu_count
 from pathlib import Path
 
 try:
@@ -41,28 +41,30 @@ from spectral_code.utils.project_paths import (
     TIMING_STATS_FILE, 
     ensure_dirs
 )
+from spectral_code.utils.dataset_paths import bcb_type_dir
 from spectral_code.preprocessing.data_unpacker import unpack_jsonl_to_java
 from spectral_code.preprocessing.joern_runner import run_joern_parse, run_joern_export
-from spectral_code.preprocessing.graph_parser import process_single_method, build_dot_index
+from spectral_code.preprocessing.graph_parser import process_single_method, build_dot_index, threaded_bounded_map
 
 load_dotenv()
 
 JOERN_PARSE_BAT = os.getenv("JOERN_PARSE_BAT")
 JOERN_EXPORT_BAT = os.getenv("JOERN_EXPORT_BAT")
 BCB_CLONE_TYPE = os.getenv("BCB_CLONE_TYPE", "1")
-DEFAULT_DATA_FILE = PROJECT_ROOT / "bench_data" / f"bcb_full_type{BCB_CLONE_TYPE}" / "data.jsonl"
+DEFAULT_DATA_FILE = bcb_type_dir(BCB_CLONE_TYPE) / "data.jsonl"
 DATA_FILE = Path(os.getenv("BCB_DATA_FILE", str(DEFAULT_DATA_FILE)))
 
 # Temporary folders inside the output root (helps with disk space and speed)
 RUN_ID = os.getenv("BCB_RUN_ID", f"{int(time.time())}_{os.getpid()}")
-BATCH_TEMP_DIR = OUTPUT_ROOT / f"batch_java_src_{RUN_ID}"
+BATCH_TEMP_DIR = OUTPUT_ROOT / f"batch_src_{RUN_ID}"
 JOERN_BASE_OUT = OUTPUT_ROOT / f"joern_raw_graphs_{RUN_ID}"
 BATCH_CPG_BIN = OUTPUT_ROOT / f"batch_cpg_{RUN_ID}.bin"
 BATCH_CPG_CHUNKS = BATCH_CPG_BIN.with_name(f"{BATCH_CPG_BIN.stem}_chunks")
 BATCH_CPG_MANIFEST = Path(f"{BATCH_CPG_BIN}.chunks.json")
 SKIPPED_METHODS_FILE = OUTPUT_ROOT / "skipped_methods_pipeline01.jsonl"
+GRAPH_PARSE_SKIPPED_FILE = OUTPUT_ROOT / "skipped_graph_parse_pipeline01.jsonl"
 
-GRAPH_TYPES = ["ast", "cfg", "ddg", "pdg"]
+GRAPH_TYPES = [g.strip().lower() for g in os.getenv("PIPELINE_GRAPH_TYPES", "ast,cfg,ddg,pdg").split(",") if g.strip()]
 
 
 def _parse_nonnegative_int_env(name: str, default: int = 0) -> int:
@@ -73,6 +75,21 @@ def _parse_nonnegative_int_env(name: str, default: int = 0) -> int:
     if value < 0:
         raise ValueError(f"{name} must be >= 0, got {value}")
     return value
+
+
+def _parse_positive_int_env(name: str, default: int) -> int:
+    raw = os.getenv(name, str(default)).strip()
+    if raw == "":
+        return default
+    value = int(raw)
+    if value <= 0:
+        raise ValueError(f"{name} must be > 0, got {value}")
+    return value
+
+
+def _io_worker_count(env_name: str, multiplier: int = 2, max_default: int = 32) -> int:
+    default = min(max_default, max(4, cpu_count() * multiplier))
+    return _parse_positive_int_env(env_name, default)
 
 
 def _count_lines(path: Path) -> int:
@@ -107,6 +124,8 @@ def main():
             folder.mkdir(parents=True, exist_ok=True)
         if SKIPPED_METHODS_FILE.exists():
             SKIPPED_METHODS_FILE.unlink()
+        if GRAPH_PARSE_SKIPPED_FILE.exists():
+            GRAPH_PARSE_SKIPPED_FILE.unlink()
         pipeline_bar.update(1)
 
         print(f"[*] Unpacking {DATA_FILE} to {BATCH_TEMP_DIR}...")
@@ -152,7 +171,12 @@ def main():
 
         # 3. Build Global Index of DOT files for robust mapping
         print("[*] Building DOT mapping index...")
-        dot_index = build_dot_index(str(JOERN_BASE_OUT), GRAPH_TYPES)
+        dot_index = build_dot_index(
+            str(JOERN_BASE_OUT),
+            GRAPH_TYPES,
+            method_ids=method_ids,
+            chunk_manifest_path=str(BATCH_CPG_MANIFEST),
+        )
         pipeline_bar.update(1)
 
         missing_dot_mappings = {
@@ -172,13 +196,24 @@ def main():
             tasks.append((idx, paths, str(RAW_FEATURES_DIR), per_method_cpg_time, per_layer_export_time))
 
         print(f"[*] Parsing {len(tasks)} DOT files into JSON format...")
-        with Pool(processes=cpu_count()) as pool:
-            list(tqdm(
-                pool.imap_unordered(process_single_method, tasks),
-                total=len(tasks),
-                desc="JSON conversion",
-                unit="method",
-            ))
+        conversion_workers = _io_worker_count("DOT_CONVERSION_WORKERS")
+        print(f"[*] DOT conversion workers: {conversion_workers}")
+        parse_results = list(tqdm(
+            threaded_bounded_map(process_single_method, tasks, max_workers=conversion_workers),
+            total=len(tasks),
+            desc="JSON conversion",
+            unit="method",
+        ))
+        skipped_graph_layers = [
+            skipped
+            for result in parse_results
+            for skipped in result.get("skipped_layers", [])
+        ]
+        if skipped_graph_layers:
+            with GRAPH_PARSE_SKIPPED_FILE.open("w", encoding="utf-8") as f:
+                for skipped in skipped_graph_layers:
+                    f.write(json.dumps(skipped, ensure_ascii=False) + "\n")
+            print(f"[*] Logged {len(skipped_graph_layers):,} skipped/empty graph layers to {GRAPH_PARSE_SKIPPED_FILE}.")
         pipeline_bar.update(1)
 
         # Cleanup large temporary files
@@ -197,6 +232,8 @@ def main():
         "total_methods": total_methods,
         "skipped_methods_pipeline01": skipped_methods,
         "skipped_methods_file": str(SKIPPED_METHODS_FILE) if skipped_methods else None,
+        "skipped_graph_layers_pipeline01": len(skipped_graph_layers),
+        "skipped_graph_layers_file": str(GRAPH_PARSE_SKIPPED_FILE) if skipped_graph_layers else None,
         "max_method_lines_filter": max_method_lines,
         "max_method_chars_filter": max_method_chars,
         "max_longest_line_filter": max_longest_line,

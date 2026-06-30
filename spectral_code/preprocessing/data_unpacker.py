@@ -5,6 +5,16 @@ import re
 import javalang
 
 
+LANGUAGE_EXTENSIONS = {
+    "java": ".java",
+    "c": ".c",
+    "csharp": ".cs",
+    "cs": ".cs",
+    "python": ".py",
+    "py": ".py",
+}
+
+
 def infer_wrapper_class_name(code_str: str, idx: str) -> str:
     qualified_this = re.search(r'\b([A-Z][A-Za-z0-9_]*)\.this\b', code_str)
     if qualified_this:
@@ -96,19 +106,67 @@ def rename_java_method(code_str: str, idx: str) -> str:
     except Exception:
         pass
     
-    # Fallback to simple regex if javalang fails (e.g. missing dependencies/tokens)
+    # Fallback to a signature-aware regex if javalang fails. Method names can
+    # start with uppercase letters in BCB, so uppercase alone is not a constructor
+    # signal. Treat it as a constructor only when no return type is present.
     lines = code_str.split('\n')
     for i, line in enumerate(lines):
         if line.strip().startswith('@'): continue
-        m = re.search(r'\b(?!(?:if|for|while|switch|catch)\b)(\w+)\s*\(', line)
+        m = re.search(
+            r'^(?P<prefix>\s*(?:(?:public|protected|private|static|final|synchronized|abstract|native|strictfp)\s+)*)'
+            r'(?:(?P<return_type>[\w<>\[\].?,\s]+?)\s+)?'
+            r'(?P<name>[A-Za-z_$][\w$]*)\s*\(',
+            line,
+        )
         if m:
-            old_name = m.group(1)
-            if old_name[0].isupper():
-                lines[i] = line[:m.start(1)] + f"void {new_name}" + line[m.end(1):]
+            old_name = m.group("name")
+            if old_name in {"if", "for", "while", "switch", "catch"}:
+                continue
+            if m.group("return_type"):
+                lines[i] = line[:m.start("name")] + new_name + line[m.end("name"):]
             else:
-                lines[i] = line[:m.start(1)] + new_name + line[m.end(1):]
+                lines[i] = line[:m.start("name")] + f"void {new_name}" + line[m.end("name"):]
             return '\n'.join(lines)
     return re.sub(r'\b(\w+)\s*\(', f'{new_name}(', code_str, count=1)
+
+
+def _normalize_language(raw: str | None) -> str:
+    if raw is None:
+        return "java"
+    key = raw.strip().lower()
+    if key.startswith("semantic_"):
+        key = key.split("_", 1)[1]
+    return {
+        "cs": "csharp",
+        "c#": "csharp",
+        "py": "python",
+    }.get(key, key or "java")
+
+
+def _wrap_java(code: str, idx: str) -> str:
+    code = rename_java_method(code, idx)
+    wrapper_class = infer_wrapper_class_name(code, idx)
+    return f"class {wrapper_class} {{\n    {code}\n}}\n"
+
+
+def _wrap_csharp(code: str, idx: str) -> str:
+    return f"class Wrapper_{idx} {{\n    {code}\n}}\n"
+
+
+def _render_source_record(code: str, idx: str, language: str) -> tuple[str, str]:
+    language = _normalize_language(language)
+    ext = LANGUAGE_EXTENSIONS.get(language)
+    if ext is None:
+        raise ValueError(f"Unsupported source language in data.jsonl: {language}")
+
+    if language == "java":
+        content = _wrap_java(code, idx)
+    elif language == "csharp":
+        content = _wrap_csharp(code, idx)
+    else:
+        content = code.rstrip() + "\n"
+
+    return content, ext
 
 def unpack_jsonl_to_java(
     data_file: str,
@@ -148,6 +206,7 @@ def unpack_jsonl_to_java(
             record = json.loads(line)
             idx = str(record.get("idx", "unknown"))
             code = record.get('func', '')
+            language = _normalize_language(record.get("lang"))
 
             metrics = _method_size_metrics(code)
             reasons = _skip_reasons(metrics, max_lines, max_chars, max_longest_line)
@@ -163,21 +222,10 @@ def unpack_jsonl_to_java(
                 iterator.set_postfix(methods=len(method_ids), skipped=skipped_count, refresh=False)
                 continue
 
-            # Safely rename the method to m_{idx} and bypass constructor missing-return-type restrictions
-            code = rename_java_method(code, idx)
-
-            # Use the original outer class name when code contains OuterClass.this.
-            # Otherwise Joern sees invalid Java and exports empty graphs for that method.
-            wrapper_class = infer_wrapper_class_name(code, idx)
-
-            # Enclose in a consistent synthetic class.
-            java_content = f"class {wrapper_class} {{\n"
-            java_content += f"    {code}\n"
-            java_content += "}\n"
-
-            out_path = os.path.join(output_tmp_dir, f"m_{idx}.java")
+            source_content, ext = _render_source_record(code, idx, language)
+            out_path = os.path.join(output_tmp_dir, f"m_{idx}{ext}")
             with open(out_path, "w", encoding="utf-8") as jf:
-                jf.write(java_content)
+                jf.write(source_content)
             method_ids.append(idx)
             iterator.set_postfix(methods=len(method_ids), skipped=skipped_count, refresh=False)
 
