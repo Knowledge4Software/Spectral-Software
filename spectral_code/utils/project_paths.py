@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from spectral_code.utils.dataset_paths import output_root_for, path_from_env
 
 try:
     from dotenv import load_dotenv
@@ -30,15 +31,14 @@ load_dotenv()
 # Project Root (Spectral-Software folder)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# External Outputs (at the same level as Spectral-Software).
-# By default each clone type gets its own output subfolder, so switching
-# BCB_CLONE_TYPE does not overwrite previous graph/spectral artifacts.
+# Pipeline artifacts live outside the repository by default so graph structures,
+# timing files, reports, and tuning outputs stay in one shared output root.
 BCB_CLONE_TYPE = os.getenv("BCB_CLONE_TYPE", "1")
 DEFAULT_OUTPUT_BASE = PROJECT_ROOT.parent / "outputs"
-DEFAULT_OUTPUT_ROOT = DEFAULT_OUTPUT_BASE / f"type{BCB_CLONE_TYPE}"
+DEFAULT_OUTPUT_ROOT = output_root_for("bcb", BCB_CLONE_TYPE)
 
 # Allow override via .env
-OUTPUT_ROOT = Path(os.getenv("OUTPUT_DIR", str(DEFAULT_OUTPUT_ROOT)))
+OUTPUT_ROOT = path_from_env("OUTPUT_DIR", DEFAULT_OUTPUT_ROOT)
 
 # Subdirectories
 JAVA_DIR = OUTPUT_ROOT / "java_files"
