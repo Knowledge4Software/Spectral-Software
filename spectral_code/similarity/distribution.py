@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from scipy.spatial.distance import jensenshannon
 from scipy.stats import gaussian_kde, wasserstein_distance
@@ -120,3 +121,39 @@ class JensenShannonSimilarity(BaseSimilarity):
         bandwidth = max(grid_span / self.grid_size, self.epsilon)
         z = (grid - center) / bandwidth
         return np.exp(-0.5 * z * z)
+
+
+class FisherInformationSimilarity(BaseSimilarity):
+    """
+    Fisher-style information distance over spectrum mean and variance.
+
+    The spectrum is summarized as a Gaussian-like distribution. Distance is:
+    sqrt(2 * log((var1 + var2 + (mu1 - mu2)^2) / (2 * sigma1 * sigma2)))
+    and similarity is S = exp(-gamma * distance).
+    """
+    def __init__(self, gamma: float | None = None, epsilon: float = 1e-12):
+        self.gamma = float(gamma if gamma is not None else os.getenv("FISHER_GAMMA", "1.0"))
+        self.epsilon = float(epsilon)
+        if self.gamma <= 0:
+            raise ValueError("gamma must be positive.")
+        if self.epsilon <= 0:
+            raise ValueError("epsilon must be positive.")
+
+    def compute(self, ev1: np.ndarray, ev2: np.ndarray) -> float:
+        ev1 = _as_finite_1d(ev1)
+        ev2 = _as_finite_1d(ev2)
+        if ev1.size == 0 or ev2.size == 0:
+            return 0.0
+
+        mu1 = float(np.mean(ev1))
+        mu2 = float(np.mean(ev2))
+        var1 = max(float(np.var(ev1)), self.epsilon)
+        var2 = max(float(np.var(ev2)), self.epsilon)
+        sigma1 = np.sqrt(var1)
+        sigma2 = np.sqrt(var2)
+
+        ratio = (var1 + var2 + (mu1 - mu2) ** 2) / (2.0 * sigma1 * sigma2)
+        ratio = max(float(ratio), 1.0)
+        distance = np.sqrt(2.0 * np.log(ratio))
+        similarity = np.exp(-self.gamma * distance)
+        return float(np.clip(similarity, 0.0, 1.0))

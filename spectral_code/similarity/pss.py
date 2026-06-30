@@ -1,11 +1,32 @@
+import os
 import numpy as np
 from .base import BaseSimilarity
 
 class PSSSimilarity(BaseSimilarity):
     """
-    Implements the official adapted Program Spectral Similarity (PSS) for function-level graphs.
-    Dynamically strips trailing zero-paddings and applies correct paper normalization.
+    Program Spectral Similarity with an exponential distance kernel.
+
+    The spectrum alignment follows the original PSS idea, but the final
+    distance-to-similarity mapping is calibrated like the Wasserstein metric:
+    S = exp(-(d / gamma) ** power). The old RBF-style d^2 mapping compressed
+    many clone and non-clone pairs into the 0.8-1.0 range because normalized
+    spectral distances are usually below 1.
     """
+    def __init__(
+        self,
+        gamma: float | None = None,
+        distance_power: float | None = None,
+    ):
+        self.gamma = float(gamma if gamma is not None else os.getenv("PSS_GAMMA", "0.1"))
+        self.distance_power = float(
+            distance_power
+            if distance_power is not None
+            else os.getenv("PSS_DISTANCE_POWER", "1.0")
+        )
+        if self.gamma <= 0:
+            raise ValueError("gamma must be positive.")
+        if self.distance_power <= 0:
+            raise ValueError("distance_power must be positive.")
     
     def _strip_padding(self, ev: np.ndarray) -> np.ndarray:
         # Since Laplacian eigenvalues are sorted ascendingly, 
@@ -47,10 +68,8 @@ class PSSSimilarity(BaseSimilarity):
         v1_n = self._l2_normalize(v1)
         v2_n = self._l2_normalize(v2)
         
-        # 4. Euclidean Distance Calculation
+        # 4. Euclidean distance, then exponential kernel mapping to [0, 1].
         distance = np.linalg.norm(v1_n - v2_n)
-        
-        # 5. Normalization to [0, 1]
-        similarity = (np.sqrt(2) - distance) / np.sqrt(2)
+        similarity = np.exp(-((distance / self.gamma) ** self.distance_power))
         
         return float(np.clip(similarity, 0.0, 1.0))
