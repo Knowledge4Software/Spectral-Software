@@ -145,6 +145,7 @@ def _run_with_seconds_progress(
     output_path: str | None = None,
     timeout_seconds: int | None = None,
     inactivity_timeout_seconds: int | None = None,
+    env: dict[str, str] | None = None,
 ):
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
     print(f"    log: {log_path}")
@@ -154,6 +155,7 @@ def _run_with_seconds_progress(
             _bat_safe_cmd(cmd),
             stdout=log_file,
             stderr=subprocess.STDOUT,
+            env=env,
         )
 
         last_log_size = -1
@@ -527,6 +529,98 @@ def _cpg_inputs(batch_cpg_path: str) -> list[dict]:
             manifest = json.load(f)
         return manifest.get("chunks", [])
     return [{"index": 0, "cpg_path": abs_cpg}]
+
+
+METHOD_MAP_SCRIPT = Path(__file__).resolve().parent / "joern_scripts" / "method_file_map.sc"
+
+
+def method_map_path(batch_cpg_path: str) -> str:
+    return f"{os.path.abspath(batch_cpg_path)}.method_map.json"
+
+
+def run_joern_method_map(batch_cpg_path: str, joern_bat: str | None = None) -> dict[str, dict[str, list[str]]]:
+    """Return ``{chunk_index: {method_node_id: [source_filename, full_name]}}``.
+
+    joern-export names every DOT after its method, not after the file the method
+    came from, so a DOT alone cannot say which submission it belongs to. This
+    queries the CPG itself, which is the only authoritative answer.
+
+    The map is keyed by parse chunk because each chunk is an independent CPG
+    whose node ids restart from the same base: flattening them lets a later
+    chunk's ids overwrite an earlier chunk's and silently drops half the
+    attributions. It is cached next to the CPG so a resumed run does not pay
+    for it twice.
+    """
+    if not METHOD_MAP_SCRIPT.is_file():
+        raise FileNotFoundError(f"Joern method-map script is missing: {METHOD_MAP_SCRIPT}")
+
+    cache_path = Path(method_map_path(batch_cpg_path))
+    if cache_path.exists():
+        with cache_path.open("r", encoding="utf-8") as f:
+            cached = json.load(f)
+        if cached.get("format") == "joern_method_map_v3":
+            chunks = cached["chunks"]
+            total = sum(len(entries) for entries in chunks.values())
+            print(f"[*] Reusing cached Joern method map: {total:,} methods over {len(chunks)} chunk(s).")
+            return chunks
+        print("[*] Ignoring a cached method map written in an older format.")
+
+    joern_bat = _resolve_joern_cmd(joern_bat, "JOERN_BAT", "joern.bat", "joern")
+    cpg_inputs = _cpg_inputs(batch_cpg_path)
+    logs_dir = Path(batch_cpg_path).parent / "_method_map_logs"
+    timeout_seconds = _optional_positive_int_env("JOERN_METHOD_MAP_TIMEOUT_SECONDS")
+
+    method_map: dict[str, list[list[str]]] = {}
+    print(f"[*] Building authoritative method->file map from {len(cpg_inputs)} CPG chunk(s)...")
+    for cpg_info in tqdm(cpg_inputs, desc="Joern method map", unit="chunk"):
+        chunk_idx = int(cpg_info.get("index", 0))
+        chunk_entries = method_map.setdefault(str(chunk_idx), [])
+        cpg_path = os.path.abspath(cpg_info["cpg_path"])
+        if not os.path.exists(cpg_path):
+            print(f"[!] Method map: CPG chunk {chunk_idx} is missing at {cpg_path}; skipping.")
+            continue
+        tsv_path = Path(f"{cpg_path}.method_map.tsv")
+        environment = os.environ.copy()
+        environment["SPECTRAL_METHOD_MAP_CPG"] = cpg_path
+        environment["SPECTRAL_METHOD_MAP_OUT"] = str(tsv_path)
+        try:
+            _run_with_seconds_progress(
+                [joern_bat, "--script", str(METHOD_MAP_SCRIPT)],
+                desc=f"Method map chunk {chunk_idx + 1}/{len(cpg_inputs)}",
+                log_path=str(logs_dir / f"method_map_{chunk_idx:04d}.log"),
+                output_path=str(tsv_path),
+                timeout_seconds=timeout_seconds,
+                env=environment,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+            if not tsv_path.exists():
+                raise RuntimeError(
+                    f"Joern method map failed for chunk {chunk_idx} ({type(exc).__name__}). "
+                    f"See {logs_dir / f'method_map_{chunk_idx:04d}.log'}."
+                ) from exc
+            print(f"[!] Method map chunk {chunk_idx} returned non-zero but produced output; continuing.")
+
+        with tsv_path.open("r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                parts = line.rstrip("\n").split("\t")
+                if len(parts) != 3:
+                    continue
+                # Row order is joern-export's method order, which is also the
+                # ``<n>-<repr>.dot`` numbering. CFG/DDG exports start at a
+                # statement rather than the METHOD node, so that ordinal is the
+                # only way to attribute them; it is verified against the graph
+                # name before use.
+                chunk_entries.append(parts)
+        tsv_path.unlink(missing_ok=True)
+
+    total = sum(len(entries) for entries in method_map.values())
+    if not total:
+        raise RuntimeError("Joern method map is empty; DOT files cannot be attributed to source files.")
+
+    with cache_path.open("w", encoding="utf-8") as f:
+        json.dump({"format": "joern_method_map_v3", "chunks": method_map}, f)
+    print(f"[+] Method map ready: {total:,} methods over {len(method_map)} chunk(s).")
+    return method_map
 
 
 def run_joern_export(joern_export_bat: str, batch_cpg_path: str, base_out_dir: str, graph_types: list[str], total_methods: int):

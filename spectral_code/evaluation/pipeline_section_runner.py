@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 import json
@@ -26,7 +27,9 @@ from spectral_code.evaluation.semantic_preparation import (
     prepare_semantic_dataset,
     prepared_dataset_summary,
 )
+from spectral_code.evaluation.clean_data_export import export_clean_dataset
 from spectral_code.utils.dataset_paths import bcb_type_dir, output_root_for, xglue_dir
+from spectral_code.utils.pipeline_timings import record_pipeline_timing
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -42,11 +45,11 @@ JOERN_LANGUAGE_BY_SECTION = {
 }
 GRAPH_TYPES_BY_SECTION = {
     ("bcb", None): ["ast", "cfg", "ddg", "pdg", "cpg"],
-    ("semantic", "c"): ["cfg", "ddg", "cpg"],
-    ("semantic", "cs"): ["cfg", "ddg", "cpg"],
-    ("semantic", "csharp"): ["cfg", "ddg", "cpg"],
+    ("semantic", "c"): ["ast", "cfg", "ddg", "cpg"],
+    ("semantic", "cs"): ["ast", "cfg", "ddg", "cpg"],
+    ("semantic", "csharp"): ["ast", "cfg", "ddg", "cpg"],
     ("semantic", "java"): ["ast", "cfg", "ddg", "pdg", "cpg"],
-    ("semantic", "python"): ["cfg", "ddg", "cpg"],
+    ("semantic", "python"): ["ast", "cfg", "ddg", "cpg"],
     ("xglue", None): ["ast", "cfg", "ddg", "pdg", "cpg"],
 }
 
@@ -246,6 +249,218 @@ def _run_python_script(
     subprocess.run(command, cwd=str(PROJECT_ROOT), env=env, check=True)
 
 
+def _section_graph_types(config: SectionConfig) -> list[str]:
+    variant_key = str(config.variant).strip().lower() if config.variant is not None else None
+    graph_types = GRAPH_TYPES_BY_SECTION.get((config.dataset, variant_key))
+    if graph_types is None:
+        graph_types = GRAPH_TYPES_BY_SECTION.get((config.dataset, None), ["ast", "cfg", "ddg", "pdg", "cpg"])
+    return list(graph_types)
+
+
+def _section_pipeline_env(config: SectionConfig, data_dir: Path) -> dict[str, str]:
+    graph_types = _section_graph_types(config)
+    base_layers = [graph_type for graph_type in graph_types if graph_type != "cpg"]
+    pipeline_env = {
+        "BCB_DATA_FILE": str(data_dir / "data.jsonl"),
+        "BCB_DATA_DIR": str(data_dir),
+        "OUTPUT_DIR": str(config.output_root),
+        "PIPELINE_GRAPH_TYPES": ",".join(base_layers),
+        "PIPELINE_BASE_LAYERS": ",".join(base_layers),
+        "SPECTRAL_GRAPH_TYPES": ",".join(graph_types),
+    }
+
+    variant_key = str(config.variant).strip().lower() if config.variant is not None else None
+    if config.dataset == "semantic":
+        joern_language = JOERN_LANGUAGE_BY_SECTION.get((config.dataset, variant_key))
+        if joern_language:
+            pipeline_env["JOERN_LANGUAGE"] = joern_language
+    elif config.dataset == "bcb":
+        pipeline_env["JOERN_LANGUAGE"] = "javasrc"
+        pipeline_env["JOERN_USE_DIRECT_FRONTEND"] = os.getenv("JOERN_USE_DIRECT_FRONTEND", "1")
+        pipeline_env["BCB_MAX_METHOD_LINES"] = os.getenv("BCB_MAX_METHOD_LINES", "2000")
+        pipeline_env["JOERN_PARSE_CHUNK_SIZE"] = os.getenv("JOERN_PARSE_CHUNK_SIZE", "0")
+        pipeline_env["JOERN_PARSE_MIN_CHUNK_SIZE"] = os.getenv("JOERN_PARSE_MIN_CHUNK_SIZE", "50")
+        pipeline_env["JOERN_PARSE_INACTIVITY_TIMEOUT_SECONDS"] = os.getenv(
+            "JOERN_PARSE_INACTIVITY_TIMEOUT_SECONDS",
+            "0",
+        )
+        if config.variant is not None:
+            pipeline_env["BCB_CLONE_TYPE"] = str(config.variant)
+    elif config.dataset == "xglue":
+        pipeline_env["JOERN_LANGUAGE"] = "javasrc"
+
+    return pipeline_env
+
+
+def _write_dataset_reports(config: SectionConfig, data_dir: Path) -> dict[str, object]:
+    output_root = config.output_root
+    output_root.mkdir(parents=True, exist_ok=True)
+    summary_dir = output_root / "reports"
+    summary_dir.mkdir(parents=True, exist_ok=True)
+
+    spec = _dataset_spec(config)
+    negative_ratio = 0.0 if config.dataset == "semantic" else _env_float("SEMANTIC_NEGATIVE_RATIO", 1.0)
+    pairs = load_pairs_for_spec(
+        spec,
+        negative_ratio=negative_ratio,
+    )
+    pair_stats = pair_stats_dataframe(pairs)
+    pair_stats_summary = {
+        "dataset": config.display_name,
+        "slug": config.slug,
+        "total_pairs": int(len(pair_stats)),
+        "positive_pairs": int((pair_stats["label"] == 1).sum()) if not pair_stats.empty else 0,
+        "negative_pairs": int((pair_stats["label"] == 0).sum()) if not pair_stats.empty else 0,
+        "avg_left_lines": float(pair_stats["left_lines"].mean()) if not pair_stats.empty else 0.0,
+        "avg_right_lines": float(pair_stats["right_lines"].mean()) if not pair_stats.empty else 0.0,
+        "avg_left_chars": float(pair_stats["left_chars"].mean()) if not pair_stats.empty else 0.0,
+        "avg_right_chars": float(pair_stats["right_chars"].mean()) if not pair_stats.empty else 0.0,
+    }
+    save_dataframe_report(summary_dir / f"{config.slug}_pair_stats.csv", pair_stats)
+    save_json_report(summary_dir / f"{config.slug}_pair_stats_summary.json", pair_stats_summary)
+    return pair_stats_summary
+
+
+def run_dataset_preparation_section(config: SectionConfig) -> None:
+    start = time.perf_counter()
+    data_dir = prepare_dataset(config)
+    pair_stats_summary = _write_dataset_reports(config, data_dir)
+    seconds = time.perf_counter() - start
+
+    summary_dir = config.output_root / "reports"
+    summary = {
+        "dataset": config.display_name,
+        "slug": config.slug,
+        "prepared_data_dir": str(data_dir),
+        "output_root": str(config.output_root),
+        "pair_stats_csv": str(summary_dir / f"{config.slug}_pair_stats.csv"),
+        "pair_stats_summary_json": str(summary_dir / f"{config.slug}_pair_stats_summary.json"),
+        "pair_stats_summary": pair_stats_summary,
+        "seconds": seconds,
+    }
+    save_json_report(summary_dir / f"{config.slug}_dataset_summary.json", summary)
+    record_pipeline_timing(
+        config.output_root / "pipeline_timings.json",
+        "01_extract_data",
+        seconds,
+        {"dataset": config.dataset, "variant": config.variant, "prepared_data_dir": str(data_dir)},
+    )
+
+    print(f"[*] Dataset: {config.display_name}")
+    print(f"[*] Prepared Data: {data_dir}")
+    print(f"[*] Output Root: {config.output_root}")
+    print(f"\n[+] Data preparation finished for {config.display_name}.")
+
+
+def run_graph_extraction_section(config: SectionConfig) -> None:
+    data_dir = prepare_dataset(config)
+    _require_prepared_files(data_dir)
+    output_root = config.output_root
+    output_root.mkdir(parents=True, exist_ok=True)
+    pipeline_env = _section_pipeline_env(config, data_dir)
+
+    print(f"[*] Dataset: {config.display_name}")
+    print(f"[*] Prepared Data: {data_dir}")
+    print(f"[*] Output Root: {output_root}")
+    print(f"[*] Base graph layers: {pipeline_env['PIPELINE_BASE_LAYERS']}")
+
+    start = time.perf_counter()
+    _run_python_script("pipelines/01_extract_dataset.py", env_overrides=pipeline_env)
+    _run_python_script("pipelines/02_build_graph_db.py", env_overrides=pipeline_env)
+    seconds = time.perf_counter() - start
+
+    summary_dir = output_root / "reports"
+    summary = {
+        "dataset": config.display_name,
+        "slug": config.slug,
+        "prepared_data_dir": str(data_dir),
+        "output_root": str(output_root),
+        "graph_manifest": str(output_root / "clean_graphs" / "graph_shards_manifest.json"),
+        "graph_types": _section_graph_types(config),
+        "pipeline_env": pipeline_env,
+        "seconds": seconds,
+    }
+    save_json_report(summary_dir / f"{config.slug}_graph_summary.json", summary)
+    record_pipeline_timing(
+        output_root / "pipeline_timings.json",
+        "02_extract_graphs",
+        seconds,
+        {
+            "dataset": config.dataset,
+            "variant": config.variant,
+            "output_root": str(output_root),
+            "graph_manifest": summary["graph_manifest"],
+        },
+    )
+    print(f"\n[+] Graph extraction finished for {config.display_name}.")
+
+
+def run_spectral_feature_section(config: SectionConfig) -> None:
+    data_dir = prepare_dataset(config)
+    _require_prepared_files(data_dir)
+    output_root = config.output_root
+    graph_manifest = output_root / "clean_graphs" / "graph_shards_manifest.json"
+    if not graph_manifest.exists():
+        raise FileNotFoundError(f"Graph manifest is missing in {graph_manifest}. Run 02_extract_graphs.py first.")
+
+    pipeline_env = _section_pipeline_env(config, data_dir)
+    print(f"[*] Dataset: {config.display_name}")
+    print(f"[*] Prepared Data: {data_dir}")
+    print(f"[*] Output Root: {output_root}")
+    print(f"[*] Spectral graph types: {pipeline_env['SPECTRAL_GRAPH_TYPES']}")
+
+    start = time.perf_counter()
+    _run_python_script("pipelines/03_extract_spectral_features.py", env_overrides=pipeline_env)
+    seconds = time.perf_counter() - start
+
+    summary_dir = output_root / "reports"
+    summary = {
+        "dataset": config.display_name,
+        "slug": config.slug,
+        "prepared_data_dir": str(data_dir),
+        "output_root": str(output_root),
+        "features_manifest": str(output_root / "spectral_features" / "spectral_features_manifest.json"),
+        "graph_types": _section_graph_types(config),
+        "pipeline_env": pipeline_env,
+        "seconds": seconds,
+    }
+    save_json_report(summary_dir / f"{config.slug}_spectral_summary.json", summary)
+    record_pipeline_timing(
+        output_root / "pipeline_timings.json",
+        "03_extract_spectral_features",
+        seconds,
+        {
+            "dataset": config.dataset,
+            "variant": config.variant,
+            "output_root": str(output_root),
+            "features_manifest": summary["features_manifest"],
+        },
+    )
+    print(f"\n[+] Spectral feature extraction finished for {config.display_name}.")
+
+
+def run_clean_data_export_section(config: SectionConfig) -> None:
+    """Write the final portable dataset, then remove regenerable graph artefacts."""
+    data_dir = prepare_dataset(config)
+    _require_prepared_files(data_dir)
+    output_root = config.output_root
+    graph_types = _section_graph_types(config)
+    print(f"[*] Dataset: {config.display_name}")
+    print(f"[*] Prepared Data: {data_dir}")
+    print(f"[*] Final clean output: {output_root / 'clean_data'}")
+    metadata = export_clean_dataset(
+        data_dir=data_dir,
+        output_root=output_root,
+        graph_types=graph_types,
+        float_precision=None if _env_int("CLEAN_EXPORT_FLOAT_PRECISION", 8) == -1 else _env_int("CLEAN_EXPORT_FLOAT_PRECISION", 8),
+        cleanup_intermediates=not _env_flag("CLEAN_EXPORT_KEEP_INTERMEDIATES", False),
+        create_zip=_env_flag("CLEAN_EXPORT_ZIP", False),
+    )
+    print(f"[+] Final clean export complete: {output_root / 'clean_data'}")
+    print(f"    Codes: {metadata['counts']['codes']:,}")
+    print(f"    Pairs: {metadata['counts']['pairs']['total']:,}")
+
+
 def _prepare_bcb_dataset(config: SectionConfig) -> Path:
     clone_type = str(config.variant).strip()
     output_dir = bcb_type_dir(clone_type)
@@ -257,6 +472,7 @@ def _prepare_bcb_dataset(config: SectionConfig) -> Path:
 def _prepare_semantic_dataset(config: SectionConfig) -> Path:
     def _is_current_semantic_prepared_dir(path: Path) -> bool:
         data_jsonl = path / "data.jsonl"
+        metadata_json = path / "metadata.json"
         if not data_jsonl.exists():
             return False
         try:
@@ -267,7 +483,16 @@ def _prepare_semantic_dataset(config: SectionConfig) -> Path:
             record = json.loads(first_line)
         except Exception:
             return False
-        return "lang" in record
+        if "lang" not in record:
+            return False
+        if metadata_json.exists():
+            try:
+                metadata = json.loads(metadata_json.read_text(encoding="utf-8"))
+            except Exception:
+                return False
+            if int(metadata.get("negative_pairs", 0) or 0) != 0:
+                return False
+        return True
 
     language = str(config.variant).strip()
     output_dir = default_semantic_prepared_dir(language)
@@ -284,7 +509,6 @@ def _prepare_semantic_dataset(config: SectionConfig) -> Path:
     prepared = prepare_semantic_dataset(
         language=language,
         output_dir=output_dir,
-        negative_ratio=_env_float("SEMANTIC_NEGATIVE_RATIO", 1.0),
         seed=_env_int("SEMANTIC_SEED", 42) or 42,
     )
     save_json_report(output_dir / "prepared_summary.json", prepared_dataset_summary(prepared))
@@ -355,7 +579,7 @@ def run_full_pipeline_section(config: SectionConfig) -> None:
     spec = _dataset_spec(config)
     pairs = load_pairs_for_spec(
         spec,
-        negative_ratio=_env_float("SEMANTIC_NEGATIVE_RATIO", 1.0),
+        negative_ratio=0.0 if config.dataset == "semantic" else _env_float("SEMANTIC_NEGATIVE_RATIO", 1.0),
     )
     pair_stats = pair_stats_dataframe(pairs)
     pair_stats_summary = {
@@ -422,7 +646,7 @@ def run_pss_wasserstein_tuning(config: SectionConfig) -> None:
 
     pairs = load_pairs_for_spec(
         spec,
-        negative_ratio=_env_float("SEMANTIC_NEGATIVE_RATIO", 1.0),
+        negative_ratio=0.0 if config.dataset == "semantic" else _env_float("SEMANTIC_NEGATIVE_RATIO", 1.0),
     )
     bcb_pair_selection = {"enabled": False, "reason": "not_attempted"}
     if _env_flag("TUNING_BCB_BALANCED_NON_CLONE_SAMPLE", True):

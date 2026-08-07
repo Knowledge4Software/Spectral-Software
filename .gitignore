@@ -75,6 +75,13 @@ cache/
 tmp/
 artifacts/
 
+# large experiment exports and Kaggle runtime products
+*.zip
+*.tar
+*.tar.gz
+kaggle/**/working/
+research/**/artifacts/
+
 # Joern / Joern-cli temp and outputs
 *.bin
 *.chunks.json

@@ -153,15 +153,21 @@ def _wrap_csharp(code: str, idx: str) -> str:
     return f"class Wrapper_{idx} {{\n    {code}\n}}\n"
 
 
-def _render_source_record(code: str, idx: str, language: str) -> tuple[str, str]:
+def _render_source_record(
+    code: str,
+    idx: str,
+    language: str,
+    *,
+    source_mode: str | None = None,
+) -> tuple[str, str]:
     language = _normalize_language(language)
     ext = LANGUAGE_EXTENSIONS.get(language)
     if ext is None:
         raise ValueError(f"Unsupported source language in data.jsonl: {language}")
 
-    if language == "java":
+    if language == "java" and source_mode != "compilation_unit":
         content = _wrap_java(code, idx)
-    elif language == "csharp":
+    elif language == "csharp" and source_mode != "compilation_unit":
         content = _wrap_csharp(code, idx)
     else:
         content = code.rstrip() + "\n"
@@ -207,6 +213,7 @@ def unpack_jsonl_to_java(
             idx = str(record.get("idx", "unknown"))
             code = record.get('func', '')
             language = _normalize_language(record.get("lang"))
+            source_mode = str(record.get("source_mode") or "").strip().lower() or None
 
             metrics = _method_size_metrics(code)
             reasons = _skip_reasons(metrics, max_lines, max_chars, max_longest_line)
@@ -222,7 +229,7 @@ def unpack_jsonl_to_java(
                 iterator.set_postfix(methods=len(method_ids), skipped=skipped_count, refresh=False)
                 continue
 
-            source_content, ext = _render_source_record(code, idx, language)
+            source_content, ext = _render_source_record(code, idx, language, source_mode=source_mode)
             out_path = os.path.join(output_tmp_dir, f"m_{idx}{ext}")
             with open(out_path, "w", encoding="utf-8") as jf:
                 jf.write(source_content)

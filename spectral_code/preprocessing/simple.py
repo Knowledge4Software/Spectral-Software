@@ -7,8 +7,8 @@ class SimpleGraphPreprocessor(Preprocessor):
 
     def process(self, graph: nx.DiGraph) -> nx.DiGraph:
         if graph is None:
-            return nx.create_empty_copy(graph)
-            
+            return nx.DiGraph()
+
         cleaned_graph = graph.copy()
         
         isolated_nodes = [node for node in cleaned_graph.nodes() if cleaned_graph.in_degree(node) == 0 and cleaned_graph.out_degree(node) == 0]

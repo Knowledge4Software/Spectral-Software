@@ -11,12 +11,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
 from spectral_code.utils.project_paths import (
+    OUTPUT_ROOT,
     RAW_FEATURES_DIR, 
     CLEAN_GRAPHS_DIR, 
     TIMING_STATS_FILE, 
     ensure_dirs
 )
 from spectral_code.preprocessing.cleaner import clean_and_compose_graphs_sharded
+from spectral_code.utils.artifact_cleanup import cleanup_intermediate_artifacts, env_flag, print_cleanup_summary
 
 BASE_LAYERS = [g.strip().lower() for g in os.getenv("PIPELINE_BASE_LAYERS", "ast,cfg,ddg,pdg").split(",") if g.strip()]
 SHARD_SIZE = int(os.getenv("GRAPH_SHARD_SIZE", "1000"))
@@ -70,6 +72,16 @@ def main():
     stats["total_layers_cleaned"] = layers_cleaned + methods_cleaned
     stats["clean_graphs_manifest"] = manifest_path
     stats["clean_graphs_shard_size"] = SHARD_SIZE
+
+    if env_flag("PIPELINE_CLEAN_INTERMEDIATE_ARTIFACTS", True):
+        cleanup_summary = cleanup_intermediate_artifacts(
+            OUTPUT_ROOT,
+            include_dataset_features=env_flag("PIPELINE_CLEAN_RAW_FEATURES", True),
+            include_legacy_dirs=True,
+            dry_run=False,
+        )
+        stats["intermediate_cleanup_after_graph_build"] = cleanup_summary
+        print_cleanup_summary(cleanup_summary, "Intermediate graph artifacts cleanup")
     
     with open(TIMING_STATS_FILE, "w") as f:
         json.dump(stats, f, indent=4)

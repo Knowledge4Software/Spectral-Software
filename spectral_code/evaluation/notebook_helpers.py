@@ -162,7 +162,7 @@ def load_pairs_for_spec(spec: DatasetSpec, negative_ratio: float = 1.0) -> list[
             loader = BigCloneBenchLoader(prepared_dir)
             return loader.get_pairs("train")
         loader = SemanticBenchmarkLoader(spec.variant or "Python")
-        return loader.get_pairs(negative_ratio=negative_ratio)
+        return loader.get_pairs(negative_ratio=max(0.0, negative_ratio))
 
     raise ValueError(f"Unsupported dataset spec: {spec}")
 

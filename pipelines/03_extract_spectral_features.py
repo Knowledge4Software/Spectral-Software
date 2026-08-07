@@ -11,10 +11,17 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
 from spectral_code.utils.project_paths import (
-    CLEAN_GRAPHS_DIR, 
-    SPECTRAL_FEATURES_DIR, 
+    OUTPUT_ROOT,
+    CLEAN_GRAPHS_DIR,
+    SPECTRAL_FEATURES_DIR,
     TIMING_STATS_FILE,
     ensure_dirs
+)
+from spectral_code.utils.artifact_cleanup import (
+    cleanup_intermediate_artifacts,
+    cleanup_legacy_spectral_artifacts,
+    env_flag,
+    print_cleanup_summary,
 )
 from spectral_code.spectral.runner import run_spectral_feature_extraction
 
@@ -63,6 +70,34 @@ def main():
             "Spectral extraction completed but produced zero usable graph spectra. "
             "Check pipeline 01/02 outputs and selected SPECTRAL_GRAPH_TYPES."
         )
+
+    cleanup_changed_stats = False
+    if env_flag("PIPELINE_CLEAN_LEGACY_SPECTRAL_ARTIFACTS", True):
+        cleanup_summary = cleanup_legacy_spectral_artifacts(SPECTRAL_FEATURES_DIR, dry_run=False)
+        if cleanup_summary["removed_count"]:
+            stats["legacy_spectral_cleanup"] = cleanup_summary
+            cleanup_changed_stats = True
+        print_cleanup_summary(cleanup_summary, "Legacy spectral artifacts cleanup")
+
+    # ``ensure_dirs`` above may recreate empty Joern work directories after
+    # pipeline 02 removed them. They are not needed once graph and spectrum
+    # shards have been written, so keep only durable research artefacts.
+    if env_flag("PIPELINE_CLEAN_INTERMEDIATE_ARTIFACTS", True):
+        intermediate_cleanup = cleanup_intermediate_artifacts(
+            OUTPUT_ROOT,
+            include_dataset_features=env_flag("PIPELINE_CLEAN_RAW_FEATURES", True),
+            include_legacy_dirs=True,
+            include_post_spectral_diagnostics=True,
+            dry_run=False,
+        )
+        if intermediate_cleanup["removed_count"]:
+            stats["intermediate_cleanup_after_spectral_extraction"] = intermediate_cleanup
+            cleanup_changed_stats = True
+        print_cleanup_summary(intermediate_cleanup, "Intermediate artifacts cleanup after spectral extraction")
+
+    if cleanup_changed_stats:
+        with open(TIMING_STATS_FILE, "w", encoding="utf-8") as f:
+            json.dump(stats, f, indent=4)
 
     total_duration = time.perf_counter() - extraction_start_time
     print(f"\n[+] Success! Spectral features saved to {SPECTRAL_FEATURES_DIR}")

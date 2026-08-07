@@ -1,14 +1,19 @@
+import ast as py_ast
 import os
+import html
 import json
 import networkx as nx
 import re
+import warnings
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
 from tqdm import tqdm
 
-NODE_LINE_RE = re.compile(rb'^\s*"\d+"\s*\[label')
+NODE_LINE_RE = re.compile(rb'^\s*"?\d+"?\s*\[label')
 METHOD_ID_RE = re.compile(rb"m_(\d+)")
 DOT_ORDINAL_RE = re.compile(r"(\d+)-")
+LIB2TO3_TOOL = None
+LIB2TO3_UNAVAILABLE = False
 
 
 def _ordered_dot_files(folder: str) -> list[str]:
@@ -128,6 +133,200 @@ def _quick_analyze_dot(fpath):
     except Exception:
         return None
 
+# Joern emits a METHOD node for constructs that are not user code: one
+# ``<global>`` pseudo-method per file, a stub per referenced external
+# ``<operator>``/library call, and class initialisers.  Including them would
+# bolt a fixed synthetic subtree onto every graph.
+SYNTHETIC_METHOD_TOKENS = ("<operator>", "<global>", "<init>", "<clinit>", "<module>", "<fakeNew>")
+NON_SOURCE_FILENAMES = frozenset({"<empty>", "<includes>", "<unknown>", "", "N/A"})
+
+FIRST_NODE_ID_RE = re.compile(rb'^\s*"?(\d+)"?\s*\[')
+
+
+CHUNK_DIR_RE = re.compile(r"chunk_(\d+)$")
+
+
+def _chunk_index_for(fpath: str, layer_root: str) -> str:
+    """Which parse chunk exported this DOT.
+
+    Each parse chunk is a separate CPG whose node ids restart from the same
+    base, so an id is only meaningful together with its chunk. joern-export
+    writes chunked layers to ``<layer>/chunk_XXXX/``; an unchunked run has a
+    single CPG, which is chunk 0.
+    """
+    try:
+        relative = Path(fpath).resolve().relative_to(Path(layer_root).resolve())
+    except ValueError:
+        relative = Path(fpath)
+    for part in relative.parts:
+        match = CHUNK_DIR_RE.fullmatch(part)
+        if match:
+            return str(int(match.group(1)))
+    return "0"
+
+
+GRAPH_NAME_RE = re.compile(rb'^\s*digraph\s+"(.*)"\s*\{')
+
+
+def _dot_header(fpath: str, max_scan: int = 32) -> tuple[str | None, list[str]]:
+    """Return the DOT's graph name and its first few node ids."""
+    name = None
+    node_ids: list[str] = []
+    try:
+        with open(fpath, "rb") as f:
+            for raw_line in f:
+                if name is None:
+                    header = GRAPH_NAME_RE.match(raw_line)
+                    if header:
+                        name = html.unescape(header.group(1).decode("utf-8", errors="replace"))
+                        continue
+                match = FIRST_NODE_ID_RE.match(raw_line)
+                if match:
+                    node_ids.append(match.group(1).decode("ascii", errors="ignore"))
+                    if len(node_ids) >= max_scan:
+                        break
+    except OSError:
+        return None, []
+    return name, node_ids
+
+
+def _lookup_method_entry(fpath: str, chunk_methods: list, by_node_id: dict) -> list | None:
+    """Find the method a Joern DOT belongs to, without reading the whole file.
+
+    An AST or PDG export starts at the METHOD node, so its id resolves directly.
+    A CFG or DDG export starts at a *statement*, whose id is not in the method
+    table at all - those are attributed by the ``<n>-<repr>.dot`` ordinal, which
+    is joern-export's method order and therefore the order of the method table.
+    The ordinal is only trusted when the DOT's graph name matches the method it
+    points at, so a frontend that ever skips a method cannot shift every
+    subsequent record onto the wrong source file.
+    """
+    name, node_ids = _dot_header(fpath)
+    for node_id in node_ids:
+        entry = by_node_id.get(node_id)
+        if entry:
+            return entry
+
+    ordinal = _dot_ordinal(fpath)
+    if ordinal is None or not 0 <= ordinal < len(chunk_methods):
+        return None
+    candidate = chunk_methods[ordinal]
+    return candidate if _names_match(candidate[2], name) else None
+
+
+def method_id_from_source_filename(filename: str) -> str | None:
+    """Map a Joern ``filename`` property back to the pipeline's method id."""
+    if not filename or filename in NON_SOURCE_FILENAMES:
+        return None
+    stem = Path(filename.replace("\\", "/")).stem
+    if not stem.startswith("m_"):
+        return None
+    candidate = stem[2:]
+    return candidate if candidate.isdigit() else None
+
+
+def is_user_method(full_name: str) -> bool:
+    return not any(token in full_name for token in SYNTHETIC_METHOD_TOKENS)
+
+
+DUPLICATE_SUFFIX_RE = re.compile(r"<duplicate>\d+$")
+
+
+def method_short_name(full_name: str) -> str:
+    """``Wrapper_2.m_2:java.lang.String()`` -> ``m_2``; ``helper`` -> ``helper``."""
+    return full_name.split(":", 1)[0].rsplit(".", 1)[-1].strip()
+
+
+def _names_match(full_name: str, dot_name: str | None) -> bool:
+    """Does a DOT's graph name denote the method the ordinal points at?
+
+    joern-export names the graph after the method's *display* name, which is not
+    always the tail of its fullName: static-analysis artefacts such as
+    ``main<duplicate>0`` and qualified operator stubs differ in spelling only.
+    """
+    if dot_name is None:
+        return True
+    qualified = full_name.split(":", 1)[0].strip()
+    stripped = DUPLICATE_SUFFIX_RE.sub("", qualified)
+    target = DUPLICATE_SUFFIX_RE.sub("", dot_name.strip())
+    if not target:
+        return False
+    candidates = {qualified, stripped, qualified.rsplit(".", 1)[-1], stripped.rsplit(".", 1)[-1]}
+    return target in candidates or stripped.endswith(target)
+
+
+def _select_record_methods(idx: str, entries: list[tuple[str, str]]) -> list[str]:
+    """Choose which of a file's exported methods represent the dataset record.
+
+    Snippet datasets store one method per record and the unpacker marks it by
+    renaming it to ``m_<idx>``; everything else Joern finds in that file is a
+    wrapper artefact or a nested/anonymous body, so the record is exactly the
+    marked method. Whole-program records (AtCoder submissions, C files) carry no
+    marker, and there every user method is part of the record.
+    """
+    marker = f"m_{idx}"
+    primary = [path for path, full_name in entries if method_short_name(full_name) == marker]
+    return primary if primary else [path for path, _ in entries]
+
+
+def build_dot_index_with_method_map(joern_base_out, graph_types, method_map, method_ids=None):
+    """Map every DOT to its source file using the CPG's own method table.
+
+    Returns ``{graph_type: {method_id: [dot_path, ...]}}``.  A source file that
+    defines several functions (an AtCoder submission, a C file with helpers)
+    yields several DOTs, and *all* of them belong to that submission; keeping
+    only one silently reduced such a program to a single arbitrary function.
+    Joern node ids are unique across the whole CPG, so the per-method DOTs of one
+    file merge without any id remapping, and the AST/CFG/DDG layers stay aligned.
+    """
+    index = {gtype: {} for gtype in graph_types}
+    wanted = {str(value) for value in method_ids} if method_ids is not None else None
+    stats = {gtype: {"mapped": 0, "synthetic": 0, "unattributed": 0} for gtype in graph_types}
+
+    for gtype in graph_types:
+        folder = os.path.join(joern_base_out, gtype)
+        if not os.path.exists(folder):
+            continue
+
+        files = _ordered_dot_files(folder)
+        by_method: dict[str, list[tuple[str, str]]] = {}
+        node_index: dict[str, dict[str, list[str]]] = {
+            chunk: {entry[0]: entry for entry in entries} for chunk, entries in method_map.items()
+        }
+        print(f"[*] {gtype.upper()}: attributing {len(files):,} DOT files via the CPG method map.")
+        for fpath in tqdm(files, desc=f"Mapping {gtype.upper()}", unit="dot"):
+            chunk = _chunk_index_for(fpath, folder)
+            entry = _lookup_method_entry(fpath, method_map.get(chunk) or [], node_index.get(chunk) or {})
+            if not entry:
+                stats[gtype]["unattributed"] += 1
+                continue
+            filename, full_name = entry[1], entry[2]
+            if not is_user_method(full_name):
+                stats[gtype]["synthetic"] += 1
+                continue
+            idx = method_id_from_source_filename(filename)
+            if idx is None or (wanted is not None and idx not in wanted):
+                stats[gtype]["unattributed"] += 1
+                continue
+            by_method.setdefault(idx, []).append((fpath, full_name))
+            stats[gtype]["mapped"] += 1
+
+        merged = 0
+        for idx, entries in by_method.items():
+            selected = _select_record_methods(idx, entries)
+            index[gtype][idx] = selected
+            merged += len(selected) > 1
+
+        counts = stats[gtype]
+        print(
+            f"    {gtype.upper()}: {counts['mapped']:,} user-method DOTs over "
+            f"{len(index[gtype]):,} records ({merged:,} multi-method); skipped "
+            f"{counts['synthetic']:,} synthetic and {counts['unattributed']:,} unattributed."
+        )
+
+    return index
+
+
 def build_dot_index(joern_base_out, graph_types, method_ids=None, chunk_manifest_path=None):
     """
     Scans the exported DOT files in parallel and builds a mapping.
@@ -229,14 +428,14 @@ def parse_joern_dot_fast(fpath):
     # version/repr. Keep the parser permissive; missing nodes here silently
     # turns a valid layer into a tiny/empty graph.
     html_node_re = re.compile(
-        r'^\s*"(\d+)"\s*\[\s*label\s*=\s*<(.*?)>\s*\]',
+        r'^\s*"?(\d+)"?\s*\[\s*label\s*=\s*<(.*?)>\s*\]',
         re.MULTILINE | re.DOTALL,
     )
     quoted_node_re = re.compile(
-        r'^\s*"(\d+)"\s*\[\s*label\s*=\s*"((?:\\.|[^"\\])*)".*?\]',
+        r'^\s*"?(\d+)"?\s*\[\s*label\s*=\s*"((?:\\.|[^"\\])*)".*?\]',
         re.MULTILINE | re.DOTALL,
     )
-    edge_re = re.compile(r'^\s*"(\d+)"\s*->\s*"(\d+)"', re.MULTILINE)
+    edge_re = re.compile(r'^\s*"?(\d+)"?\s*->\s*"?(\d+)"?', re.MULTILINE)
     
     try:
         max_bytes = _env_int("DOT_PARSE_MAX_BYTES", 64 * 1024 * 1024)
@@ -288,42 +487,524 @@ def parse_joern_dot_fast(fpath):
         graph.graph["source_path"] = str(fpath)
         return graph
 
+
+def parse_joern_dot_files(paths) -> nx.DiGraph:
+    """Parse one DOT, or merge every DOT belonging to the same source file.
+
+    Joern node ids are globally unique inside a CPG, so a plain union keeps the
+    per-function subtrees disjoint and leaves AST/CFG/DDG node ids aligned for
+    the later CPG composition and DDG projection.
+    """
+    if isinstance(paths, (str, os.PathLike)):
+        return parse_joern_dot_fast(paths)
+
+    path_list = [path for path in paths if path]
+    if not path_list:
+        return nx.DiGraph()
+    if len(path_list) == 1:
+        return parse_joern_dot_fast(path_list[0])
+
+    merged = nx.DiGraph()
+    errors = []
+    for path in path_list:
+        graph = parse_joern_dot_fast(path)
+        if graph.graph.get("parse_error"):
+            errors.append(f"{Path(path).name}: {graph.graph['parse_error']}")
+        merged.add_nodes_from(graph.nodes(data=True))
+        merged.add_edges_from(graph.edges(data=True))
+    merged.graph["merged_method_dots"] = len(path_list)
+    if errors:
+        merged.graph["parse_error"] = "; ".join(errors)
+    return merged
+
+
+def _python_ast_source_path(source_dir: str | None, idx: str | int) -> Path | None:
+    if not source_dir:
+        return None
+    path = Path(source_dir) / f"m_{idx}.py"
+    return path if path.exists() else None
+
+
+def _csharp_source_path(source_dir: str | None, idx: str | int) -> Path | None:
+    if not source_dir:
+        return None
+    path = Path(source_dir) / f"m_{idx}.cs"
+    return path if path.exists() else None
+
+
+def build_csharp_ast_graph(source_path: Path) -> nx.DiGraph:
+    """Build a real C# syntax tree when Joern's C# AST export is incomplete.
+
+    Tree-sitter preserves the concrete syntax hierarchy even for incomplete
+    snippets, which is exactly what GPTCloneBench C# contains.  We use only
+    named syntax nodes; their standard grammar names are consumed by the
+    notebook's canonical type mapping.
+    """
+    graph = nx.DiGraph()
+    try:
+        from tree_sitter import Language, Parser
+        import tree_sitter_c_sharp
+    except ModuleNotFoundError:
+        graph.graph["parse_error"] = "C# AST fallback requires tree-sitter and tree-sitter-c-sharp"
+        graph.graph["source_path"] = str(source_path)
+        return graph
+    try:
+        code = source_path.read_bytes()
+        parser = Parser(Language(tree_sitter_c_sharp.language()))
+        root = parser.parse(code).root_node
+        counter = 0
+        stack: list[tuple[object, str | None]] = [(root, None)]
+        while stack:
+            node, parent_id = stack.pop()
+            if not node.is_named:
+                continue
+            node_id = str(counter)
+            counter += 1
+            raw_text = code[node.start_byte:node.end_byte].decode("utf-8", errors="replace").replace("\n", " ").strip()
+            graph.add_node(node_id, type=node.type, label=f"{node.type},{raw_text[:96]}" if raw_text else node.type)
+            if parent_id is not None:
+                graph.add_edge(parent_id, node_id, type="child")
+            # Reversed push keeps the original source order under LIFO traversal.
+            for child in reversed(node.children):
+                if child.is_named:
+                    stack.append((child, node_id))
+        graph.graph["source_path"] = str(source_path)
+        graph.graph["source"] = "csharp_tree_sitter_ast_fallback"
+    except Exception as exc:
+        graph.graph["parse_error"] = f"C# Tree-sitter fallback failed: {type(exc).__name__}: {exc}"
+        graph.graph["source_path"] = str(source_path)
+    return graph
+
+
+SPACED_PYTHON_OPERATOR_REPAIRS = (
+    (re.compile(r"\*\s+\*\s+="), "**="),
+    (re.compile(r"/\s+/\s+="), "//="),
+    (re.compile(r"<<\s+="), "<<="),
+    (re.compile(r">>\s+="), ">>="),
+    (re.compile(r"(?<![<>=!])<\s+=(?!=)"), "<="),
+    (re.compile(r"(?<![<>=!])>\s+=(?!=)"), ">="),
+    (re.compile(r"(?<![<>=!])!\s+=(?!=)"), "!="),
+    (re.compile(r"(?<![<>=!])=\s+=(?!=)"), "=="),
+    (re.compile(r"(?<!/)/\s+/(?![=/])"), "//"),
+    (re.compile(r"(?<!\*)\*\s+\*(?![=])"), "**"),
+    (re.compile(r"(?<!<)<\s+<(?![=])"), "<<"),
+    (re.compile(r"(?<!>)>\s+>(?![=])"), ">>"),
+    (re.compile(r"-\s+>"), "->"),
+    (re.compile(r":\s+="), ":="),
+    (re.compile(r"\+\s+="), "+="),
+    (re.compile(r"-\s+="), "-="),
+    (re.compile(r"\*\s+="), "*="),
+    (re.compile(r"/\s+="), "/="),
+    (re.compile(r"%\s+="), "%="),
+    (re.compile(r"&\s+="), "&="),
+    (re.compile(r"\|\s+="), "|="),
+    (re.compile(r"\^\s+="), "^="),
+)
+
+
+def _repair_spaced_python_operators(code: str) -> str:
+    repaired = code
+    for pattern, replacement in SPACED_PYTHON_OPERATOR_REPAIRS:
+        repaired = pattern.sub(replacement, repaired)
+    return repaired
+
+
+def _parse_python_candidate(code: str):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", SyntaxWarning)
+        return py_ast.parse(code)
+
+
+def _get_lib2to3_tool():
+    global LIB2TO3_TOOL, LIB2TO3_UNAVAILABLE
+    if LIB2TO3_UNAVAILABLE:
+        return None
+    if LIB2TO3_TOOL is not None:
+        return LIB2TO3_TOOL
+    try:
+        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
+
+        LIB2TO3_TOOL = RefactoringTool(get_fixers_from_package("lib2to3.fixes"))
+        return LIB2TO3_TOOL
+    except Exception:
+        LIB2TO3_UNAVAILABLE = True
+        return None
+
+
+def _parse_python_source(code: str):
+    candidates = [code]
+    repaired_code = _repair_spaced_python_operators(code)
+    if repaired_code != code:
+        candidates.append(repaired_code)
+
+    for candidate in candidates:
+        try:
+            return _parse_python_candidate(candidate)
+        except SyntaxError:
+            pass
+
+    tool = _get_lib2to3_tool()
+    if tool is not None:
+        for candidate in candidates:
+            try:
+                translated = str(tool.refactor_string(candidate, name="<semantic-python-snippet>"))
+                return _parse_python_candidate(translated)
+            except Exception:
+                pass
+    return None
+
+
+def build_python_ast_graph(source_path: Path) -> nx.DiGraph:
+    graph = nx.DiGraph()
+    code = source_path.read_text(encoding="utf-8", errors="replace")
+    tree = _parse_python_source(code)
+    if tree is None:
+        graph.graph["parse_error"] = "Python AST fallback failed: source is not parseable as Python 3 or lib2to3-translated Python 2"
+        graph.graph["source_path"] = str(source_path)
+        return graph
+
+    counter = 0
+
+    def add_node(node, parent_id: str | None = None, edge_label: str | None = None) -> str:
+        nonlocal counter
+        node_id = str(counter)
+        counter += 1
+        node_type = type(node).__name__
+        label = node_type
+        if isinstance(node, (py_ast.FunctionDef, py_ast.AsyncFunctionDef, py_ast.ClassDef)):
+            label = f"{node_type},{node.name}"
+        elif isinstance(node, py_ast.Name):
+            label = f"{node_type},{node.id}"
+        elif isinstance(node, py_ast.arg):
+            label = f"{node_type},{node.arg}"
+        elif isinstance(node, py_ast.Constant):
+            label = f"{node_type},{repr(node.value)[:80]}"
+
+        graph.add_node(node_id, type=node_type, label=label)
+        if parent_id is not None:
+            graph.add_edge(parent_id, node_id, type=edge_label or "child")
+
+        for field_name, value in py_ast.iter_fields(node):
+            if isinstance(value, py_ast.AST):
+                add_node(value, node_id, field_name)
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, py_ast.AST):
+                        add_node(item, node_id, field_name)
+        return node_id
+
+    add_node(tree)
+    graph.graph["source_path"] = str(source_path)
+    graph.graph["source"] = "python_ast_fallback"
+    return graph
+
+
+def _python_source_graph(source_path: Path):
+    code = source_path.read_text(encoding="utf-8", errors="replace")
+    tree = _parse_python_source(code)
+    return code, tree
+
+
+def _python_statement_label(stmt) -> str:
+    label = type(stmt).__name__
+    line = getattr(stmt, "lineno", None)
+    if isinstance(stmt, (py_ast.FunctionDef, py_ast.AsyncFunctionDef, py_ast.ClassDef)):
+        label = f"{label},{stmt.name}"
+    elif isinstance(stmt, py_ast.Assign):
+        targets = [getattr(target, "id", type(target).__name__) for target in stmt.targets]
+        label = f"{label},{'='.join(targets[:3])}"
+    elif isinstance(stmt, py_ast.Name):
+        label = f"{label},{stmt.id}"
+    return f"{label}@{line}" if line else label
+
+
+def _statement_children(stmt) -> list:
+    children = []
+    for field_name in ("body", "orelse", "finalbody"):
+        value = getattr(stmt, field_name, None)
+        if isinstance(value, list):
+            children.extend(item for item in value if isinstance(item, py_ast.stmt))
+    handlers = getattr(stmt, "handlers", None)
+    if isinstance(handlers, list):
+        for handler in handlers:
+            children.extend(item for item in getattr(handler, "body", []) if isinstance(item, py_ast.stmt))
+    return children
+
+
+def _ordered_statements(tree) -> list:
+    statements = []
+
+    def visit_block(block):
+        for stmt in block:
+            if not isinstance(stmt, py_ast.stmt):
+                continue
+            statements.append(stmt)
+            visit_block(_statement_children(stmt))
+
+    visit_block(getattr(tree, "body", []))
+    return statements
+
+
+def build_python_cfg_graph(source_path: Path) -> nx.DiGraph:
+    graph = nx.DiGraph()
+    _, tree = _python_source_graph(source_path)
+    if tree is None:
+        graph.graph["parse_error"] = "Python CFG fallback failed: source is not parseable"
+        graph.graph["source_path"] = str(source_path)
+        return graph
+
+    counter = 0
+
+    def add_stmt(stmt) -> str:
+        nonlocal counter
+        node_id = str(counter)
+        counter += 1
+        graph.add_node(node_id, type=type(stmt).__name__, label=_python_statement_label(stmt))
+        return node_id
+
+    def build_block(block, previous: list[str] | None = None) -> list[str]:
+        exits = previous or []
+        for stmt in block:
+            if not isinstance(stmt, py_ast.stmt):
+                continue
+            current = add_stmt(stmt)
+            for prev in exits:
+                graph.add_edge(prev, current, type="next")
+
+            if isinstance(stmt, (py_ast.If, py_ast.IfExp)):
+                body_exits = build_block(getattr(stmt, "body", []), [current])
+                else_block = getattr(stmt, "orelse", [])
+                else_exits = build_block(else_block, [current]) if else_block else [current]
+                exits = body_exits + else_exits
+            elif isinstance(stmt, (py_ast.FunctionDef, py_ast.AsyncFunctionDef, py_ast.ClassDef)):
+                body_exits = build_block(getattr(stmt, "body", []), [current])
+                exits = body_exits or [current]
+            elif isinstance(stmt, (py_ast.For, py_ast.AsyncFor, py_ast.While)):
+                body_exits = build_block(getattr(stmt, "body", []), [current])
+                for exit_id in body_exits:
+                    graph.add_edge(exit_id, current, type="loop")
+                else_exits = build_block(getattr(stmt, "orelse", []), [current]) if getattr(stmt, "orelse", []) else []
+                exits = [current] + else_exits
+            elif isinstance(stmt, py_ast.Try):
+                exits = []
+                exits.extend(build_block(getattr(stmt, "body", []), [current]))
+                for handler in getattr(stmt, "handlers", []):
+                    exits.extend(build_block(getattr(handler, "body", []), [current]))
+                exits.extend(build_block(getattr(stmt, "orelse", []), exits or [current]))
+                exits.extend(build_block(getattr(stmt, "finalbody", []), exits or [current]))
+                if not exits:
+                    exits = [current]
+            elif isinstance(stmt, (py_ast.Return, py_ast.Raise, py_ast.Break, py_ast.Continue)):
+                exits = []
+            else:
+                exits = [current]
+        return exits
+
+    build_block(getattr(tree, "body", []), [])
+    graph.graph["source_path"] = str(source_path)
+    graph.graph["source"] = "python_cfg_fallback"
+    return graph
+
+
+def _names_in_context(node, context_type) -> set[str]:
+    names = set()
+    for child in py_ast.walk(node):
+        if isinstance(child, py_ast.Name) and isinstance(child.ctx, context_type):
+            names.add(child.id)
+        elif isinstance(child, py_ast.arg) and context_type is py_ast.Store:
+            names.add(child.arg)
+    return names
+
+
+def build_python_ddg_graph(source_path: Path) -> nx.DiGraph:
+    graph = nx.DiGraph()
+    _, tree = _python_source_graph(source_path)
+    if tree is None:
+        graph.graph["parse_error"] = "Python DDG fallback failed: source is not parseable"
+        graph.graph["source_path"] = str(source_path)
+        return graph
+
+    last_def: dict[str, str] = {}
+    external_nodes: dict[str, str] = {}
+    statements = _ordered_statements(tree)
+
+    def external_node(name: str) -> str:
+        if name not in external_nodes:
+            node_id = f"input:{name}"
+            external_nodes[name] = node_id
+            graph.add_node(node_id, type="External", label=f"External,{name}")
+        return external_nodes[name]
+
+    for index, stmt in enumerate(statements):
+        node_id = f"s{index}"
+        graph.add_node(node_id, type=type(stmt).__name__, label=_python_statement_label(stmt))
+        uses = _names_in_context(stmt, py_ast.Load)
+        defs = _names_in_context(stmt, py_ast.Store)
+        if isinstance(stmt, (py_ast.FunctionDef, py_ast.AsyncFunctionDef)):
+            defs.add(stmt.name)
+            for arg in getattr(stmt.args, "args", []):
+                last_def[arg.arg] = node_id
+
+        for name in sorted(uses):
+            graph.add_edge(last_def.get(name, external_node(name)), node_id, type=f"use:{name}")
+        for name in sorted(defs):
+            last_def[name] = node_id
+
+    graph.graph["source_path"] = str(source_path)
+    graph.graph["source"] = "python_ddg_fallback"
+    return graph
+
+
+def _python_fallback_enabled(gtype: str, source_dir: str | None) -> bool:
+    language = os.getenv("JOERN_LANGUAGE", "").strip().lower()
+    return gtype in {"ast", "cfg", "ddg"} and language == "pythonsrc" and bool(source_dir)
+
+
+def _fallback_python_graph(gtype: str, idx: str | int, source_dir: str | None) -> nx.DiGraph | None:
+    source_path = _python_ast_source_path(source_dir, idx)
+    if source_path is None:
+        return None
+    if gtype == "ast":
+        return build_python_ast_graph(source_path)
+    if gtype == "cfg":
+        return build_python_cfg_graph(source_path)
+    if gtype == "ddg":
+        return build_python_ddg_graph(source_path)
+    return None
+
+
+def _csharp_fallback_enabled(gtype: str, source_dir: str | None) -> bool:
+    return gtype == "ast" and os.getenv("JOERN_LANGUAGE", "").strip().lower() == "csharpsrc" and bool(source_dir)
+
+
+def _fallback_csharp_graph(gtype: str, idx: str | int, source_dir: str | None) -> nx.DiGraph | None:
+    source_path = _csharp_source_path(source_dir, idx)
+    return build_csharp_ast_graph(source_path) if gtype == "ast" and source_path is not None else None
+
+
+def _should_replace_with_csharp_fallback(gtype: str, graph: nx.DiGraph, idx: str | int, source_dir: str | None) -> bool:
+    if not _csharp_fallback_enabled(gtype, source_dir):
+        return False
+    mode = os.getenv("CSHARP_AST_FALLBACK_MODE", "prefer").strip().lower()
+    return mode in {"prefer", "always", "source"} or graph.number_of_nodes() == 0
+
+
+def _source_line_count(source_dir: str | None, idx: str | int) -> int:
+    source_path = _python_ast_source_path(source_dir, idx)
+    if source_path is None:
+        return 0
+    return sum(1 for line in source_path.read_text(encoding="utf-8", errors="replace").splitlines() if line.strip())
+
+
+def _should_replace_with_python_fallback(gtype: str, graph: nx.DiGraph, idx: str | int, source_dir: str | None) -> bool:
+    if not _python_fallback_enabled(gtype, source_dir):
+        return False
+    mode = os.getenv("PYTHON_GRAPH_FALLBACK_MODE", "prefer").strip().lower()
+    if mode in {"prefer", "always", "source"}:
+        return True
+    if gtype == "ast" and graph.number_of_nodes() == 0:
+        return True
+    if gtype not in {"cfg", "ddg"}:
+        return False
+    min_lines = _env_int("PYTHON_GRAPH_FALLBACK_MIN_SOURCE_LINES", 8)
+    tiny_nodes = _env_int("PYTHON_GRAPH_FALLBACK_TINY_NODES", 8)
+    line_count = _source_line_count(source_dir, idx)
+    line_based_tiny_nodes = max(tiny_nodes, int(min(line_count, 40) * 0.75))
+    return line_count >= min_lines and graph.number_of_nodes() <= line_based_tiny_nodes
+
+
 def process_single_method(args):
-    idx, paths, output_dir, per_method_cpg_time, per_layer_export_time = args
+    if len(args) == 6:
+        idx, paths, output_dir, per_method_cpg_time, per_layer_export_time, source_dir = args
+    else:
+        idx, paths, output_dir, per_method_cpg_time, per_layer_export_time = args
+        source_dir = None
     results = {}
     skipped_layers = []
+    fallback_layers = []
     
     for gtype, fpath in paths.items():
-        if fpath and os.path.exists(fpath):
-            # Use the fast parser instead of networkx default
-            graph = parse_joern_dot_fast(fpath)
+        # A method-mapped entry is the list of every DOT exported for that
+        # source file; a legacy entry is a single path.
+        existing = (
+            [path for path in fpath if path and os.path.exists(path)]
+            if isinstance(fpath, (list, tuple))
+            else fpath if fpath and os.path.exists(fpath) else None
+        )
+        if existing:
+            graph = parse_joern_dot_files(existing)
+            fallback_graph = None
+            if _should_replace_with_python_fallback(gtype, graph, idx, source_dir):
+                fallback_graph = _fallback_python_graph(gtype, idx, source_dir)
+            elif _should_replace_with_csharp_fallback(gtype, graph, idx, source_dir):
+                fallback_graph = _fallback_csharp_graph(gtype, idx, source_dir)
+            if fallback_graph is not None and fallback_graph.number_of_nodes() > 0:
+                graph = fallback_graph
+                fallback_layers.append(
+                    {
+                        "idx": int(idx),
+                        "graph_type": gtype,
+                        "source": graph.graph.get("source"),
+                        "nodes": graph.number_of_nodes(),
+                        "edges": graph.number_of_edges(),
+                    }
+                )
             
             if graph.number_of_nodes() == 0:
                 skipped_layers.append(
                     {
                         "idx": int(idx),
                         "graph_type": gtype,
-                        "dot_path": str(fpath),
+                        "dot_path": ", ".join(map(str, existing)) if isinstance(existing, list) else str(existing),
                         "reason": graph.graph.get("parse_error", "empty graph after parsing"),
                     }
                 )
                 results[gtype] = {"nodes": 0, "edges": 0, "graph_data": None}
             else:
-                results[gtype] = {
+                feature = {
                     "nodes": graph.number_of_nodes(),
                     "edges": graph.number_of_edges(),
                     "graph_data": nx.node_link_data(graph)
                 }
+                if graph.graph.get("source"):
+                    feature["source"] = graph.graph["source"]
+                results[gtype] = feature
         else:
-            skipped_layers.append(
-                {
-                    "idx": int(idx),
-                    "graph_type": gtype,
-                    "dot_path": str(fpath) if fpath else None,
-                    "reason": "missing Joern DOT file",
+            if _python_fallback_enabled(gtype, source_dir):
+                graph = _fallback_python_graph(gtype, idx, source_dir)
+            elif _csharp_fallback_enabled(gtype, source_dir):
+                graph = _fallback_csharp_graph(gtype, idx, source_dir)
+            else:
+                graph = None
+            if graph is not None and graph.number_of_nodes() > 0:
+                fallback_layers.append(
+                    {
+                        "idx": int(idx),
+                        "graph_type": gtype,
+                        "source": graph.graph.get("source"),
+                        "nodes": graph.number_of_nodes(),
+                        "edges": graph.number_of_edges(),
+                    }
+                )
+                results[gtype] = {
+                    "nodes": graph.number_of_nodes(),
+                    "edges": graph.number_of_edges(),
+                    "graph_data": nx.node_link_data(graph),
+                    "source": graph.graph.get("source"),
                 }
-            )
-            results[gtype] = {"nodes": 0, "edges": 0, "graph_data": None}
+            else:
+                reason = "missing Joern DOT file"
+                if graph is not None and graph.graph.get("parse_error"):
+                    reason = f"{reason}; {graph.graph['parse_error']}"
+                skipped_layers.append(
+                    {
+                        "idx": int(idx),
+                        "graph_type": gtype,
+                        "dot_path": str(fpath) if fpath else None,
+                        "reason": reason,
+                    }
+                )
+                results[gtype] = {"nodes": 0, "edges": 0, "graph_data": None}
             
         results[gtype]["metrics"] = {
             "cpg_time": per_method_cpg_time,
@@ -335,4 +1016,8 @@ def process_single_method(args):
     out_file = os.path.join(output_dir, f"{idx}.json")
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump({"idx": int(idx), "features": results}, f)
-    return {"idx": int(idx), "skipped_layers": skipped_layers}
+    return {
+        "idx": int(idx),
+        "skipped_layers": skipped_layers,
+        "fallback_layers": fallback_layers,
+    }

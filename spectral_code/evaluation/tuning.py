@@ -81,8 +81,11 @@ class PrecomputedSpectralModel:
             v1_pad = np.pad(v1, (0, max_len - len(v1))) if len(v1) < max_len else v1
             v2_pad = np.pad(v2, (0, max_len - len(v2))) if len(v2) < max_len else v2
             n1, n2 = np.linalg.norm(v1_pad), np.linalg.norm(v2_pad)
-            if n1 > 0: v1_pad /= n1
-            if n2 > 0: v2_pad /= n2
+            # Out-of-place: v1_pad can alias the array cached in features_db,
+            # and an in-place divide permanently rescaled the stored spectrum
+            # for every later pair that referenced the same method.
+            if n1 > 0: v1_pad = v1_pad / n1
+            if n2 > 0: v2_pad = v2_pad / n2
             return float(np.dot(v1_pad, v2_pad))
             
         elif self.metric_name == "pss":

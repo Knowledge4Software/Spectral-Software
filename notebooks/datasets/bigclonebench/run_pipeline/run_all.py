@@ -1,37 +1,29 @@
-import argparse
-import subprocess
-import sys
+"""Run only the BigCloneBench cross-type threshold experiments.
+
+Dataset extraction lives under ``types/<variant>/build``. Portable Type-4
+plus non-clone export is handled
+by ``04_create_balanced_subset.py`` in this directory.
+"""
+
 from pathlib import Path
+import sys
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
+
+from spectral_code.utils.pipeline_cli import run_numbered_pipeline
 
 
 STAGES = [
     ("00", "00_train_balanced_type123_type4_threshold.py"),
     ("01", "01_train_type123_threshold_test_type4.py"),
 ]
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run BCB cross-type threshold experiments.")
-    parser.add_argument("--start-at", choices=[stage for stage, _ in STAGES], default="00")
-    parser.add_argument("--stop-after", choices=[stage for stage, _ in STAGES], default="01")
-    args = parser.parse_args()
-
-    run_dir = Path(__file__).resolve().parent
-    selected = [
-        (stage, script)
-        for stage, script in STAGES
-        if int(args.start_at) <= int(stage) <= int(args.stop_after)
-    ]
-    if not selected:
-        raise ValueError("--start-at must be earlier than or equal to --stop-after.")
-
-    for stage, script in selected:
-        script_path = run_dir / script
-        print(f"\n[*] Running stage {stage}: {script_path}")
-        subprocess.run([sys.executable, str(script_path)], cwd=str(run_dir), check=True)
-
-    print("\n[+] All selected BCB cross-type pipeline stages completed.")
-
-
 if __name__ == "__main__":
-    main()
+    run_numbered_pipeline(
+        STAGES,
+        description="Run BCB cross-type threshold experiments.",
+        completion_message="All selected BCB cross-type pipeline stages completed.",
+        run_dir=Path(__file__).resolve().parent,
+    )

@@ -10,13 +10,44 @@ import time
 from pathlib import Path
 
 from spectral_code.evaluation.bcb_preparation import main as bcb_preparation_main
-from spectral_code.evaluation.pipeline_section_runner import SectionConfig, run_pss_wasserstein_tuning
 from spectral_code.utils.dataset_paths import bcb_type_dir, output_root_for
 from spectral_code.utils.pipeline_timings import record_pipeline_timing
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TYPE3_COMPONENT_VARIANTS = ("3/moderate", "3/strong", "3/very_strong")
+
+
+def bcb_positive_only_defaults(
+    *,
+    type3_min_similarity: float | None = None,
+    type3_max_similarity: float | None = None,
+) -> list[str]:
+    """Return the shared BCB positive-only extraction settings."""
+    defaults = [
+        "--target-pairs", "1000000",
+        "--positive-fraction", "1.0",
+        "--max-positive-pairs", "1000000",
+    ]
+    if type3_min_similarity is not None:
+        defaults.extend(["--type3-min-similarity", f"{type3_min_similarity:.2f}"])
+    if type3_max_similarity is not None:
+        defaults.extend(["--type3-max-similarity", f"{type3_max_similarity:.2f}"])
+    defaults.extend(["--preselect-positive-pairs-before-code-scan", "--positive-only"])
+    return defaults
+
+
+def bcb_non_clone_defaults() -> list[str]:
+    """Return the shared curated false-positive non-clone extraction settings."""
+    return [
+        "--max-non-clone-code-ids", os.getenv("BCB_NON_CLONE_MAX_CODE_IDS", "0"),
+        "--negative-pool", "false-positives",
+        "--non-clone-only",
+        "--keep-getter-setters",
+        "--drop-non-clone-pairs-both-three-line",
+        "--write-all-filtered-non-clone-code-ids",
+        "--all-filtered-non-clone-pairs",
+    ]
 
 
 def with_default_args(argv: list[str], defaults: list[str]) -> list[str]:
@@ -680,6 +711,8 @@ def run_bcb_metric_tuning(
     stage_name: str = "04_tune_metrics",
     variant: str | None = None,
 ) -> None:
+    from spectral_code.evaluation.pipeline_section_runner import SectionConfig, run_pss_wasserstein_tuning
+
     data_variant = variant or clone_type
     output_root = output_root_for("bcb", data_variant)
     features_manifest = output_root / "spectral_features" / "spectral_features_manifest.json"
@@ -696,7 +729,8 @@ def run_bcb_metric_tuning(
         if not non_clone_manifest.exists():
             raise FileNotFoundError(
                 f"Shared BCB non-clone spectral features are missing in {non_clone_manifest}. "
-                "Run notebooks/datasets/bigclonebench/non_clone/run_pipeline/run_all.py first."
+                "Run notebooks/datasets/bigclonebench/build_once.py "
+                "--variant non_clone --start-at graphs first."
             )
         os.environ["TUNING_EXTRA_FEATURE_MANIFESTS"] = str(non_clone_manifest)
 

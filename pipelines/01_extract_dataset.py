@@ -43,8 +43,13 @@ from spectral_code.utils.project_paths import (
 )
 from spectral_code.utils.dataset_paths import bcb_type_dir
 from spectral_code.preprocessing.data_unpacker import unpack_jsonl_to_java
-from spectral_code.preprocessing.joern_runner import run_joern_parse, run_joern_export
-from spectral_code.preprocessing.graph_parser import process_single_method, build_dot_index, threaded_bounded_map
+from spectral_code.preprocessing.joern_runner import run_joern_parse, run_joern_export, run_joern_method_map
+from spectral_code.preprocessing.graph_parser import (
+    process_single_method,
+    build_dot_index,
+    build_dot_index_with_method_map,
+    threaded_bounded_map,
+)
 
 load_dotenv()
 
@@ -65,6 +70,7 @@ SKIPPED_METHODS_FILE = OUTPUT_ROOT / "skipped_methods_pipeline01.jsonl"
 GRAPH_PARSE_SKIPPED_FILE = OUTPUT_ROOT / "skipped_graph_parse_pipeline01.jsonl"
 
 GRAPH_TYPES = [g.strip().lower() for g in os.getenv("PIPELINE_GRAPH_TYPES", "ast,cfg,ddg,pdg").split(",") if g.strip()]
+USE_LEGACY_DOT_MAPPING = os.getenv("JOERN_LEGACY_DOT_MAPPING", "0").strip().lower() in {"1", "true", "yes"}
 
 
 def _parse_nonnegative_int_env(name: str, default: int = 0) -> int:
@@ -169,14 +175,30 @@ def main():
         )
         pipeline_bar.update(1)
 
-        # 3. Build Global Index of DOT files for robust mapping
+        # 3. Build Global Index of DOT files for robust mapping.
+        #
+        # A DOT names its method, never its file, so the legacy index guessed the
+        # owner from an ``m_<id>`` marker or from export order. That silently
+        # mismapped every C submission and reduced each multi-function file to one
+        # arbitrary function. The CPG's own method table removes the guesswork.
         print("[*] Building DOT mapping index...")
-        dot_index = build_dot_index(
-            str(JOERN_BASE_OUT),
-            GRAPH_TYPES,
-            method_ids=method_ids,
-            chunk_manifest_path=str(BATCH_CPG_MANIFEST),
-        )
+        if USE_LEGACY_DOT_MAPPING:
+            print("[!] JOERN_LEGACY_DOT_MAPPING=1: using marker/ordinal DOT mapping. "
+                  "This is unsafe for C and for files defining several functions.")
+            dot_index = build_dot_index(
+                str(JOERN_BASE_OUT),
+                GRAPH_TYPES,
+                method_ids=method_ids,
+                chunk_manifest_path=str(BATCH_CPG_MANIFEST),
+            )
+        else:
+            method_map = run_joern_method_map(str(BATCH_CPG_BIN))
+            dot_index = build_dot_index_with_method_map(
+                str(JOERN_BASE_OUT),
+                GRAPH_TYPES,
+                method_map,
+                method_ids=method_ids,
+            )
         pipeline_bar.update(1)
 
         missing_dot_mappings = {
@@ -193,7 +215,14 @@ def main():
         tasks = []
         for idx in tqdm(method_ids, desc="Preparing conversion tasks", unit="method"):
             paths = {g: dot_index[g].get(idx) for g in GRAPH_TYPES}
-            tasks.append((idx, paths, str(RAW_FEATURES_DIR), per_method_cpg_time, per_layer_export_time))
+            tasks.append((
+                idx,
+                paths,
+                str(RAW_FEATURES_DIR),
+                per_method_cpg_time,
+                per_layer_export_time,
+                str(BATCH_TEMP_DIR),
+            ))
 
         print(f"[*] Parsing {len(tasks)} DOT files into JSON format...")
         conversion_workers = _io_worker_count("DOT_CONVERSION_WORKERS")
@@ -209,11 +238,18 @@ def main():
             for result in parse_results
             for skipped in result.get("skipped_layers", [])
         ]
+        fallback_graph_layers = [
+            fallback
+            for result in parse_results
+            for fallback in result.get("fallback_layers", [])
+        ]
         if skipped_graph_layers:
             with GRAPH_PARSE_SKIPPED_FILE.open("w", encoding="utf-8") as f:
                 for skipped in skipped_graph_layers:
                     f.write(json.dumps(skipped, ensure_ascii=False) + "\n")
             print(f"[*] Logged {len(skipped_graph_layers):,} skipped/empty graph layers to {GRAPH_PARSE_SKIPPED_FILE}.")
+        if fallback_graph_layers:
+            print(f"[*] Recovered {len(fallback_graph_layers):,} graph layers with source-code fallbacks.")
         pipeline_bar.update(1)
 
         # Cleanup large temporary files
@@ -234,6 +270,22 @@ def main():
         "skipped_methods_file": str(SKIPPED_METHODS_FILE) if skipped_methods else None,
         "skipped_graph_layers_pipeline01": len(skipped_graph_layers),
         "skipped_graph_layers_file": str(GRAPH_PARSE_SKIPPED_FILE) if skipped_graph_layers else None,
+        "fallback_graph_layers_pipeline01": len(fallback_graph_layers),
+        "python_ast_fallback_layers_pipeline01": sum(
+            1
+            for fallback in fallback_graph_layers
+            if fallback.get("source") == "python_ast_fallback"
+        ),
+        "python_cfg_fallback_layers_pipeline01": sum(
+            1
+            for fallback in fallback_graph_layers
+            if fallback.get("source") == "python_cfg_fallback"
+        ),
+        "python_ddg_fallback_layers_pipeline01": sum(
+            1
+            for fallback in fallback_graph_layers
+            if fallback.get("source") == "python_ddg_fallback"
+        ),
         "max_method_lines_filter": max_method_lines,
         "max_method_chars_filter": max_method_chars,
         "max_longest_line_filter": max_longest_line,

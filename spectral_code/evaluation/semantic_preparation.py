@@ -47,14 +47,13 @@ def _unique_records_from_pairs(pairs: list[ClonePair], language: str) -> list[di
 def prepare_semantic_dataset(
     language: str,
     output_dir: str | Path | None = None,
-    negative_ratio: float = 1.0,
     seed: int = 42,
 ) -> PreparedSemanticDataset:
     loader = SemanticBenchmarkLoader(language=language, seed=seed)
     output_dir = Path(output_dir) if output_dir is not None else default_semantic_prepared_dir(language)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    pairs = loader.get_pairs(negative_ratio=negative_ratio)
+    pairs = loader.get_pairs()
     records = _unique_records_from_pairs(pairs, language)
 
     data_jsonl = output_dir / "data.jsonl"
@@ -82,14 +81,13 @@ def prepare_semantic_dataset(
         "dataset": "semantic_benchmark",
         "language": language,
         "dump_path": str(semantic_dump_path()),
-        "negative_ratio": negative_ratio,
         "seed": seed,
         "total_pairs": len(pairs),
         "positive_pairs": positive_pairs,
         "negative_pairs": negative_pairs,
         "written_functions": len(records),
         "data_jsonl_semantics": "Functions/snippets extracted from semantic_clone.code_snippet for the selected language.",
-        "train_txt_semantics": "Positive rows come from semantic_clone.clone_pair; negative rows are sampled from same-language snippets excluding known positive pairs.",
+        "train_txt_semantics": "Rows come from semantic_clone.clone_pair with label 1. No label-0 pairs are generated automatically.",
     }
     metadata_json.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 

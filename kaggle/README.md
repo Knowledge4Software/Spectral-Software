@@ -1,21 +1,7 @@
-# Kaggle Notebooks
+# Kaggle experiment notebooks
 
-These notebooks consume a portable clean export containing code, labelled
-pairs, sparse graph matrices, and spectral values. They do not run Joern.
+Each V3 benchmark has an independent folder with the same nine baselines and the canonical SPECTRA-Siam method notebook. Attach the matching ZIP from `../outputs/kaggle_datasets/`, import the corresponding notebook, and run all cells.
 
-| Notebook | Method family |
-| --- | --- |
-| `gnn_baselines.ipynb` | One graph type at a time: AST, CFG, PDG, DDG, CPG. |
-| `snn_baselines.ipynb` | Siamese network over spectral representations. |
-| `deckard_baseline.ipynb` | Deckard-style structural baseline. |
-| `rtvnn_baseline.ipynb` | Token-sequence Siamese baseline. |
-| `cdlh_baseline.ipynb` | Code representation baseline. |
-| `deepsim_baseline.ipynb` | Deep similarity baseline. |
-| `astnn_baseline.ipynb` | ASTNN-style baseline. |
-| `fa_ast_ggnn_baseline.ipynb` | FA-AST GGNN-style baseline. |
-| `fa_ast_gmn_baseline.ipynb` | FA-AST graph-matching baseline. |
+All notebooks discover their input recursively below `/kaggle/input`; no owner-specific path needs editing. They support both the normal ZIP layout (`codes.jsonl.gz`) and Kaggle's occasionally nested temporary layout (`codes.jsonl/codes.jsonl.gz.tmp`).
 
-Attach only the XGLUE dataset at this path:
-`/kaggle/input/datasets/koushamoeini/xglue4`. Then run all cells once. Each
-notebook writes XGLUE-only outputs such as `xglue4_*_results.csv` to
-`/kaggle/working/` and displays the result table at the end.
+The default `RUN_PROFILE = "quick_1h"` is the preliminary, bounded run. Change only that value to `"extended_6_7h"` for the larger protocol; see `RUN_PROFILES.md`.

@@ -7,6 +7,35 @@ from spectral_code.preprocessing.simple import SimpleGraphPreprocessor
 from spectral_code.utils.dataset import load_graph_from_json
 
 
+def compose_cpg(layers: dict[str, "nx.DiGraph | None"]) -> "nx.DiGraph | None":
+    """Overlay the base layers into a CPG, merging only genuinely shared nodes.
+
+    Joern's layers share one CPG node-id space, so overlaying them by node id is
+    correct and is exactly what makes the CPG a true multi-layer graph. The
+    locally built Python/C# fallback graphs do not share an id space: each
+    builder numbers its own nodes from zero, so AST node "3" and CFG node "3"
+    are unrelated program elements. Composing those by id silently dissolved the
+    entire CFG into arbitrary AST nodes. When any layer was rebuilt locally, each
+    layer therefore contributes namespaced nodes instead.
+    """
+    named = [(name, graph) for name, graph in layers.items() if graph is not None]
+    if not named:
+        return None
+
+    # ``source`` is set only by the local fallback builders; Joern-parsed layers
+    # never carry it, and it survives the node-link round trip through JSON.
+    independent_id_spaces = any(graph.graph.get("source") for _, graph in named)
+
+    cpg = nx.DiGraph()
+    for name, graph in named:
+        if independent_id_spaces:
+            graph = nx.relabel_nodes(graph, {node: f"{name}:{node}" for node in graph.nodes()}, copy=True)
+        cpg = nx.compose(cpg, graph)
+    if independent_id_spaces:
+        cpg.graph["cpg_layers_namespaced"] = True
+    return nx.DiGraph(cpg)
+
+
 def _clean_method_file(file_path: str, base_layers: list[str], preprocessor: SimpleGraphPreprocessor):
     method_id = os.path.basename(file_path).replace(".json", "")
     method_layers = {}
@@ -30,14 +59,7 @@ def _clean_method_file(file_path: str, base_layers: list[str], preprocessor: Sim
 
         method_layers[gtype] = temp_layers[gtype]
 
-    valid_graphs = [g for g in temp_layers.values() if g is not None]
-    if valid_graphs:
-        cpg = nx.DiGraph(valid_graphs[0].copy())
-        for graph in valid_graphs[1:]:
-            cpg = nx.compose(cpg, graph)
-        method_layers["cpg"] = nx.DiGraph(cpg)
-    else:
-        method_layers["cpg"] = None
+    method_layers["cpg"] = compose_cpg(temp_layers)
 
     return method_id, method_layers, layers_cleaned
 
@@ -76,15 +98,8 @@ def clean_and_compose_graphs(raw_features_dir: str, base_layers: list[str], limi
                 
             cleaned_graphs_db[method_id][gtype] = temp_layers[gtype]
 
-        valid_graphs = [g for g in temp_layers.values() if g is not None]
-        if valid_graphs:
-            cpg = nx.DiGraph(valid_graphs[0].copy())
-            for g in valid_graphs[1:]:
-                cpg = nx.compose(cpg, g)
-            cleaned_graphs_db[method_id]["cpg"] = nx.DiGraph(cpg)
-        else:
-            cleaned_graphs_db[method_id]["cpg"] = None
-            
+        cleaned_graphs_db[method_id]["cpg"] = compose_cpg(temp_layers)
+
     return cleaned_graphs_db, total_methods_cleaned, total_layers_cleaned
 
 

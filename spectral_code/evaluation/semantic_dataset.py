@@ -166,50 +166,16 @@ class SemanticBenchmarkLoader:
         return [(snippet.snippet_id, snippet.code) for snippet in sorted(snippets.values(), key=lambda item: item.snippet_id)]
 
     def negative_pairs(self, target_count: int | None = None) -> list[ClonePair]:
-        snippets = self.standalone_snippets()
-        if len(snippets) < 2:
-            return []
+        raise RuntimeError(
+            "Semantic Clone Benchmark does not provide non-clone pairs. "
+            "Automatic negative sampling is disabled; add explicit label-0 pairs to the prepared data when needed."
+        )
 
-        positive_keys = {
-            tuple(sorted((pair.left_id, pair.right_id)))
-            for pair in self.positive_pairs()
-        }
-        rng = random.Random(self.seed)
-        by_id = {snippet_id: code for snippet_id, code in snippets}
-        ids = list(by_id)
-        target = target_count if target_count is not None else max(1, len(positive_keys))
-        negatives: list[ClonePair] = []
-        seen: set[tuple[int, int]] = set()
-        max_attempts = max(target * 100, 100_000)
-        attempts = 0
-
-        while len(negatives) < target and attempts < max_attempts:
-            attempts += 1
-            left_id, right_id = rng.sample(ids, 2)
-            key = tuple(sorted((left_id, right_id)))
-            if key in positive_keys or key in seen:
-                continue
-            seen.add(key)
-            negatives.append(
-                ClonePair(
-                    left_id=left_id,
-                    right_id=right_id,
-                    label=0,
-                    clone_type=f"semantic_{self.language}",
-                    left_code=by_id[left_id],
-                    right_code=by_id[right_id],
-                )
-            )
-
-        if len(negatives) < target:
-            raise RuntimeError(
-                f"Could only sample {len(negatives)} negative semantic pairs for {self.requested_language}; "
-                f"needed {target}."
-            )
-        return negatives
-
-    def get_pairs(self, negative_ratio: float = 1.0) -> list[ClonePair]:
+    def get_pairs(self, negative_ratio: float = 0.0) -> list[ClonePair]:
         positives = self.positive_pairs()
-        negative_target = max(1, int(round(len(positives) * negative_ratio)))
-        negatives = self.negative_pairs(target_count=negative_target)
-        return positives + negatives
+        if negative_ratio > 0:
+            raise RuntimeError(
+                "Automatic semantic non-clone generation is disabled. "
+                "Use the clone-only Semantic Clone Benchmark data or add your own label-0 pairs later."
+            )
+        return positives
