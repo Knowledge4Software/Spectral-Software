@@ -1,0 +1,9 @@
+% Built by research/discussions/build_d5_latex.py into figures/.
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[
+        width=0.98\textwidth
+    ]{figures/d5_timing_breakdown.pdf}
+    \caption{Where \method{} spends its time, as a share of measured per-batch cost. During training the backward pass dominates; at inference it disappears and input handling becomes the largest term. The spectral block, which is the method's contribution, accounts for 5\% of training and 7\% of inference on all three benchmarks.}
+    \label{fig:d5_timing}
+\end{figure}
