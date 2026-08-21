@@ -1,0 +1,2389 @@
+
+%% 
+%% Copyright 2007-2020 Elsevier Ltd
+%% 
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%%
+
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%% 
+
+%% Template article for Elsevier's document class `elsarticle'
+%% with numbered style bibliographic references
+%% SP 2008/03/01
+%%
+%% 
+%%
+%% $Id: elsarticle-template-num.tex 190 2020-11-23 11:12:32Z rishi $
+%%
+%%
+\PassOptionsToPackage{dvipsnames}{xcolor}
+% \documentclass[authoryear,preprint,12pt]{elsarticle}
+% \documentclass[numbers,webpdf]{ima-authoring-template}%
+% \documentclass[a4paper,fleqn]{cas-sc}
+
+%% Use the option review to obtain double line spacing
+% \documentclass[preprint,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+% \documentclass[authoryear,final,1p,times,twocolumn]{elsarticle}
+% \documentclass[final,3p,times]{elsarticle}
+% \documentclass[authoryear,final,3p,times,twocolumn]{elsarticle}
+% \documentclass[final,5p,times]{elsarticle}
+\documentclass[authoryear,final,5p,times,twocolumn]{elsarticle}
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+
+% --- Core color support ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+
+% \usepackage[style=authoryear, maxcitenames=1]{biblatex}
+% \usepackage[authoryear]{natbib}
+
+% --- Math ---
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{amsthm}
+
+% --- Graphics & Tables ---
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{arydshln}
+\usepackage{adjustbox}
+\usepackage{textcomp}
+
+% --- Algorithms ---
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\SetKwInput{KwInit}{Init}
+
+% --- Floats ---
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{stfloats}
+
+% --- Subfigures (elsarticle-safe) ---
+\usepackage{subfig}   % NOT subcaption
+
+% --- Boxes ---
+\usepackage[most]{tcolorbox}
+\usepackage[framemethod=TikZ]{mdframed}
+
+% --- Listings ---
+\usepackage{listings}
+
+% --- URLs / refs ---
+\usepackage{xurl}
+\usepackage{url}
+
+% --- Hyperref LAST ---
+\usepackage[colorlinks=true,
+    linkcolor=MidnightBlue,
+    citecolor=ForestGreen,
+    urlcolor=BrickRed
+]{hyperref}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}}
+
+% --- Theorems ---
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\newtheorem*{proofsketch}{Proof Sketch}
+\theoremstyle{plain}
+
+% --- Custom colors ---
+\definecolor{titlegray}{HTML}{555555}
+\definecolor{framegray}{gray}{0.6}
+\definecolor{lightgray}{gray}{0.97}
+
+% --- Prompt box ---
+\newtcolorbox{promptbox}[1][]{
+    enhanced,
+    colback=lightgray,
+    colframe=framegray,
+    coltitle=white,
+    colbacktitle=titlegray,
+    fonttitle=\bfseries\itshape\normalsize,
+    title=#1,
+    attach boxed title to top left={xshift=0.6cm,yshift=-3mm},
+    boxed title style={
+        boxrule=0.8pt,
+        colframe=titlegray,
+        top=3pt,
+        bottom=3pt,
+        left=8pt,
+        right=8pt,
+        rounded corners=south,
+    },
+    width=0.90\columnwidth,
+    before skip=6pt,
+    after skip=12pt,
+    boxrule=0.8pt,
+    sharp corners=south,
+    rounded corners,
+    top=8pt,
+    bottom=6pt,
+    left=8pt,
+    right=8pt,
+    fontupper=\normalsize,
+    coltext=black,
+}
+
+% --- Diff listings ---
+\lstdefinelanguage{diff}{
+  morecomment=[f][\color{gray}]{@@},
+  morecomment=[f][\color{gray}]{---},
+  morecomment=[f][\color{gray}]{+++},
+  morecomment=[f][\color{red}]{-},
+  morecomment=[f][\color{green!60!black}]{+},
+}
+\lstdefinestyle{diff}{
+  language=diff,
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true
+}
+\definecolor{deepblue}{RGB}{0, 0, 139} 
+
+\newtcolorbox{boxnote}{
+  colback=white,
+  boxrule=0.4pt,
+  borderline west={2pt}{0pt}{black!60},
+}
+
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\subsubsectionautorefname}{Section}
+\renewcommand{\algorithmautorefname}{Algorithm}
+\renewcommand{\appendixautorefname}{Appendix}
+
+\journal{Journal Of Systems And Software}
+
+\begin{document}
+
+\begin{frontmatter}
+
+%% Title, authors and addresses
+
+%% use the tnoteref command within \title for footnotes;
+%% use the tnotetext command for theassociated footnote;
+%% use the fnref command within \author or \address for footnotes;
+%% use the fntext command for theassociated footnote;
+%% use the corref command within \author for corresponding author footnotes;
+%% use the cortext command for theassociated footnote;
+%% use the ead command for the email address,
+%% and the form \ead[url] for the home page:
+%% \title{Title\tnoteref{label1}}
+%% \tnotetext[label1]{}
+%% \author{Name\corref{cor1}\fnref{label2}}
+%% \ead{email address}
+%% \ead[url]{home page}
+%% \fntext[label2]{}
+%% \cortext[cor1]{}
+%% \affiliation{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+%% \fntext[label3]{}
+
+\title{From Illusion to Insight: Change-Aware File-Level Software Defect Prediction Using Agentic AI}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{}
+%% \affiliation[label1]{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+%%
+%% \affiliation[label2]{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+
+\author[mce]{Mohsen Hesamolhokama}
+\ead{hokama@ce.sharif.edu}
+
+\author[math]{Behnam Rohani}
+\ead{behnam.rohani058@sharif.edu}
+
+\author[math]{Amirahmad Shafiee}
+\ead{amirahmad.shafiee@sharif.edu}
+
+\author[mce]{Mohammadamin Fazli}
+\ead{fazli@sharif.edu}
+
+\author[mce]{Jafar Habibi}
+\ead{jhabibi@sharif.edu}
+
+\address[mce]{Department of Computer Engineering, Sharif University of Technology, Tehran, Iran}
+\address[math]{Department of Mathematical Sciences, Sharif University of Technology, Tehran, Iran}
+
+% \cortext[cor1]{Corresponding author.}
+% \fntext[fn1]{Authors Mohsen Hesamolhokama and Behnam Rohani contributed equally to this work.}
+
+\begin{abstract}
+Reported progress in file-level, within-project Software Defect Prediction \textcolor{red}{(SDP)} appears to stem from optimistic estimates of performance. Over the last decades, machine learning and deep learning models have reported increasing performance across software versions. However, since most files persist across releases and retain their defect labels, standard evaluation rewards label-persistence bias rather than reasoning about code changes. To address this issue, we reformulate SDP as a change-aware prediction task. In this formulation, models reason over code changes of a file within successive project versions, rather than relying on static file snapshots. Building on this formulation, we propose an LLM-driven, change-aware, Multi-Agent Debate \textcolor{red}{(MAD)} framework. Our results on \textcolor{red}{six real software} projects showed that traditional models achieve inflated F1, while failing on rare but critical defect-transition cases. In contrast, our change-aware reasoning and \textcolor{red}{MAD} framework yielded more balanced performance across evolution subsets and improved sensitivity to defect introductions from a nearly-zero rate to 30\%-52\% \textcolor{red}{on these projects}. These results highlight fundamental limitations in current \textcolor{red}{SDP} evaluation practices and emphasize the need for change-aware reasoning in practical software defect prediction. 
+\end{abstract}
+
+% Use if graphical abstract is present
+% \begin{graphicalabstract}
+% \includegraphics{figs/grabs.pdf}
+% \end{graphicalabstract}
+
+\begin{keyword}
+%% keywords here, in the form: keyword \sep keyword
+%% PACS codes here, in the form: \PACS code \sep code
+%% MSC codes here, in the form: \MSC code \sep code
+%% or \MSC[2008] code \sep code (2000 is the default)
+Software Defect Prediction \sep LLMs \sep Agentic AI \sep Multi-Agent Debate
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:sample1}
+
+As software systems become central to essential services in modern society, their reliability is more important than ever. These systems support major infrastructures, such as healthcare, finance, transportation, and communication. However, the growing complexity of software and the constant evolution of codebases introduce defects that may cause serious failures, financial losses, or safety risks. Studies estimate that software quality assurance can account for up to 50\% of total development cost, highlighting the need for early and accurate defect detection. As a result, the research community has invested significant effort in Software Defect Prediction (SDP), which aims to identify defect-prone modules before deployment to reduce maintenance costs and post-release failures~\textcolor{red}{\citep{Li2018, Hall2012}}.
+
+Traditional SDP approaches mostly rely on supervised models trained on historical labeled data. These include Logistic Regression, Decision Trees, and Support Vector Machines (SVMs)~\citep{Rahman2013, Tantithamthavorn2018, Hosseini2017}. Although their performance is reported as effective in prior works, the predictions often can lead to an \emph{illusion of accuracy}. This illusion can occur because overlapping files inflate performance metrics due to label-persistence bias. Consequently, models can memorize historical labels instead of reasoning about code changes.
+
+Despite the availability of widely-used benchmarks, such as PROMISE, NASA~\citep{promiserepo} and AEEEM~\citep{d2012evaluating}, current SDP models still encounter fundamental challenges when applied to evolving software projects~\citep{nevendra2022survey}. 
+These datasets were constructed for static within-project validation, in which models are trained on one version and tested on another within the same project. As source code is textual data, it requires numerical features for model training. Recent advances in deep learning have enabled models to learn semantic representations directly from raw code and commit data. Convolutional Neural Networks (CNNs), Recurrent Neural Networks (RNNs), and Transformer-based architectures outperform metric-driven models \citep{zhou2024research, liu2025improved, Majd2021}. Models such as ASTNN \citep{Zhou2019} and DeepJIT \citep{Hoang2020} capture program syntax and commit-level semantics. Graph-based methods \citep{Dam2019, Adediran2024} also incorporate structural dependencies to improve defect reasoning. Pretrained code-focused embeddings, including CodeBERT \citep{Feng2020}, CodeT5+ \citep{Wang2023}, XLNet \citep{yang2019xlnet}, and StarCoder2 \citep{lozhkov2024starcoder}, learn jointly from source code and natural language. 
+
+However, these conventional approaches, along with their evaluation practices, do not take into account label-persistence bias in overlapping files.
+Modern Large Language Models (LLMs) somewhat address this issue through in-context reasoning \citep{wei2022chain} since they do not necessarily need to be fine-tuned on previous historical data. They synthesize code semantics and descriptions to estimate defect likelihoods \citep{nam2024using}. Despite this progress, most deep learning and LLM-based methods still treat software versions as static snapshots. They rely on metrics or fixed embeddings that ignore the temporal and causal dynamics of code evolution. Consequently, they struggle to distinguish harmless refactorings from defect-inducing modifications \citep{clinton2025proactive, deeptha2024robust}. Traditional one-step classification pipelines further limit interpretability because they predict labels without explaining why a change may introduce risk. 
+These challenges point to the need for a \emph{change-aware and evolution-sensitive} approach, which avoids the aforementioned \textit{illusion} by grounding prediction in the differences introduced between versions~\citep{fakih2025llm4cve, yu2025graphrag, zeng2021deep}. 
+
+Our proposed approach aims to transform file-level SDP from a single-file classification task into a change-aware task. The objective is to predict changes in defect status based on modifications in the source code, requiring knowledge of each file’s previous status. Unlike traditional methods, our approach emphasizes how code changes introduce or resolve defects across versions. Inspired by recent advances in \textcolor{red}{MAD} frameworks for problem-solving and software issue resolution \citep{li2025swe, tillmann2025literature, vamosi2025crawdad}, we extend beyond a single LLM by employing a competitive \textcolor{red}{MAD} structure. 
+Our framework consists of four agents, each with a distinct role. At the beginning, an \emph{Analyzer} examines the code changes using \emph{dual-sided reasoning}. It 
+simultaneously considers why a file may become defective and why it may remain or become benign after the change. Based on this analysis, a \emph{Proposer} formulates hypotheses about possible defect introductions or resolutions. These hypotheses are then challenged by an opposing \emph{Skeptic}. At the end, a \emph{Judge} assesses the competing arguments and produces the final prediction. This structured multi-agent reasoning improved the performance on the rarest, most-critical defect-transition case from a nearly-zero rate to 30\%-52\% on \textcolor{red}{six real software projects}.
+
+\subsection{Motivation Example}
+In software engineering, a \emph{defect} represents a mismatch between human intention and program behavior during execution. Consider a simple case where a function aims to compute the sum of all elements in an array (\autoref{fig:compare}). Although the implementation appears correct, an off-by-one condition in the loop causes an \texttt{ArrayIndexOutOfBoundsException} at runtime. After correcting the loop boundary, the function performs as intended. This example illustrates that a defect is not merely a syntactic mistake. Understanding and predicting such issues requires reasoning about program logic and execution.
+
+\lstdefinestyle{javaColored}{
+  language=Java,
+  basicstyle=\ttfamily\small,  
+  keywordstyle=\color{blue}\bfseries,
+  stringstyle=\color{red},
+  commentstyle=\color{red}\itshape,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=5pt,
+  tabsize=4,
+  showspaces=false,
+  showstringspaces=false,
+  breaklines=true,
+  frame=none,
+  backgroundcolor=\color{white}
+}
+\vspace{10pt} % Space between code blocks
+
+\setcounter{figure}{0}
+\begin{figure*}[!htbp]
+    
+    \begin{minipage}[t]{0.95\columnwidth}
+    % \refstepcounter{figure}
+
+     \label{fig:defect}   
+        
+        \begin{adjustbox}{width=\columnwidth}
+            \begin{lstlisting}[style=javaColored, basicstyle=\ttfamily\footnotesize]
+public class DefectExample {
+    public static int calculateSum(int[] arr) {
+        int total = 0;
+        // Defective loop condition
+        for (int i = 0; i <= arr.length; i++) {
+            total += arr[i];
+        }
+        return total;
+    }
+
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+        System.out.println(calculateSum(numbers));
+    }
+}
+            \end{lstlisting}
+        \end{adjustbox}
+        \centering
+        \textbf{(a) Defective Code}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.95\columnwidth}
+        % \refstepcounter{figure}
+        
+       \label{fig:fixed} 
+        \begin{adjustbox}{width=\columnwidth}
+            \begin{lstlisting}[style=javaColored, basicstyle=\ttfamily\footnotesize]
+public class FixedExample {
+    public static int calculateSum(int[] arr) {
+        int total = 0;
+        // Corrected loop condition
+        for (int i = 0; i < arr.length; i++) {
+            total += arr[i];
+        }
+        return total;
+    }
+
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+        System.out.println(calculateSum(numbers));
+    }
+}
+            \end{lstlisting}
+        \end{adjustbox}
+        \centering
+        \textbf{(b) Corrected Code}
+    \end{minipage}
+    \centering
+    \caption{Comparison of Defective and Corrected Java Code}
+    \label{fig:compare}
+\end{figure*}
+
+\subsection{Contributions}
+The main contributions of this paper are as follows: 
+
+\begin{itemize}
+    \item \textbf{Analysis of \emph{"Illusion of Accuracy"} in SDP.}
+    We 
+    show that file overlap and label-persistence bias in Traditional SDP can cause an \emph{illusion of accuracy}.
+    \item \textbf{A Change-aware Formulation and Evaluation in SDP.}
+    We introduce a change-aware formulation of SDP that models file evolution through status-transition subsets. 
+    This is used to evaluate LLMs under multiple change-aware reasoning methods.
+    \item \textbf{A \textcolor{red}{MAD} Framework for Change-aware \textcolor{red}{SDP}.}
+    We propose a change-aware, \textcolor{red}{MAD} framework that reasons directly over code changes. 
+    This framework moves beyond the deceptive performance of traditional models, and takes the first steps toward a balanced performance on the four status-transition subsets. 
+\end{itemize}
+
+\subsection{Paper Outline}
+The remainder of the paper is organized as follows. \autoref{sec:related_works} describes background and related work. \autoref{sec:methodology} presents our change-aware formulation, context-expansion algorithm, and \textcolor{red}{MAD} framework. \autoref{sec:experimental_design} details the dataset, baselines, prompting strategies, and evaluation setup. \autoref{sec:results} reports the findings and answers the research questions. \autoref{sec:discussion} provides theoretical justification of change-aware \textcolor{red}{approach}, along with an in-depth analysis of our proposed methodology. \autoref{sec:validity} describes threats to validity. \autoref{sec:conclusion} concludes the paper, with future research directions discussed in \autoref{sec:future_works}.
+
+\section{‌Background And Related Work}
+\label{sec:related_works}
+\subsection{Software Defect Prediction}
+SDP has long been a central research topic in software engineering, aiming to identify defect-prone modules before failures lead to increased maintenance costs and reduced reliability. Early SDP studies predominantly relied on supervised machine learning algorithms such as Decision Trees, Support Vector Machines, and Logistic Regression \citep{lessmann2008benchmarking, hall2012systematic}. These approaches utilized static software metrics, including cyclomatic complexity, coupling, lines of code, and historical change information \citep{gray2010software}. However, these foundational, traditional models faced notable limitations; they struggled with high-dimensional feature spaces \citep{elish2008predicting}, were highly sensitive to severe class imbalance \citep{bennin2018mahakil}, and largely ignored deeper semantic properties of code, such as logical dependencies and control-flow relationships \citep{liu2024cfg2at}. Consequently, these models often overfit project-specific characteristics and exhibited limited generalization to unseen or evolving software systems.
+
+As the limitations of traditional machine learning became evident, deep learning emerged as a transformative approach for SDP by enabling automatic feature learning directly from raw code artifacts. Deep architectures such as CNN~\citep{krichen2023cnn_survey}, RNN~\citep{sherstinsky2020fundamentals}, and Transformer-based models can capture complex syntactic and semantic patterns without relying on handcrafted features. \citet{wang2018deep} introduced a deep semantic feature learning framework that integrates structural and contextual information, significantly outperforming conventional classifiers. \citet{majd2020sldeep} proposed SLDeep to model statement-level semantics, while \citet{pornprasit2023deeplinedp} extended deep learning to line-level defect prediction. While these approaches improved semantic awareness, they still depend heavily on large volumes of labeled training data, limiting their effectiveness in projects with scarce or incomplete defect annotations.
+
+To further enhance predictive capability and interpretability, recent SDP research has increasingly emphasized semantic feature learning, recognizing that software quality depends not only on structural complexity but also on developer intent and program logic. Earlier syntactic metric–based models failed to adequately represent logical flow and semantic context. To address this gap, researchers have incorporated contextual information from comments, commits, and issue reports alongside source code. \citet{liu2023semantic} proposed a unified framework that jointly models source code and natural language artifacts to better capture developer intent. \citet{xu2020defect} demonstrated that graph neural networks operating on Abstract Syntax Trees (ASTs) effectively encode both structural and semantic dependencies, while \citet{huo2018learning} showed that comment-based embeddings significantly enhance defect prediction accuracy. Collectively, these studies demonstrate that modeling the semantic interplay between code structure and developer reasoning leads to more robust, interpretable, and context-aware SDP models.
+
+Despite these advances, many real-world projects suffer from insufficient labeled data, motivating extensive research on Cross-Project Defect Prediction (CPDP). CPDP aims to transfer knowledge from well-labeled source projects to target projects with limited or no defect labels~\citep{saeed2024cross}. \citet{kamei2016just} demonstrated that cross-project \textcolor{red}{Just-in-Time (JIT)} defect prediction is feasible when sufficient domain similarity exists. \citet{bai2022transfer} further proposed a multi-source transfer learning framework to improve generalization across heterogeneous projects. Nevertheless, CPDP remains challenging due to variations in coding standards, development practices, and project scale. To mitigate these issues, researchers have explored adaptive feature weighting \citep{tong2023array}, adversarial domain adaptation \citep{sheng2020adversarial}, and graph-based transfer learning \citep{xing2022cross}. However, effectively aligning feature distributions across disparate projects continues to be a major bottleneck.
+
+In addition to data scarcity, class imbalance represents a fundamental challenge in SDP, as defective modules are vastly outnumbered by non-defective ones. This imbalance biases learning algorithms toward the majority class, often resulting in low defect recall~\citep{gong2019tackling}. To address this issue, both data-level and algorithm-level solutions have been proposed. Oversampling techniques such as SMOTE \citep{pak2018smote} generate synthetic minority instances, while \citet{feng2021coste} introduced Coste, a complexity-based oversampling method that prioritizes hard-to-classify modules. Cost-sensitive deep learning approaches further mitigate imbalance by penalizing false negatives more heavily. \citet{yedida2021value} demonstrated that combining rebalancing strategies with ensemble deep models significantly improves robustness. However, oversampling methods still risk overfitting and artificial diversity, underscoring the need for more adaptive and semantically informed rebalancing techniques.
+
+To improve robustness and stability, hybrid architectures and ensemble learning have been widely adopted in SDP. \citet{tong2018software} integrated stacked denoising autoencoders within an ensemble framework to enhance prediction consistency across software releases. \citet{zhao2021metaheuristic} applied metaheuristic optimization to enable adaptive feature selection in deep neural networks, while \citet{tong2024master} proposed a multi-source weighted ensemble framework for cross-project prediction. In parallel, attention-based models have gained traction due to their ability to improve interpretability and focus learning on defect-relevant code regions. \citet{yu2021hierarchical} introduced DP-HNN, a hierarchical attention model operating over AST subtrees, and \citet{zheng2021software} employed Transformer architectures to capture both local and global dependencies. These studies reflect a broader shift toward multi-perspective learning that integrates structural, semantic, and contextual information.
+
+Building upon these directions, recent studies have further expanded deep learning for SDP through diverse architectures and learning paradigms. \citet{pandey2025deep} evaluated SqueezeNet and Bottleneck models on NASA datasets, achieving F-measures of up to 0.93, albeit with high computational costs. \citet{hu2025fed} proposed Fed-OLF, a federated oversampling framework that improves F1, G-mean, and AUC while preserving data privacy. \citet{han2024bjcnet} introduced bjCnet, which leverages supervised contrastive learning with Transformer-based code models. \citet{hesamolhokama2024sdperl} combined ensemble feature extraction from pre-trained code models with reinforcement learning–based feature selection. \citet{malhotra2025dhg} proposed DHG-BiGRU with dual attention over static and AST-based semantic features, while \citet{nashaat2025refining} applied bidirectional Transformers with attention. Overall, these studies highlight a clear trend toward hybrid, attention-driven, and adaptive SDP models that jointly exploit semantic, structural, and contextual information.
+
+\subsection{Source Code Representation Learning}
+Effective software defect prediction depends critically on how source code is represented for learning models. Traditional metric-based features capture superficial code statistics but fail to model syntactic and semantic dependencies. Early representation learning approaches, such as Code2Vec and Code2Seq, introduced path-based embeddings from ASTs, enabling structural awareness and partial semantic understanding of source code \citep{alon2019code2vec, alon2019code2seq}. Building on this idea, ASTNN \citep{zhang2019astnn} segmented large ASTs into statement-level subtrees to better capture local code patterns.
+
+With the rise of pre-trained language models, CodeBERT~\citep{feng2020codebert} and GraphCodeBERT~\citep{guo2021graphcodebert} revolutionized code representation by jointly encoding code tokens and data-flow dependencies. These models substantially improved downstream tasks such as defect prediction, code summarization, and vulnerability detection by incorporating both structural and contextual semantics. Recent works have continued this trend: TransformCode \citep{xian2024transformcode} leveraged contrastive learning over transformed subtrees to enhance embedding robustness, while xASTNN \citep{xu2023xastnn} refined AST segmentation to improve representation generalization in industrial settings.
+
+More recent studies have emphasized hybrid representations that combine textual and graph-based information to capture the ``mixed polysemy'' nature of source code \citep{li2023contextuality, wang2023tree}. However, these models remain primarily static, focusing on fixed code snapshots without considering evolving files or semantic changes over time. This limitation is particularly critical for file-level SDP, where changes between software versions fundamentally alter defect behavior. Thus, while deep representation learning has advanced the expressiveness of code embeddings, there remains a need for change-aware, semantics-grounded representations that can reason about modified code and its defect potential in dynamic software environments.
+
+\subsection{LLMs for Code}
+The emergence of Language Models such as CodeBERT, CodeT5, and GPT-3/4 has opened new possibilities for software engineering research, particularly in source code comprehension, bug detection, and reasoning about software behavior. Unlike traditional supervised approaches that rely on static code metrics or historical defect labels, LLMs can analyze source code by capturing semantic dependencies and natural-language-like structure \citep{feng2020codebert, ahmad2021unified}.
+
+Recent studies demonstrate that LLMs are capable of identifying vulnerabilities, generating bug fixes, and understanding complex control flows through pre-trained knowledge of programming languages and natural language \citep{xu2022systematic, jiang2026llm_code_survey}. However, leveraging these capabilities effectively for SDP remains underexplored. Prompting techniques allow researchers to frame the prediction process as a question–answer task. This guides the model to behave like an expert reviewer who examines whether a piece of code is likely defective \citep{white2023chatgpt, peng2023impact}.
+
+\section{Methodology}
+\label{sec:methodology}
+
+We present the structure of our \textcolor{red}{MAD} framework with context expansion algorithm in the following subsections.  
+
+\subsection{Motivation}
+\label{sec:motivation}
+Consecutive versions of a codebase often share many files~\citep{thota2020survey}, leading to an \emph{illusion of accuracy} in traditional SDP models that treat files independently. 
+Even with LLMs, reasoning over changes alone has limitations, as many defects arise from how modified code sections interact with the rest of the file.
+To address this, it is necessary to adopt a change-aware formulation that reasons about how code modifications affect program behavior. 
+
+\subsection{Problem Formulation}
+\label{sec:problem_formulation}
+
+We study the problem of predicting whether a file becomes defective in the next version of a software project. \textcolor{red}{Let a project evolve through versions
+\(V_1, V_2, \dots, V_t , \dots, V_T\), and let $N_t$ denote the total number of files in version $V_t$ of the project, then we have
+\(V_t = \{ x^{(t)}_i \}_{i=1}^{N_t}\), where $x^{(t)}_i$ is the $i$-th file in version $V_t$.} Each file $x^{(t)}_i$ has a defect label
+\(y^{(t)}_i \in \{0,1\}\), with 0 representing \emph{Benign} code and 1 representing \emph{Defective} code.
+
+\subsubsection{Traditional formulation}
+
+Classical SDP methods train a model on an
+earlier version \(V_t\) and evaluate it on the subsequent version
+\(V_{t+1}\). The model parameters \(\theta\) are typically learned \textcolor{red}{by
+minimizing some standard loss function $\ell$}:
+\begin{align}
+\theta^\star = \arg\min_\theta 
+\sum_{i} \ell(f_\theta(x^{(t)}_i),\, y^{(t)}_i),
+\end{align}
+where the goal is to learn a function \(f_\theta\) that maps a file to its defect label \(y\)~\citep{akimova2021survey}. After training \textcolor{red}{ and validation}, the predictor is applied to the test set
+$\{(x^{(t+1)}_i, y^{(t+1)}_i)\}_{i=1}^{N}$. This formulation treats files in
+\(V_{t+1}\) independently, without considering how those files evolved
+from \(V_t\). 
+
+\subsubsection{File-evolution partition}
+Between \(V_t\) and \(V_{t+1}\), files fall into three categories:
+
+\paragraph*{Removed files}
+\begin{align}
+\mathcal{R}_{t,t+1}
+= \{\, i \mid x^{(t)}_i \notin V_{t+1} \,\},
+\end{align}
+typically rare and excluded from prediction.
+
+\paragraph*{Added files}
+\begin{align}
+\mathcal{A}_{t,t+1}
+= \{\, j \mid x^{(t+1)}_j \notin V_t \,\},
+\end{align}
+also excluded in our work.
+
+\paragraph*{Common files}
+\begin{align}
+\mathcal{C}_{t,t+1}
+= \{\, i \mid x^{(t)}_i \in V_{t+1} \,\},
+\end{align}
+which constitute the majority (often \(>85\%\)) of all files. 
+
+For each common file \(i\), define
+$
+d^{(i)} = \operatorname{diff}(x^{(t)}_i, x^{(t+1)}_i)
+$. Files with unchanged source code (\(d^{(i)} = \emptyset\)) trivially preserve their labels and are uninformative. We therefore focus on changed-source files:
+\begin{align}
+\mathcal{C}^{\text{chg}}_{t,t+1}
+= \{\, i \in \mathcal{C}_{t,t+1} \mid d^{(i)} \neq \emptyset \,\}.
+\end{align}
+\textcolor{red}{\paragraph{File-matching Technique} Matching files across versions based on filenames may fail in common scenarios where files are renamed, refactored, or reorganized. One may complement filename matching with a fallback based on structural similarity using Java AST diffs computed with \texttt{javalang}.}
+\subsubsection{Evolution subsets for changed-source files}
+Among files whose source code changes between versions, each file falls
+into exactly one of four status–transition subsets:
+\[
+\begin{aligned}
+\mathrm{Bj0} &= \{\, i \mid y^{(t)}_i=j,\; y^{(t+1)}_i=0 \,\}\quad j \in \{0,1\},\\
+\mathrm{Dj1} &= \{\, i \mid y^{(t)}_i=j,\; y^{(t+1)}_i=1 \,\}\quad j \in \{0,1\}.\\
+\end{aligned}
+\]
+We can merge them into two higher-level categories:
+\[
+\begin{aligned}
+\mathcal{S}_{\text{unchanged}} &= \mathrm{B00} \cup \mathrm{D11} \quad ,\quad\mathcal{S}_{\text{changed}}   &= \mathrm{B10} \cup \mathrm{D01}.
+\end{aligned}
+\]
+In practice, the size of the status-changed subset is extremely small compared to the total number of common files:
+\begin{align}
+|\mathcal{S}_{\text{changed}}| \ll |\mathcal{C}^{\text{chg}}_{t,t+1}|.
+\end{align}
+
+\subsubsection{Prediction task}
+For each changed-source file \(i\), a general model receives 
+\[
+(x^{(t)}_i,\, x^{(t+1)}_i,\, y^{(t)}_i)
+\]
+and \textcolor{red}{predicts}
+\begin{align}
+\hat{y}^{(t+1)}_i = f(x^{(t)}_i, x^{(t+1)}_i, y^{(t)}_i).
+\end{align}
+To model code evolution, we consider the change \(d^{(i)}\) between \(x^{(t)}_i\) and \(x^{(t+1)}_i\) and define a context expansion function 
+\begin{align}
+    z_i = g(d^{(i)}, x^{(t+1)}_i),
+\end{align}
+where \(g(\cdot)\) acts as an estimator of the most relevant information in \((x^{(t)}_i, x^{(t+1)}_i)\) by extracting from \(x^{(t+1)}_i\) the code regions semantically related to the modified lines. Under this change-focused formulation, the prediction is given by
+\begin{align}
+\hat{y}^{(t+1)}_i = f(d^{(i)}, z_i, y^{(t)}_i).
+\end{align}
+The task is therefore to determine whether the edits \(d^{(i)}\) introduce, remove, or preserve a defect.
+
+\subsection{Context Expansion Algorithm}
+\label{sec:subset_motivation_retrieval}
+
+We extend diff-based analysis with an approach that expands the available
+context around a change. Starting from the unified diff (\ref{appendix:unified_diff_exp}), we locate the methods within the modified lines. We then include the methods that directly call them (callers) as well as the methods they call (callees). This expansion provides the model with behaviorally-relevant information that is often necessary for understanding the change but does not appear in the diff itself. \autoref{alg:context_pipeline} summarizes the full procedure. 
+
+\begin{footnotesize}
+\begin{algorithm}[t]
+\caption{ContextExpansion(diffs, src, depth, max\_lines)}
+\label{alg:context_pipeline}
+
+\KwIn{Unified diff \textit{diffs}, source \textit{src}, expansion depth $\ge 0$, \textbf{max\_lines}}
+\KwOut{Context snippet}
+
+changed\_lines $\gets$ extract line numbers from \textit{diffs}$;$
+
+methods $\gets$ find all methods in \textit{src}$;$
+
+initial $\gets$ methods overlapping with \textit{changed\_lines}$;$
+
+callgraph $\gets$ construct a call graph by identifying caller--callee relationships between methods in \textit{src}$;$
+
+visited $\gets \emptyset$; queue $\gets$ initial$;$
+
+\While{queue not empty \textbf{and} depth $\ge 0$}{
+    frontier $\gets$ queue; clear queue$;$
+
+    \ForEach{method $m$ in frontier}{
+        add $m$ to visited$;$ 
+        enqueue all callers and callees of $m$ in the callgraph$;$ 
+    }
+    depth $\gets$ depth $- 1$;
+}
+
+snippets $\gets$ build contextual code snippets for all methods in \textit{visited},
+including method signatures and surrounding source lines$;$
+
+output $\gets$ concatenate snippets$;$
+
+truncate output to \textbf{max\_lines}$;$
+
+\Return output$;$
+
+\end{algorithm}
+\end{footnotesize}
+
+
+\subsection{Multi-Agent Debate Framework}
+\label{sec:debate_arch}
+
+Our approach replaces single-pass LLM prediction with a structured debate among multiple LLM-based agents. Inspired by prior work on \textcolor{red}{MAD} and argumentation frameworks \citep{kontarinis2014debate,liang2024encouraging,liu2024groupdebate}, the framework is centered on an adversarial exchange in which agents reason from opposing perspectives and challenge one another’s conclusions. The outcomes of this adversarial process are then put together to produce a single resolved prediction, mediated by a \emph{Judge} agent. \autoref{fig:debate_arch} illustrates the interactive process and information flow among agents in this framework.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{methodology_multi_agent.png}
+    \caption{Overview of the \textcolor{red}{MAD} architecture.}
+    \label{fig:debate_arch}
+\end{figure*}
+
+\subsubsection{Data Preparation and Debate Setup}
+
+Each evaluation instance provides three elements:  
+(1) a unified diff describing the code edits,  
+(2) the expanded context from \autoref{sec:subset_motivation_retrieval},  
+and (3) the previous label.  
+These form the shared evidence the agents use when debating the updated status of the file.
+
+\subsubsection{Role Descriptions and Responsibilities}
+The debate uses four LLM agents, each with a restricted prompt and access only to the information required for its role:
+
+\begin{itemize}
+    \item \textbf{Analyzer (Round 0).}  
+    Receives the diff and expanded context, produces a summary of the changes and lists plausible \emph{Benign} and \emph{Defective} interpretations.
+
+    \item \textbf{Proposer (Rounds 1--$R$).}  
+    Receives the diff, context, and the \emph{Analyzer}’s output in the first round, plus possibly earlier debate messages.
+    States whether the updated file should keep or change its previous label and supports the claim with specific evidence.
+
+    \item \textbf{Skeptic (Rounds 1--$R$).}  
+    Receives the diff, context, and earlier debate messages.  
+    Challenges the \emph{Proposer}’s claim by pointing out weaknesses, alternatives, or missed cases.
+
+    \item \textbf{Judge (Final Stage).}  
+    Receives the diff, context, previous label, and the full debate history.  
+    Weighs the arguments and produces the final prediction with a confidence score.
+\end{itemize}
+
+\subsubsection{Rationale and Effects}
+This architecture frames prediction as an adversarial process rather than a direct inference step. The agents confront one another's claims and require that any assertion be supported by explicit reasoning. A \emph{Benign} or \emph{Defective} label prediction is accepted only after the system produces a 
+coherent argument that survives criticism from the participating roles. The full exchange remains accessible after the decision, which provides a clear record of the supporting logic and allows readers to trace the path from initial evidence to final judgment.
+
+\subsubsection{\textcolor{red}{Practical Considerations}}
+\textcolor{red}{
+This framework is best suited for organizations with long‑term version histories that need to prioritize changed files for review. In practice, MAD can be run every once in a while (e.g., per each release). Choosing the appropriate time interval before each run involves a trade-off: shorter intervals reduce the number of changed files per run, lowering per-run computational cost, while longer intervals reduce the frequency of executions. MAD is not intended to be used on every commit, unlike JIT commit-level prediction. Instead, the time intervals can be tuned according to project-specific objectives, available resources, and operational constraints.
+}
+
+\textcolor{red}{
+Deployment requires access to version control and a static call graph extractor (e.g., Eclipse JDT for Java). LLM price costs can be managed using local or cloud models, and usage of smaller models or token restriction parameters such as \texttt{max\_tokens} can also be helpful. The comments produced by the \emph{Analyzer} and the agents’ decision logic can complement existing static analysis and code review workflows.}
+
+\section{Experimental Design}
+\label{sec:experimental_design}
+
+\subsection{Research Questions}
+\label{sec:research_questions}
+
+The objective of this study is to investigate the limitations of traditional 
+file-level SDP models and to evaluate the effectiveness 
+of the proposed \textcolor{red}{framework} that integrates multi-agent 
+reasoning. To achieve these goals, we formulate three main research questions as follows:
+
+\begin{itemize}
+    \item \textbf{RQ1.} \textit{ \textcolor{red}{Does traditional file-level SDP suffer from an illusion of accuracy?}}
+    \vspace{1em}
+    \item \textbf{RQ2.} \textit{How much can the performance of LLM-based methods increase by introducing change-aware context into their prompts?}
+    \vspace{1em}
+    \item \textbf{RQ3.} \textit{Can \textcolor{red}{MAD} help solve the problem of illusion of accuracy?}
+\end{itemize}
+
+Each research question is empirically addressed in \autoref{sec:results}.
+
+\subsection{Dataset Description}
+\label{sec:dataset_desc}
+
+\textcolor{red}{
+We use a corpus of publicly-available defect datasets provided by \citet{Yatish}, previously adopted by \citet{wattanakriengkrai2020predicting}, \citet{pornprasit2023deeplinedp} and \citet{hesamolhokama2024sdperl}. The corpus consists of 32 releases spanning 9 open-source Apache software systems. Each project contains multiple historical versions of Java source files, accompanied by ground-truth defect labels derived from affected releases using the JIRA issue tracking system, indicating whether a file was \textit{Defective} or \textit{Benign} in a given release. In addition to the defect label column (Bug), every project includes a unique file identifier (File) and corresponding source code stored in the SRC field.
+}
+
+\textcolor{red}{
+We select 6 out of these 9 projects, as this subset is sufficient to address our research questions while maintaining consistency with prior studies using the same corpus. Although each project originally contained multiple historical versions, we only used the two latest versions for our experiments, as they are commonly used in prior work and better reflect modern coding practices. The selected projects represent large-scale, real-world Java systems spanning diverse domains and architectural styles, as summarized below:
+}
+\textcolor{red}{
+\begin{itemize}
+    \item \textbf{hbase}: Distributed, Scalable, Big data store
+    \item \textbf{camel}: Enterprise Integration Framework
+    \item \textbf{derby}: Relational Database
+    \item \textbf{groovy}: Java-syntax-compatible OOP
+    \item \textbf{jruby}: Ruby Programming Lang for JVM
+    \item \textbf{lucene}: Text Search Engine Library
+\end{itemize}
+}
+A summary of the projects across two latest project versions is provided in~\autoref{tab:version_stats_final}.
+
+
+\begin{table}[!htbp]
+\centering
+\caption{Dataset version statistics.}
+\label{tab:version_stats_final}
+\small
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{l p{2cm} r r r}
+\toprule
+Dataset & Version & \#Files & \%Benign & \%Defective \\
+\midrule
+
+\multirow{2}{*}{lucene}
+  & 2.9.0 & 1368 & 91.59 & 8.41 \\
+  & 3.0.0 & 1337 & 94.39 & 5.61 \\
+\midrule
+
+\multirow{2}{*}{groovy}
+  & 1\_5\_7 & 757 & 97.89 & 2.11 \\
+  & 1\_6\_BETA\_2 & 884 & 96.38 & 3.62 \\
+\midrule
+
+
+\multirow{2}{*}{derby}
+  & 10.3.1.4 & 2206 & 84.18 & 15.82 \\
+  & 10.5.1.1 & 2705 & 93.90 & 6.10 \\
+\midrule
+
+\multirow{2}{*}{camel}
+  & 2.10.0 & 7914 & 98.24 & 1.76 \\
+  & 2.11.0 & 8846 & 98.47 & 1.53 \\
+\midrule
+
+\multirow{2}{*}{hbase}
+  & 0.95.0 & 1669 & 89.33 & 10.67 \\
+  & 0.95.2 & 1834 & 91.11 & 8.89 \\
+\midrule
+
+
+\multirow{2}{*}{jruby}
+  & 1.4.0 & 978 & 87.01 & 12.99 \\
+  & 1.5.0 & 1131 & 97.79 & 2.21 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Traditional Baselines}
+\label{sec:traditional_baselines}
+
+Traditional classifiers such as Random Forest~\citep{breiman2001random}, Logistic Regression~\citep{hosmer2013applied}, and SVM~\citep{cortes1995support} require fixed-length numerical vector inputs. Since the \textit{SRC} field contains raw source code, each file must be embedded before classification. We use two embedding methods: CodeBERT~\citep{feng2020codebert} and OpenAI’s text-embedding model (small)~\citep{openai2024textembedding3}.
+
+CodeBERT accepts sequences of up to 512 tokens \citep{feng2020codebert}, so we choose to divide the longer files into overlapping chunks of 512 tokens with a stride of 256. Each chunk is encoded, and we apply token-level pooling (\text{CLS}, mean, max, or min) \citep{reimers2019sentence} to obtain one vector per chunk. Files with multiple chunks are then aggregated using the same pooling operations, producing a single 768-dimensional embedding (\autoref{fig:embedding_flow}). Each configuration is defined by the combination of token and chunk pooling:
+\[
+(\text{token pooling}) \times (\text{chunk pooling})
+\]
+In contrast, the OpenAI embedding model processes up to 8192 tokens at once and produces a 1536-dimensional file embedding~\citep{openai2024textembedding3}. No token-level pooling is required.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1.0\linewidth]{embedding_flowchart.png}
+    \caption{Overview of the embedding process for traditional baselines.}
+    \label{fig:embedding_flow}
+\end{figure}
+
+The choice of training and testing versions is indicated in~\autoref{tab:version_stats_final}, following the standard temporal evaluation approach commonly used in file-level, within-project SDP \citep{menzies2007data, rahman2013how, yan2020software}. 
+
+\subsection{Change-aware LLM Baselines}
+\label{sec:llm_baselines_change}
+We explore context-engineering \citep{brown2020language} by implementing nine LLM-based methods that differ in the type and amount of evolution-related information provided to the model. These methods range from single-version classification without historical information~\citep{li2024software} to full change-aware setting. 
+
+\begin{enumerate}
+\setcounter{enumi}{-1}
+
+\item \textbf{Single-version classification:} 
+The model receives only the target file (\text{SRC2}) and predicts whether it is Defective or Benign, as shown in~\autoref{fig:prompt_m0}.
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Single-Version Classification]
+You are given a source code file without any previous version. Decide if it is Defective or Benign.
+
+[SRC2]
+\textless source code here\textgreater
+
+Question: What is the status of this file? (Defective or Benign)
+\end{promptbox}
+\caption{Prompt for Single-version classification.}
+\label{fig:prompt_m0}
+\end{figure}
+
+\item \textbf{Direct comparison:} 
+Both the previous version (\text{SRC1}, with known status) and the new version (\text{SRC2}) are provided.
+
+\item \textbf{Diff-guided reasoning:} 
+The model receives \text{SRC1}, \text{SRC2}, and a list of added, removed, and changed lines to focus on the modifications line by line.
+
+\item \textbf{Patch-aware reasoning:} 
+Along with both versions, the model is given a unified diff (patch) to reason about changes.
+
+\item \textbf{SRC1-only change reasoning:} 
+The model sees only \text{SRC1} and the diffs, without access to \text{SRC2}.
+
+\item \textbf{Diff-only reasoning:} 
+The model receives only the differences and the unified diff, along with the status of \text{SRC1}, to predict whether changes affect the defect state.
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Diff-only Reasoning]
+You are given only the differences and the unified diff. You also know that SRC1 was Defective. Determine if SRC2 remains Defective or changes status.
+
+[SRC1] → Defective
+[SRC2] → ???
+
+[Differences]
+\textless added/removed lines\textgreater
+
+[Unified diff]
+\textless patch-style diff\textgreater
+
+Use this information to infer the status of SRC2.
+\end{promptbox}
+\caption{Prompt for Diff-only Reasoning.}
+\label{fig:prompt_m5}
+\end{figure}
+
+\item \textbf{Local-context reasoning:} 
+Only the modified lines and a few surrounding lines are provided.
+
+\item \textbf{Diffs with exemplars:} 
+The model receives the diff, unified diff, and a small set of known defective examples.
+
+\item \textbf{Semantic repair reasoning:} 
+A variation of Diff-only Reasoning \textcolor{red}{that further emphasizes the previous status and the nature of code changes.}
+\end{enumerate}
+
+The full prompt templates for all LLM baselines are provided in~\ref{appendix:prompts_llm}.
+In designing these prompts, we follow best practices in prompt engineering, such as providing clear and specific instructions \citep{wei2022chain}. 
+Prior work has shown that clarity, context, ordering of input information, and step-by-step instructions can improve the consistency and quality of LLM outputs across complex tasks \citep{white2023prompt}. 
+These design choices aim to help the model focus on the evolution-related information that is most relevant to defect status predictions \citep{liu2023pre}.
+
+\textcolor{red}{Beyond these strategies, we explored simple label prediction (only label output with no explanation) and few-shot (in-context learning), particularly for single-version classification, as well as minor prompt variations on smaller subsets. These approaches were less consistent or underperformed, so we retained the nine prompting strategies that showed more stable performance.}
+
+We evaluate a set of LLMs drawn from a variety of sources, including both open-source and proprietary models, as summarized in \autoref{tab:models}. All models are evaluated under a shared system prompt to ensure consistent behavior across baselines (\ref{appendix:system_prompt}).
+
+\begin{table}[!htbp]
+\centering
+\caption{LLMs evaluated as baselines for change-aware SDP. We additionally report \emph{parameters per token activated} (PPT), i.e., the number of parameters actively used for a single forward pass, shown in parentheses where applicable \citep{fedus2022switch}.}
+
+\label{tab:models}
+\renewcommand{\arraystretch}{1.3} 
+
+\small
+\setlength{\tabcolsep}{8pt}
+
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{
+p{2.6cm}@{\hspace{8pt}}
+p{4.2cm}@{\hspace{8pt}}
+p{2.3cm}
+}
+\hline
+\textbf{Source} & \textbf{Model name} & \textbf{Params} \\
+\hline
+
+\multirow{3}{*}{DeepSeek}
+ & \rule{0pt}{2.6ex}DeepSeek-Reasoning \citep{deepseek2025r1}
+ & \multirow{3}{*}{671B (37B PPT)} \\
+ & DeepSeek-V3.1 \citep{deepseek2024v3} &  \\
+ & deepseek-v3.1:671b-terminus \citep{deepseek2025v31terminus} &  \\
+
+\hline
+
+Google
+ & \rule{0pt}{2.6ex}Gemini-2.5-Flash-Lite \citep{google2025gemini25flashlite} & N/A \\
+
+\hline
+
+\multirow{4}{*}{OpenAI}
+ & \rule{0pt}{2.6ex}GPT-5-Chat & N/A \\
+ & GPT-5-Mini & N/A \\
+ & GPT-5-Nano-2025-08-07 & N/A \\
+ & GPT-O4-Mini-2025-04-16 & N/A \\
+
+\hline
+
+\multirow{5}{*}{Mistral AI}
+ & \rule{0pt}{2.6ex}Mistral-Small-2503 \citep{mistral_small_2503} & 24B \\
+ & Mistral-Small-3.1-24B-Instruct-2503 \citep{mistral_small_3_1_24b_2503} & 24B \\
+ & Open-Mixtral-8x7B \citep{jiang2024mixtral} & 46.7B \\
+ & codestral-2405 & $\sim$22B \\
+ & codestral-2501 \citep{mistralai2024codestral} & $\sim$22B \\
+
+\hline
+
+\multirow{2}{*}{Alibaba (Qwen)}
+ & \rule{0pt}{2.6ex}Qwen2.5-Coder-32B-Instruct \citep{qwen2025coder32binstruct} & 32B \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Experimental Setting}
+\label{sec:experimental_setting}
+\textcolor{red}{A complete summary of the resources, libraries, models, and parameter configurations used in our experiments is provided in \autoref{tab:experimental_settings}}.
+
+\textcolor{red}{Experiments were conducted using Kaggle Notebooks with free cloud compute. The environment provided up to 12 hours per session, 20 GB disk space, approximately 30 GB RAM, and access to two NVIDIA Tesla T4 GPUs. The GPUs were used exclusively for CodeBERT embedding computation; all other components ran on CPU.}
+
+\begin{table}[!htbp]
+\centering
+\caption{ \textcolor{red}{Hierarchical overview of versions and parameters used in the experimental setting. All parameters not explicitly listed are left at their default values.}}
+\label{tab:experimental_settings}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\adjustbox{max width=0.8\linewidth}{
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Component / Parameter} & \textbf{Value} \\
+\midrule
+\textit{Execution environment} & \\
+
+\quad Python version & 3.11.13 (GCC 11.4.0) \\
+\quad Notebook version & 6.5.4 \\
+\quad JupyterLab version & 3.6.8 \\
+
+\textit{Classification models} & \\
+
+\quad \textit{Logistic Regression} & \\
+\qquad Library & \textsc{scikit-learn} \\
+\qquad Solver & "liblinear" \\
+\qquad Max iterations & 2000 \\
+
+\quad \textit{Lasso} & \\
+\qquad Penalty & "l1" \\
+\qquad Solver & "liblinear" \\
+\qquad Max iterations & 2000 \\
+\qquad Class weighting & "balanced" \\
+
+\quad \textit{Random Forest} & \\
+\qquad Number of estimators & 200 \\
+\qquad Random seed & 42 \\
+\qquad Class weighting & "balanced" \\
+
+\quad \textit{Linear SVM} & \\
+\qquad Kernel & "linear" \\
+\qquad Probability estimates & True \\
+\qquad Class weighting & "balanced" \\
+
+\midrule
+\textit{Code representations} & \\
+
+\quad \textit{CodeBERT} & \\
+\qquad Pretrained model & "microsoft/codebert-base" \\
+\qquad Tokenizer & RobertaTokenizer \\
+\qquad Encoder & RobertaModel \\
+\qquad Token truncation & True \\
+\qquad Maximum seq length & 512 \\
+\qquad Padding strategy & "max\_length" \\
+\qquad Tensor format & "pt" \\
+\qquad dimension & 768 \\
+
+\quad \textit{Long-file handling} & \\
+\qquad Chunking method & \textsc{tiktoken} \\
+
+\quad \textit{API-based embeddings} & \\
+\qquad Embedding model & OpenAI text-embedding-3-small \\
+\qquad dimension & 1536 \\
+
+\midrule
+\textit{LLM component} & \\
+\quad Library & \textsc{openai}, \textsc{requests} \\
+\quad LLM provider & llm7\footnotemark \\
+\quad Temperature & 0.0 \\
+\quad \textcolor{red}{max\_tokens} & \textcolor{red}{None} \\
+\quad Base URL & "https://api.llm7.io/v1"\\
+
+\midrule
+\textit{Context Expansion} & \\
+
+\quad depth & 3 \\
+\quad max\_lines & 400 (default), 0, 100, 200, 600 (final), 800, 1000 \\
+
+\midrule
+\textit{\textcolor{red}{Concurrency}} & \\
+\quad \textcolor{red}{per\_model\_concurrency} & \textcolor{red}{ranges from 10 to 25} \\
+
+\bottomrule
+\end{tabularx}
+}
+\end{table}
+\footnotetext{\emph{llm7} is a third-party LLM aggregation platform (\url{https://llm7.io/}) that provides access to multiple large language models through a unified API. The platform is open-source and publicly available at \url{https://github.com/chigwell/llm7.io}.}
+
+\subsection{Evaluation Settings}
+\label{sec:res}
+We conduct all sub-experiments for hyperparameter-tuning and model selection on the lucene project (\autoref{tab:version_stats_final}), without loss of generality, as the insights we aim to establish are not project-dependent.
+\subsubsection{LLM Output Parsing}
+
+For LLM baselines, we enforce an output format to ensure reliable parsing. Each model is instructed to return its response as a JSON object:
+{\small
+\begin{verbatim}
+{
+  "explanation": "Explanation in English",
+  "prediction": "Defective" or "Benign"
+}
+\end{verbatim}
+}
+
+In \textcolor{red}{MAD framework}, the final agent (\emph{Judge}) is required to conclude its response with a prediction label and a confidence score.
+
+{\small
+\begin{verbatim}
+### Final Prediction: <BENIGN or DEFECTIVE>
+### Confidence: <confidence_percentage>
+\end{verbatim}
+}
+
+LLM outputs may deviate from the prescribed format. When parsing fails, we apply regular-expression–based rules, refined through trial and error, to extract the final prediction.
+
+\subsubsection{Standard Metrics}
+Precision, Recall, and F1-score are computed using macro averaging; the term \emph{macro} is omitted hereafter for brevity. AUC is computed as the area under the receiver operating characteristic curve.
+
+\subsubsection{Change-Aware Metrics}
+For \textbf{RQ2} and \textbf{RQ3}, all metrics are computed over \emph{changed-source} files, i.e., common files with non-empty edits (\(d^{(i)} \neq \emptyset\)). We report:
+\begin{align}
+\text{unchanged-F1} &= \mathrm{F1}(\mathcal{S}_{\text{unchanged}}), \\
+\text{changed-F1}   &= \mathrm{F1}(\mathcal{S}_{\text{changed}}),
+\end{align}
+along with the accuracy for each of the four \textcolor{red}{status-transition} subsets (\(\mathrm{B00}\), \(\mathrm{B10}\), \(\mathrm{D01}\), \(\mathrm{D11}\)), as defined in \autoref{sec:problem_formulation}. 
+
+We further define two harmonic-mean–based metrics~\citep{christen2023review, sokolova2009systematic, tharwat2021classification}, 
+over the evolution subsets, where \(\mathrm{Acc}_{\mathcal{S}}\) denotes the accuracy computed on subset \(\mathcal{S}\):
+\begin{align}
+\text{HMD} &=
+\frac{2 \cdot \mathrm{Acc}_{\mathrm{B10}} \cdot \mathrm{Acc}_{\mathrm{D11}}}
+{\mathrm{Acc}_{\mathrm{B10}} + \mathrm{Acc}_{\mathrm{D11}}}, \label{eq:hmb} \\
+\text{HMB} &=
+\frac{2 \cdot \mathrm{Acc}_{\mathrm{B00}} \cdot \mathrm{Acc}_{\mathrm{D01}}}
+{\mathrm{Acc}_{\mathrm{B00}} + \mathrm{Acc}_{\mathrm{D01}}}. \label{eq:hmd}
+\end{align}
+Here, \textbf{HMB} (\emph{Harmonic Mean of Benign Prior Status}) captures balanced performance on files that were previously benign (\autoref{eq:hmb}), while \textbf{HMD} (\emph{Harmonic Mean of Defective Prior Status}) reflects balanced \textcolor{red}{performance} on files with a defective history (\autoref{eq:hmd}).
+
+\subsubsection{\textcolor{red}{Change-aware Guiding Principle}}
+\label{sec:guiding_principle}
+\textcolor{red}{B00 subset constitutes the overwhelming majority class (as is typical in defect prediction settings); Even modest reductions in B00 accuracy can lead to a substantial increase in false positives. As a result, a useful guiding principle in the context of change-aware SDP is that}
+
+\begin{boxnote}
+\emph{An effective method, bypassing the illusion of accuracy, achieves high Total F1 in conjunction with high HMB and HMD.}
+\end{boxnote}
+
+\section{Experimental Results}
+\label{sec:results}
+\subsection{RQ1: Illusion Of Accuracy}
+\label{sec:RQ1}
+We report the file-evolution partitions for the \textcolor{red}{projects} in \autoref{tab:file_evolution_partition}. Across all projects, more than $78-85\%$ of the files are shared between versions. This is not surprising since software systems evolve incrementally, which naturally results in substantial file overlap between adjacent releases. This fact fundamentally undermines the traditional formulation of file-level SDP. Prior work on SDP has favored metrics such as F1-score, Matthews Correlation Coefficient (MCC), Precision, Recall, or False Positive Rate (FPR)~\citep{yang2025dlap}, since \textit{Benign} class dominates defect status (see \autoref{tab:version_stats_final}).
+While these metrics address the imbalance in defect labels, they overlook the imbalance that arises from file evolution across software versions. Consider the naive classification strategy in \autoref{fig:naive_classifier}. This naive classifier can achieve deceptively high values even under commonly used robustness-oriented metrics (\autoref{tab:naive_baseline}).
+\begin{table}[!htbp]
+\centering
+\caption{File--evolution partition statistics (percentages) for \textcolor{red}{the projects} in \autoref{tab:version_stats_final}. 
+The terms $\mathcal{R}$ and $\mathcal{A}$ denote removed and added files, respectively.
+$\mathcal{C}$ denotes common files, which are further divided into unchanged
+($d=\emptyset$) and changed-source ($d\neq\emptyset$) files.}
+\label{tab:file_evolution_partition}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccccccc}
+\toprule
+\multirow{3}{*}{\textbf{Dataset}}
+& \multirow{3}{*}{$\mathcal{R}$}
+& \multirow{3}{*}{$\mathcal{A}$}
+& \multicolumn{6}{c}{$\mathcal{C}$} \\
+\cmidrule(lr){4-9}
+& & 
+& \multirow{2}{*}{$d=\emptyset$}
+& \multicolumn{4}{c}{$d \neq \emptyset$} \\
+\cmidrule(lr){5-9}
+& & & 
+& B00 & D01 & D11 & B10 \\
+\midrule
+lucene & 3.52 & 1.20 & \cellcolor{gray!20}\textbf{24.01} & \cellcolor{gray!20}\textbf{64.62} & 1.87 & 3.44 & 4.86 \\
+groovy & 0.79 & 15.16 & \cellcolor{gray!20}\textbf{65.72} & \cellcolor{gray!20}\textbf{16.74} & 0.90 & 1.13 & 0.34 \\
+derby  & 1.89 & 20.33 & \cellcolor{gray!20}\textbf{48.76} & \cellcolor{gray!20}\textbf{19.63} & 3.48 & 0.74 & 7.06 \\
+camel  & 0.23 & 10.76 & \cellcolor{gray!20}\textbf{67.67} & \cellcolor{gray!20}\textbf{19.49} & 0.23 & 0.61 & 1.24 \\
+hbase  & 3.49 & 12.49 & \cellcolor{gray!20}\textbf{38.44} & \cellcolor{gray!20}\textbf{35.82} & 2.62 & 3.54 & 7.09 \\
+jruby  & 0.80 & 14.32 & \cellcolor{gray!20}\textbf{54.02} & \cellcolor{gray!20}\textbf{20.34} & 1.24 & 0.53 & 9.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\begin{mdframed}
+\begin{center}
+\textbf{Naive Label-Persistent Classifier}
+\end{center}
+
+
+\begin{center}
+\itshape
+For a given file $i$ in the future version $V_{t+1}$, two cases are possible.
+(1) If $i \in \mathcal{C}$, that is, the file is common and already exists in the
+previous version $V_t$, the classifier assigns to $i$ the label it had in $V_t$.
+(2) If $i \in \mathcal{A}$, that is, the file is newly added in $V_{t+1}$, the
+classifier predicts the label \textit{benign}.
+\end{center}
+\end{mdframed}
+\caption{Naive label-persistent classification strategy.}
+\label{fig:naive_classifier}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{Performance of the naive label-persistent classifier.}
+\label{tab:naive_baseline}
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & Prec & Rec & F1 & AUC & FPR & MCC \\
+\midrule
+lucene & 0.7024 & 0.8005 & 0.7394 & 0.8005 & 0.0523 & 0.4933 \\
+groovy & 0.8317 & 0.6689 & 0.7216 & 0.6689 & 0.0059 & 0.4734 \\
+camel  & 0.5653 & 0.5672 & 0.5663 & 0.5672 & 0.0137 & 0.1326 \\
+hbase  & 0.6001 & 0.6083 & 0.6039 & 0.6083 & 0.0778 & 0.2083 \\
+jruby  & 0.5496 & 0.7289 & 0.5627 & 0.7289 & 0.1022 & 0.2132 \\
+derby  & 0.6530 & 0.7994 & 0.6931 & 0.7994 & 0.0921 & 0.4280 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+We explore the design choices in \autoref{sec:experimental_setting} for the implementation of traditional baselines described in \autoref{sec:traditional_baselines}.
+The resulting F1 scores for all configurations are reported in \autoref{tab:ml_results}. The pooling strategy with the highest F1 score on the test set is selected (detailed report in \autoref{tab:subset_macro_f1_common}). Random Forest achieves the highest F1 score on common files (0.7190), the highest score on the \textit{Unchanged} subset (0.9039), and near-best relative performance on the \textit{Changed} subset (0.2373). On this basis, we select it as the representative traditional baseline along with SDPERL \citep{hesamolhokama2024sdperl} and DBN-based feature extraction approach \citep{wang2018deep} for the final comparison in \autoref{tab:naive_vs_methods}.
+
+
+\begin{table*}[!htbp]
+\centering
+\caption{F1 values across embedding and pooling configurations for traditional classifiers. 
+Columns correspond to combinations of token-level and chunk-level pooling, 
+while \textit{openai} denotes embeddings without token-level pooling. 
+Models labeled with \textit{\_Balanced} apply \texttt{class\_weight="balanced"} to handle class imbalance. Bold values indicate the best-performing configuration per model.}
+\label{tab:ml_results}
+\renewcommand{\arraystretch}{1.35} 
+\normalsize
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{lcccccccccccc}
+\hline
+\textbf{Model} & \textbf{cls+avg} & \textbf{cls+max} & \textbf{cls+min} & \textbf{max+avg} & \textbf{max+max} & \textbf{max+min} & \textbf{mean+avg} & \textbf{mean+max} & \textbf{mean+min} & \textbf{openai+avg} & \textbf{openai+max} & \textbf{openai+min} \\
+\hline
+LogisticRegression & 0.5923 & 0.6287 & 0.5923 & 0.6517 & \textbf{0.6710} & 0.6350 & 0.5920 & 0.6152 & 0.5886 & 0.5961 & 0.5961 & 0.5961 \\
+LogisticRegression\_Balanced & 0.5731 & 0.6342 & 0.6283 & 0.6567 & \textbf{0.6762} & 0.6525 & 0.6002 & 0.6058 & 0.6177 & 0.6142 & 0.6241 & 0.6180 \\
+RandomForest & 0.5776 & 0.6155 & 0.6018 & 0.5345 & 0.5808 & 0.5329 & 0.5525 & 0.5689 & 0.5479 & 0.7157 & \textbf{0.7210} & 0.7102 \\
+RandomForest\_Balanced & 0.6179 & 0.6188 & 0.6243 & 0.5555 & 0.5452 & 0.5353 & 0.5798 & 0.5985 & 0.5948 & 0.7102 & 0.7013 & \textbf{0.7156} \\
+SVM\_Linear & 0.6267 & 0.6669 & 0.6533 & 0.6766 & \textbf{0.6907} & 0.6583 & 0.6382 & 0.6369 & 0.5940 & 0.6433 & 0.6415 & 0.6415 \\
+SVM\_Linear\_Balanced & 0.5847 & 0.6563 & 0.6563 & \textbf{0.6953} & 0.6783 & 0.6750 & 0.6143 & 0.6192 & 0.6323 & 0.6328 & 0.6423 & 0.6436 \\
+\hline
+\end{tabular}
+}
+\end{table*}
+
+\begin{table}[!htbp]
+\centering
+\caption{F1 scores on subsets of common files ($\mathcal{C}$) grouped by file
+evolution (\autoref{sec:problem_formulation}): \textit{Same} files have
+identical source code, \textit{Unchanged} files have changed source code with
+unchanged labels, and \textit{Changed} files have both source-code and label
+changes.}
+\label{tab:subset_macro_f1_common}
+\renewcommand{\arraystretch}{1.2} 
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{l c >{\color{ForestGreen}}c >{\color{BrickRed}}c}
+\hline
+\textbf{Model} & \textbf{Same} & \textbf{Unchanged} & \textbf{Changed} \\
+\hline
+LogisticRegression            & 0.8992 & \textbf{0.8077} & \textbf{0.2484} \\
+LogisticRegression\_Balanced  & 0.7809 & \textbf{0.7334} & \textbf{0.1807} \\
+RandomForest                  & 0.9278 & \textbf{0.9039} & \textbf{0.2373} \\
+RandomForest\_Balanced        & 0.8873 & \textbf{0.5304} & \textbf{0.1539} \\
+SVM\_Linear                   & 0.9278 & \textbf{0.8203} & \textbf{0.2029} \\
+SVM\_Linear\_Balanced         & 0.9278 & \textbf{0.8156} & \textbf{0.1539} \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+Our findings expose four fundamental problems in traditional SDP evaluation leading to an \emph{illusion of accuracy}:
+
+\begin{itemize}
+\item \textbf{Leakage through file overlap and label persistence.} Successive software versions share a large majority of files, many of which retain their labels, creating a leakage that favors predictors relying on historical labels (\autoref{tab:file_evolution_partition}).
+\item \textbf{Metric inflation.} Commonly used metrics in SDP, such as F1, are inflated in this setting (\autoref{fig:naive_classifier} and \autoref{tab:naive_baseline}).
+\item \textbf{Performance Drop on label-changing files.} Traditional models achieve high F1 scores on status-unchanged files but perform poorly on files whose defect labels change (\autoref{tab:subset_macro_f1_common}).
+\item \textbf{Marginal gains over naive baselines.} State-of-the-art models achieve performance levels that are indistinguishable from the naive baseline (\autoref{tab:naive_vs_methods}).
+\end{itemize}
+
+\begin{table*}[!htbp]
+\centering
+\caption{Comparison of the naive baseline and representative methods using Precision, Recall, F1, and AUC.}
+\label{tab:naive_vs_methods}
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Dataset}}
+& \multicolumn{4}{c}{\textbf{Naive Classifier}}
+& \multicolumn{4}{c}{\textbf{Random Forest}}
+& \multicolumn{4}{c}{\textbf{SDPERL}}
+& \multicolumn{4}{c}{\textbf{DBN}} \\
+\cmidrule(lr){2-5}
+\cmidrule(lr){6-9}
+\cmidrule(lr){10-13}
+\cmidrule(lr){14-17}
+& Prec & Rec & F1 & AUC
+& Prec & Rec & F1 & AUC
+& Prec & Rec & F1 & AUC
+& Prec & Rec & F1 & AUC \\
+\midrule
+lucene
+& 0.70 & \textbf{0.80} & \textbf{0.74} & 0.80
+& \textbf{0.72} & 0.71 & 0.72 & \textbf{0.888}
+& 0.68 & 0.77 & 0.72 & 0.884
+& 0.54 & 0.54 & 0.54 & 0.539 \\
+groovy
+& 0.83 & 0.67 & \textbf{0.72} & 0.67
+& \textbf{0.86} & 0.59 & 0.64 & \textbf{0.812}    
+& 0.72 & \textbf{0.68} & 0.70 & 0.809
+& 0.70 & 0.54 & 0.57 & 0.545 \\
+derby
+& \textbf{0.65} & \textbf{0.80} & \textbf{0.69} & 0.80
+& 0.65 & 0.75 & 0.69 & 0.869       
+& 0.62 & 0.79 & 0.65 & \textbf{0.872}
+& 0.59 & 0.70 & 0.61 & 0.701 \\
+camel
+& \textbf{0.57} & 0.57 & 0.57 & 0.57
+& {0.57} & 0.53 & 0.54 & 0.795      
+& 0.57 & \textbf{0.58} & \textbf{0.58} & \textbf{0.803}
+& 0.56 & 0.58 & 0.57 & 0.583 \\
+hbase
+& 0.60 & 0.61 & \textbf{0.60} & 0.61
+& 0.57 & 0.55 & 0.56 & \textbf{0.71}
+& 0.59 & \textbf{0.62} & 0.60 & 0.702
+& \textbf{0.63} & 0.53 & 0.54 & 0.533 \\
+jruby
+& \textbf{0.55} & \textbf{0.73} & \textbf{0.56} & 0.73
+& 0.53 & 0.60 & 0.54 & \textbf{0.847}       
+& -- & -- & -- & --  
+& -- & -- & -- & --        \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+\subsection{RQ2: Change-Aware LLM-Baselines}
+\label{sec:RQ2}
+We evaluate the change-aware LLM baselines introduced in \autoref{sec:llm_baselines_change} using a diverse set of proprietary and open-source models (see \autoref{tab:models}). \autoref{tab:llm_results} reports the F1 scores achieved across the nine prompting methods M0–M8. Method M0 represents single-version classification, while M1–M8 correspond to the change-aware reasoning strategies defined in \autoref{sec:llm_baselines_change}. The results demonstrate the clear advantage of change-aware approach.
+Among the change-aware methods, M5 (Diff-only Reasoning) stands out by focusing exclusively on code-changes (see \autoref{fig:prompt_m5}), validating the effectiveness of the problem formulation introduced in \autoref{sec:problem_formulation}.
+
+\begin{table*}[!htbp]
+\centering
+\caption{F1 scores across models (rows) and experimental methods (columns). Best result per model is highlighted in bold. The M5 column is shaded to emphasize its strong performance.}
+\label{tab:llm_results}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{5pt}
+\scriptsize
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{lcccccccccc}
+\toprule
+\textbf{Model} & \textbf{M0} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} \\
+\midrule
+DeepSeek-Reasoning
+& 0.502 & 0.513 & 0.514 & 0.478 & 0.518 & \cellcolor{gray!20}\textbf{0.645} & 0.530 & 0.530 & 0.637 \\
+
+Gemini-2.5-Flash-Lite
+& 0.490 & 0.524 & 0.497 & 0.507 & 0.581 & \cellcolor{gray!20}\textbf{0.609} & 0.522 & 0.556 & 0.567 \\
+
+GPT-5-Mini
+& 0.472 & 0.484 & 0.478 & 0.489 & 0.500 & \cellcolor{gray!20}0.629 & 0.514 & 0.574 & \textbf{0.632} \\
+
+DeepSeek-V3.1
+& 0.279 & 0.424 & 0.498 & 0.512 & 0.525 & \cellcolor{gray!20}\textbf{0.664} & 0.458 & 0.594 & 0.535 \\
+
+DeepSeek-V3.1-671B-Terminus
+& 0.255 & 0.449 & 0.518 & 0.553 & 0.520 & \cellcolor{gray!20}\textbf{0.588} & 0.466 & 0.576 & 0.546 \\
+
+Codestral-2405
+& 0.472 & 0.498 & 0.530 & 0.517 & 0.547 & \cellcolor{gray!20}\textbf{0.633} & 0.486 & 0.565 & 0.591 \\
+
+Codestral-2501
+& 0.463 & 0.466 & 0.541 & 0.490 & 0.575 & \cellcolor{gray!20}\textbf{0.650} & 0.469 & 0.603 & 0.589 \\
+
+Mistral-Small-3.1-24B-Instruct-2503
+& 0.500 & 0.498 & 0.498 & 0.475 & 0.494 & \cellcolor{gray!20}\textbf{0.630} & 0.482 & 0.514 & 0.625 \\
+
+GPT-O4-Mini-2025-04-16
+& 0.491 & 0.516 & 0.538 & 0.540 & 0.536 & \cellcolor{gray!20}\textbf{0.664} & 0.510 & 0.634 & 0.651 \\
+
+Mistral-Small-2503
+& -- & -- & -- & -- & -- & \cellcolor{gray!20}\textbf{0.624} & -- & -- & 0.608 \\
+
+GPT-5-Chat
+& -- & -- & -- & -- & -- & \cellcolor{gray!20}\textbf{0.614} & -- & -- & 0.613 \\
+
+GPT-5-Nano-2025-08-07
+& 0.489 & -- & -- & -- & -- & \cellcolor{gray!20}\textbf{0.541} & -- & 0.533 & 0.527 \\
+
+Qwen2.5-Coder-32B-Instruct
+& -- & -- & -- & -- & -- & \cellcolor{gray!20}\textbf{0.701} & -- & -- & 0.622 \\
+
+Open-Mixtral-8x7B
+& -- & -- & -- & -- & -- & \cellcolor{gray!20}\textbf{0.598} & -- & -- & 0.547 \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+A more detailed report is given in \autoref{tab:m5_macro_f1}. While M5 achieves strong overall F1, a consistent drop is observed on the \emph{Changed} subset, mirroring the trends in \autoref{sec:RQ1}. 
+Analysis of the models across the four \textcolor{red}{status-transition} subsets reveals that change-aware reasoning addresses label-persistence bias when the previous label is \emph{Defective}; however, performance on D01 remains near zero while B00 accuracy approaches 99\% (see \autoref{tab:m5_subsets}). When the previous label is \textit{Benign}, bug introduction (D01) is almost impossible to detect. As a result, strong Total F1 scores can still mask failures on critical subsets, leading yet to another form of \emph{illusion of accuracy}, though less severe than in traditional formulations.
+
+\begin{table}[!htbp]
+\centering
+\caption{Detailed F1 scores for M5 across all models from \autoref{tab:llm_results}.}
+\label{tab:m5_macro_f1}
+\renewcommand{\arraystretch}{1.2}
+\small
+\setlength{\tabcolsep}{6pt}
+
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{l c c c}
+\hline
+\textbf{Model} & \textbf{Total} & \textbf{Unchanged} & \textbf{Changed} \\
+\hline
+Codestral-2405 & 0.6334 & 0.7315 & 0.2685 \\
+Codestral-2501 & 0.6503 & 0.7684 & 0.2484 \\
+DeepSeek-Reasoning & 0.6449 & 0.7325 & 0.3836 \\
+DeepSeek-V3.1 & 0.6637 & 0.8249 & 0.2105 \\
+DeepSeek-V3.1-671B-Terminus & 0.5880 & 0.6825 & 0.2241 \\
+Gemini-2.5-Flash-Lite & 0.6094 & 0.7042 & 0.2969 \\
+GPT-5-Chat & 0.6144 & 0.6948 & 0.3576 \\
+GPT-5-Mini & 0.6291 & 0.7052 & 0.3841 \\
+GPT-5-Nano-2025-08-07 & 0.5414 & 0.5602 & 0.4299 \\
+GPT-O4-Mini-2025-04-16 & 0.6637 & 0.8478 & 0.1739 \\
+Mistral-Small-2503 & 0.6244 & 0.6944 & 0.4000 \\
+Mistral-Small-3.1-24B-Instruct-2503 & 0.6297 & 0.7028 & 0.3960 \\
+Open-Mixtral-8x7B & 0.5979 & 0.6329 & \textbf{0.4592} \\
+Qwen2.5-Coder-32B-Instruct & \textbf{0.7014} & \textbf{0.8526} & 0.3130 \\
+\hline
+\end{tabular}
+}
+\end{table}
+\begin{table}[!htbp]
+\centering
+\caption{\textcolor{red}{Representative subset accuracies (method M5).} 
+}
+\label{tab:m5_subsets}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l c >{\columncolor{red!20}}c >{\columncolor{gray!20}}c >{\columncolor{gray!20}}c c@{}}
+
+\toprule
+Model & B00 & D01 & B10 & D11 & F1 \\
+\midrule
+
+Qwen2.5-Coder-32B 
+& 99.4\% & \textbf{0.0\%} & 63.1\% & 62.2\% & {0.701} \\
+
+GPT-O4-Mini-2025-04-16 
+& 99.3\% & \textbf{4.0\%} & 26.2\% & 62.2\% & {0.664} \\
+
+DeepSeek-V3.1 
+& 98.5\% & \textbf{0.0\%} & 36.9\% & 64.4\% & {0.664} \\
+
+Codestral-2501 
+& 96.6\% & \textbf{4.0\%} & 41.5\% & 64.4\% & {0.650} \\
+
+DeepSeek-Reasoning 
+& 99.1\% & \textbf{0.0\%} & 86.2\% & 37.8\% & {0.645} \\
+
+GPT-5-Mini 
+& 98.1\% & \textbf{4.0\%} & 76.9\% & 37.8\% & {0.629} \\
+
+Mistral-Small-3.1-24B-Instruct-2503 
+& 98.8\% & \textbf{0.0\%} & 90.8\% & 33.3\% & {0.630} \\
+
+Gemini-2.5-Flash-Lite 
+& 97.3\% & \textbf{0.0\%} & 58.5\% & 42.2\% & {0.609} \\
+
+GPT-5-Nano-2025-08-07 
+& 94.1\% & \textbf{4.0\%} & 90.8\% & 20.0\% & {0.541} \\
+
+Mistral-Small-2503 
+& 98.9\% & \textbf{0.0\%} & 92.3\% & 31.1\% & {0.624} \\
+
+DeepSeek-V3.1-671B-Terminus 
+& 95.9\% & \textbf{0.0\%} & 40.0\% & 44.4\% & {0.588} \\
+
+Codestral-2405 
+& 95.7\% & \textbf{4.0\%} & 46.2\% & 60.0\% & {0.633} \\
+
+Open-Mixtral-8x7B 
+& 98.3\% & \textbf{8.3\%} & 89.1\% & 22.7\% & {0.598} \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{RQ3: The Proposed \textcolor{red}{MAD} Framework }
+\label{sec:RQ3}
+We select four LLMs as candidates to fill the roles and report the performance across all 52 model–role combinations in \autoref{tab:all-combinations}. 
+We first discard strictly-dominated candidates, leaving 37 non-dominated configurations. Applying $Acc_{B00} > 0.5$ limits the number of false positives, and $\text{HMD}, \text{HMB} > 0.4$ ensures a balanced performance across the four \textcolor{red}{status-transition} subsets. These restrictions leaves us with three viable candidates highlighted in blue (\autoref{tab:all-combinations}). Finally, we choose \hyperlink{case3}{Combination~3} due to its near-dominance and fewer false positives (higher B00 accuracy), which is particularly important given that B00 is relatively large in scale. Moreover, we show performance sensitivity to \texttt{max\_lines} parameter in \autoref{tab:context-sensitivity}. 
+
+\begin{table*}[p]
+\centering
+\caption{
+Performance across 52 model--role combinations. Model candidates are Gemini-2.5-Flash-Lite (Gemini), GPT-5-Mini (GPT), Codestral-2501 (Codestral), and DeepSeek-V3.1 (DeepSeek). \texttt{max\_lines} is $400$ with $\texttt{debate\_rounds} = 1$.
+Evaluation uses 100\% of the B10, D01, and D11 subsets, and 100 randomly sampled instances from B00; for each metric column, cell colors are independently scaled to reflect relative performance per metric, with darker shading indicating more extreme values.
+}
+\label{tab:all-combinations}
+
+\renewcommand{\arraystretch}{1.0} % increase row height
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{
+>{\centering\arraybackslash}l
+*{13}{>{\centering\arraybackslash}c}
+}
+\toprule
+\multirow{2}{*}{Group} & \multirow{2}{*}{Analyzer} & \multirow{2}{*}{\emph{Proposer}} & \multirow{2}{*}{Skeptic} & \multirow{2}{*}{Judge} &
+\multicolumn{4}{c}{Subset Accuracy} &
+\multicolumn{2}{c}{Change-aware} &
+\multicolumn{3}{c}{F1 Score} \\
+\cmidrule(lr){6-9} \cmidrule(lr){10-11} \cmidrule(lr){12-14}
+& & & & & B00 & D01 & D11 & B10 & HMD & HMB & Changed & Unchanged & Total \\
+\midrule
+
+% ======================================================
+% Group 1: All roles same
+% ======================================================
+\multirow{4}{*}{All roles same model}
+& GPT & GPT & GPT & GPT & \cellcolor{orange!12}0.51 & \cellcolor{orange!18}0.44 & \cellcolor{green!11}0.80 & \cellcolor{red!14}0.14 & \cellcolor{red!10}0.24 & \cellcolor{green!12}0.47 & \cellcolor{red!13}0.22 & \cellcolor{orange!10}0.60 & \cellcolor{orange!15}0.45 \\
+& DeepSeek & DeepSeek & DeepSeek & DeepSeek & \cellcolor{orange!13}0.49 & \cellcolor{orange!13}0.60 & \cellcolor{orange!17}0.69 & \cellcolor{orange!10}0.35 & \cellcolor{green!14}0.47 & \cellcolor{green!17}0.54 & \cellcolor{orange!10}0.42 & \cellcolor{orange!14}0.54 & \cellcolor{orange!10}0.50 \\
+& Codestral & Codestral & Codestral & Codestral & \cellcolor{green!14}0.67 & \cellcolor{red!14}0.28 & \cellcolor{green!19}0.91 & \cellcolor{red!18}0.08 & \cellcolor{red!16}0.14 & \cellcolor{orange!12}0.40 & \cellcolor{red!19}0.13 & \cellcolor{green!16}0.74 & \cellcolor{green!10}0.51 \\
+& Gemini & Gemini & Gemini & Gemini & \cellcolor{red!10}0.31 & \cellcolor{green!10}0.72 & \cellcolor{orange!17}0.69 & \cellcolor{orange!10}0.34 & \cellcolor{green!13}0.45 & \cellcolor{orange!10}0.43 & \cellcolor{green!11}0.44 & \cellcolor{red!10}0.43 & \cellcolor{orange!17}0.43 \\
+\midrule
+
+% ======================================================
+% Group 2: SP-same
+% ======================================================
+\multirow{24}{*}[20pt]{%
+\makecell{Same model for \\\emph{Skeptic} and \emph{Proposer},\\ different models for\\\emph{Analyzer} and \emph{Judge}
+}
+}
+& DeepSeek & GPT & GPT & Codestral & \cellcolor{orange!16}0.42 & \cellcolor{orange!12}0.64 & \cellcolor{green!14}0.84 & \cellcolor{red!15}0.12 & \cellcolor{red!12}0.21 & \cellcolor{green!15}0.51 & \cellcolor{red!10}0.26 & \cellcolor{orange!13}0.55 & \cellcolor{orange!16}0.44 \\
+& DeepSeek & GPT & GPT & Gemini & \cellcolor{orange!18}0.36 & \cellcolor{orange!16}0.52 & \cellcolor{orange!15}0.71 & \cellcolor{orange!12}0.31 & \cellcolor{green!12}0.43 & \cellcolor{orange!10}0.43 & \cellcolor{orange!14}0.36 & \cellcolor{orange!18}0.47 & \cellcolor{orange!17}0.43 \\
+& Codestral & GPT & GPT & DeepSeek & \cellcolor{orange!18}0.36 & \cellcolor{orange!12}0.64 & \cellcolor{green!14}0.84 & \cellcolor{orange!14}0.29 & \cellcolor{green!12}0.43 & \cellcolor{green!11}0.46 & \cellcolor{orange!12}0.39 & \cellcolor{orange!15}0.51 & \cellcolor{orange!13}0.47 \\
+& Codestral & GPT & GPT & Gemini & \cellcolor{red!10}0.31 & \cellcolor{orange!16}0.52 & \cellcolor{red!14}0.60 & \cellcolor{orange!10}0.34 & \cellcolor{green!12}0.43 & \cellcolor{orange!13}0.39 & \cellcolor{orange!12}0.38 & \cellcolor{red!12}0.40 & \cellcolor{red!11}0.39 \\
+& Gemini & GPT & GPT & DeepSeek & \cellcolor{orange!16}0.40 & \cellcolor{red!14}0.28 & \cellcolor{green!13}0.82 & \cellcolor{red!15}0.12 & \cellcolor{red!12}0.21 & \cellcolor{orange!17}0.33 & \cellcolor{red!16}0.17 & \cellcolor{orange!14}0.53 & \cellcolor{red!11}0.39 \\
+& Gemini & GPT & GPT & Codestral & \cellcolor{orange!19}0.35 & \cellcolor{orange!18}0.44 & \cellcolor{green!13}0.82 & \cellcolor{red!16}0.11 & \cellcolor{red!13}0.19 & \cellcolor{orange!13}0.39 & \cellcolor{red!14}0.20 & \cellcolor{orange!16}0.50 & \cellcolor{red!12}0.38 \\
+\addlinespace[1.5ex]
+
+& GPT & DeepSeek & DeepSeek & Codestral & \cellcolor{red!11}0.29 & \cellcolor{green!14}0.84 & \cellcolor{orange!10}0.78 & \cellcolor{red!10}0.19 & \cellcolor{orange!16}0.30 & \cellcolor{orange!10}0.43 & \cellcolor{orange!14}0.36 & \cellcolor{orange!19}0.44 & \cellcolor{orange!19}0.41 \\
+& GPT & DeepSeek & DeepSeek & Gemini & \cellcolor{red!14}0.23 & \cellcolor{green!13}0.80 & \cellcolor{red!11}0.64 & \cellcolor{orange!18}0.23 & \cellcolor{orange!13}0.34 & \cellcolor{orange!15}0.36 & \cellcolor{orange!12}0.39 & \cellcolor{red!14}0.36 & \cellcolor{red!13}0.37 \\
+& Codestral & DeepSeek & DeepSeek & GPT & \cellcolor{red!10}0.32 & \cellcolor{orange!10}0.68 & \cellcolor{red!12}0.62 & \cellcolor{orange!11}0.33 & \cellcolor{green!12}0.43 & \cellcolor{green!10}0.44 & \cellcolor{green!10}0.43 & \cellcolor{red!11}0.41 & \cellcolor{orange!18}0.42 \\
+& Codestral & DeepSeek & DeepSeek & Gemini & \cellcolor{red!10}0.31 & \cellcolor{orange!13}0.60 & \cellcolor{red!12}0.62 & \cellcolor{green!11}0.38 & \cellcolor{green!15}0.48 & \cellcolor{orange!11}0.41 & \cellcolor{green!11}0.44 & \cellcolor{red!11}0.41 & \cellcolor{orange!18}0.42 \\
+& Gemini & DeepSeek & DeepSeek & GPT & \cellcolor{orange!19}0.34 & \cellcolor{orange!16}0.52 & \cellcolor{orange!18}0.68 & \cellcolor{orange!12}0.31 & \cellcolor{green!12}0.43 & \cellcolor{orange!11}0.41 & \cellcolor{orange!13}0.37 & \cellcolor{orange!19}0.44 & \cellcolor{orange!18}0.42 \\
+& Gemini & DeepSeek & DeepSeek & Codestral & \cellcolor{red!14}0.22 & \cellcolor{orange!18}0.44 & \cellcolor{orange!15}0.71 & \cellcolor{red!15}0.12 & \cellcolor{red!12}0.21 & \cellcolor{red!10}0.29 & \cellcolor{red!14}0.21 & \cellcolor{red!13}0.37 & \cellcolor{red!20}0.31 \\
+\addlinespace[1.5ex]
+
+\hypertarget{case1}{\textbf{(1)}} & \cellcolor{blue!20}GPT & \cellcolor{blue!20}Codestral & \cellcolor{blue!20}Codestral & \cellcolor{blue!20}DeepSeek & \cellcolor{green!18}0.78 & \cellcolor{red!11}0.36 & \cellcolor{orange!17}0.69 & \cellcolor{orange!14}0.29 & \cellcolor{green!11}0.41 & \cellcolor{green!13}0.49 & \cellcolor{orange!18}0.30 & \cellcolor{green!15}0.72 & \cellcolor{green!14}0.55 \label{Case:1}\\
+\hypertarget{case2}{\textbf{(2)}} & \cellcolor{blue!20}GPT & \cellcolor{blue!20}Codestral & \cellcolor{blue!20}Codestral & \cellcolor{blue!20}Gemini & \cellcolor{green!15}0.70 & \cellcolor{red!13}0.32 & \cellcolor{orange!17}0.69 & \cellcolor{green!16}0.46 & \cellcolor{green!19}0.55 & \cellcolor{green!10}0.44 & \cellcolor{orange!12}0.39 & \cellcolor{green!12}0.67 & \cellcolor{green!15}0.56 \label{Case:2}\\
+& DeepSeek & Codestral & Codestral & GPT & \cellcolor{green!17}0.76 & \cellcolor{red!14}0.28 & \cellcolor{orange!17}0.69 & \cellcolor{orange!18}0.22 & \cellcolor{orange!14}0.33 & \cellcolor{orange!11}0.41 & \cellcolor{red!12}0.23 & \cellcolor{green!15}0.71 & \cellcolor{green!11}0.52 \\
+& DeepSeek & Codestral & Codestral & Gemini & \cellcolor{green!15}0.70 & \cellcolor{red!14}0.28 & \cellcolor{red!14}0.60 & \cellcolor{green!14}0.42 & \cellcolor{green!16}0.49 & \cellcolor{orange!12}0.40 & \cellcolor{orange!14}0.35 & \cellcolor{green!11}0.64 & \cellcolor{green!11}0.52 \\
+& Gemini & Codestral & Codestral & GPT & \cellcolor{green!14}0.67 & \cellcolor{red!20}0.12 & \cellcolor{orange!11}0.76 & \cellcolor{orange!15}0.27 & \cellcolor{orange!10}0.39 & \cellcolor{red!17}0.20 & \cellcolor{red!14}0.21 & \cellcolor{green!13}0.68 & \cellcolor{orange!10}0.50 \\
+& Gemini & Codestral & Codestral & DeepSeek & \cellcolor{green!16}0.73 & \cellcolor{red!13}0.32 & \cellcolor{red!12}0.62 & \cellcolor{orange!18}0.22 & \cellcolor{orange!14}0.32 & \cellcolor{green!10}0.44 & \cellcolor{red!12}0.24 & \cellcolor{green!12}0.67 & \cellcolor{orange!10}0.50 \\
+\addlinespace[1.5ex]
+
+& GPT & Gemini & Gemini & DeepSeek & \cellcolor{red!11}0.30 & \cellcolor{green!16}0.91 & \cellcolor{orange!15}0.71 & \cellcolor{orange!14}0.29 & \cellcolor{green!11}0.41 & \cellcolor{green!11}0.46 & \cellcolor{green!11}0.45 & \cellcolor{red!10}0.43 & \cellcolor{orange!16}0.44 \\
+& GPT & Gemini & Gemini & Codestral & \cellcolor{red!20}0.09 & \cellcolor{green!18}0.96 & \cellcolor{orange!15}0.71 & \cellcolor{orange!12}0.32 & \cellcolor{green!12}0.44 & \cellcolor{red!20}0.16 & \cellcolor{green!14}0.50 & \cellcolor{red!20}0.26 & \cellcolor{red!14}0.36 \\
+& DeepSeek & Gemini & Gemini & GPT & \cellcolor{red!10}0.32 & \cellcolor{green!13}0.80 & \cellcolor{red!14}0.60 & \cellcolor{green!11}0.37 & \cellcolor{green!13}0.45 & \cellcolor{green!11}0.46 & \cellcolor{green!14}0.49 & \cellcolor{red!11}0.41 & \cellcolor{orange!16}0.44 \\
+& DeepSeek & Gemini & Gemini & Codestral & \cellcolor{red!17}0.16 & \cellcolor{green!15}0.88 & \cellcolor{orange!14}0.73 & \cellcolor{orange!12}0.32 & \cellcolor{green!13}0.45 & \cellcolor{red!12}0.27 & \cellcolor{green!13}0.48 & \cellcolor{red!16}0.33 & \cellcolor{red!11}0.39 \\
+& Codestral & Gemini & Gemini & GPT & \cellcolor{red!15}0.20 & \cellcolor{green!15}0.88 & \cellcolor{red!14}0.60 & \cellcolor{green!17}0.47 & \cellcolor{green!18}0.53 & \cellcolor{orange!17}0.33 & \cellcolor{green!19}0.58 & \cellcolor{red!16}0.32 & \cellcolor{orange!18}0.42 \\
+& Codestral & Gemini & Gemini & DeepSeek & \cellcolor{red!10}0.31 & \cellcolor{green!11}0.76 & \cellcolor{red!11}0.64 & \cellcolor{orange!10}0.34 & \cellcolor{green!12}0.44 & \cellcolor{green!10}0.44 & \cellcolor{green!11}0.45 & \cellcolor{red!11}0.41 & \cellcolor{orange!17}0.43 \\
+\addlinespace[1.5ex]
+\midrule
+
+% ======================================================
+% Group 3: All-diff
+% ======================================================
+\multirow{24}{*}{All roles different}
+& GPT & DeepSeek & Codestral & Gemini & \cellcolor{green!13}0.64 & \cellcolor{red!17}0.20 & \cellcolor{red!12}0.62 & \cellcolor{orange!10}0.35 & \cellcolor{green!13}0.45 & \cellcolor{orange!19}0.30 & \cellcolor{orange!19}0.28 & \cellcolor{orange!10}0.61 & \cellcolor{orange!12}0.48 \\
+& GPT & DeepSeek & Gemini & Codestral & \cellcolor{red!18}0.13 & \cellcolor{green!19}1.00 & \cellcolor{green!19}0.91 & \cellcolor{red!13}0.15 & \cellcolor{orange!18}0.26 & \cellcolor{red!14}0.23 & \cellcolor{orange!13}0.37 & \cellcolor{red!14}0.35 & \cellcolor{red!14}0.36 \\
+& GPT & Codestral & DeepSeek & Gemini & \cellcolor{red!12}0.26 & \cellcolor{orange!12}0.64 & \cellcolor{green!11}0.80 & \cellcolor{orange!12}0.32 & \cellcolor{green!14}0.46 & \cellcolor{orange!14}0.37 & \cellcolor{orange!10}0.41 & \cellcolor{red!11}0.42 & \cellcolor{orange!18}0.42 \\
+& GPT & Codestral & Gemini & DeepSeek & \cellcolor{red!11}0.29 & \cellcolor{green!12}0.79 & \cellcolor{green!11}0.80 & \cellcolor{orange!18}0.23 & \cellcolor{orange!12}0.36 & \cellcolor{orange!11}0.42 & \cellcolor{orange!12}0.38 & \cellcolor{orange!19}0.45 & \cellcolor{orange!18}0.42 \\
+& GPT & Gemini & DeepSeek & Codestral & \cellcolor{red!10}0.31 & \cellcolor{green!14}0.84 & \cellcolor{green!14}0.84 & \cellcolor{orange!10}0.35 & \cellcolor{green!16}0.50 & \cellcolor{green!10}0.45 & \cellcolor{green!14}0.49 & \cellcolor{orange!18}0.47 & \cellcolor{orange!12}0.48 \\
+& GPT & Gemini & Codestral & DeepSeek & \cellcolor{green!16}0.72 & \cellcolor{red!13}0.32 & \cellcolor{green!16}0.87 & \cellcolor{red!20}0.05 & \cellcolor{red!20}0.09 & \cellcolor{green!10}0.44 & \cellcolor{red!20}0.12 & \cellcolor{green!17}0.75 & \cellcolor{green!10}0.51 \\
+\addlinespace[1.5ex]
+
+& DeepSeek & GPT & Codestral & Gemini & \cellcolor{green!17}0.76 & \cellcolor{red!15}0.24 & \cellcolor{red!20}0.53 & \cellcolor{green!19}0.51 & \cellcolor{green!18}0.52 & \cellcolor{orange!15}0.36 & \cellcolor{orange!12}0.38 & \cellcolor{green!11}0.64 & \cellcolor{green!13}0.54 \\
+& DeepSeek & GPT & Gemini & Codestral & \cellcolor{red!17}0.16 & \cellcolor{green!11}0.76 & \cellcolor{green!14}0.84 & \cellcolor{orange!16}0.26 & \cellcolor{green!10}0.40 & \cellcolor{red!12}0.26 & \cellcolor{orange!11}0.40 & \cellcolor{red!14}0.36 & \cellcolor{red!12}0.38 \\
+& DeepSeek & Codestral & GPT & Gemini & \cellcolor{orange!17}0.38 & \cellcolor{orange!16}0.52 & \cellcolor{green!11}0.80 & \cellcolor{green!12}0.40 & \cellcolor{green!18}0.53 & \cellcolor{green!10}0.44 & \cellcolor{orange!10}0.42 & \cellcolor{orange!15}0.51 & \cellcolor{orange!12}0.48 \\
+& DeepSeek & Codestral & Gemini & GPT & \cellcolor{red!13}0.24 & \cellcolor{green!13}0.80 & \cellcolor{green!16}0.86 & \cellcolor{orange!15}0.27 & \cellcolor{green!11}0.41 & \cellcolor{orange!14}0.38 & \cellcolor{orange!10}0.42 & \cellcolor{red!10}0.43 & \cellcolor{orange!18}0.42 \\
+& DeepSeek & Gemini & GPT & Codestral & \cellcolor{orange!17}0.39 & \cellcolor{orange!14}0.56 & \cellcolor{green!18}0.89 & \cellcolor{red!18}0.08 & \cellcolor{red!16}0.14 & \cellcolor{green!11}0.46 & \cellcolor{red!14}0.20 & \cellcolor{orange!14}0.54 & \cellcolor{orange!18}0.42 \\
+& DeepSeek & Gemini & Codestral & GPT & \cellcolor{green!16}0.73 & \cellcolor{orange!17}0.48 & \cellcolor{green!18}0.89 & \cellcolor{red!20}0.05 & \cellcolor{red!20}0.09 & \cellcolor{green!19}0.58 & \cellcolor{red!17}0.16 & \cellcolor{green!18}0.77 & \cellcolor{green!13}0.54 \\
+\addlinespace[1.5ex]
+
+& Codestral & GPT & DeepSeek & Gemini & \cellcolor{orange!19}0.35 & \cellcolor{green!13}0.80 & \cellcolor{red!15}0.59 & \cellcolor{orange!12}0.32 & \cellcolor{green!11}0.42 & \cellcolor{green!13}0.49 & \cellcolor{green!12}0.46 & \cellcolor{red!11}0.42 & \cellcolor{orange!17}0.43 \\
+& Codestral & GPT & Gemini & DeepSeek & \cellcolor{orange!19}0.34 & \cellcolor{green!10}0.72 & \cellcolor{green!14}0.84 & \cellcolor{orange!15}0.27 & \cellcolor{green!11}0.41 & \cellcolor{green!12}0.47 & \cellcolor{orange!11}0.40 & \cellcolor{orange!16}0.50 & \cellcolor{orange!14}0.46 \\
+& Codestral & DeepSeek & GPT & Gemini & \cellcolor{orange!19}0.33 & \cellcolor{orange!18}0.44 & \cellcolor{orange!18}0.67 & \cellcolor{orange!12}0.32 & \cellcolor{green!12}0.44 & \cellcolor{orange!14}0.38 & \cellcolor{orange!14}0.35 & \cellcolor{red!10}0.43 & \cellcolor{red!10}0.40 \\
+& Codestral & DeepSeek & Gemini & GPT & \cellcolor{red!16}0.17 & \cellcolor{green!11}0.76 & \cellcolor{orange!14}0.73 & \cellcolor{orange!10}0.34 & \cellcolor{green!14}0.46 & \cellcolor{red!11}0.28 & \cellcolor{green!11}0.45 & \cellcolor{red!15}0.34 & \cellcolor{red!12}0.38 \\
+& Codestral & Gemini & GPT & DeepSeek & \cellcolor{orange!17}0.39 & \cellcolor{orange!16}0.52 & \cellcolor{green!14}0.84 & \cellcolor{red!12}0.16 & \cellcolor{orange!18}0.26 & \cellcolor{green!10}0.45 & \cellcolor{red!10}0.26 & \cellcolor{orange!14}0.54 & \cellcolor{orange!17}0.43 \\
+& Codestral & Gemini & DeepSeek & GPT & \cellcolor{orange!19}0.33 & \cellcolor{orange!12}0.64 & \cellcolor{green!14}0.84 & \cellcolor{orange!13}0.30 & \cellcolor{green!12}0.44 & \cellcolor{green!10}0.44 & \cellcolor{orange!12}0.39 & \cellcolor{orange!17}0.49 & \cellcolor{orange!15}0.45 \\
+\addlinespace[1.5ex]
+
+& Gemini & GPT & DeepSeek & Codestral & \cellcolor{orange!16}0.40 & \cellcolor{orange!13}0.60 & \cellcolor{orange!10}0.78 & \cellcolor{red!13}0.15 & \cellcolor{orange!18}0.26 & \cellcolor{green!12}0.48 & \cellcolor{orange!19}0.28 & \cellcolor{orange!15}0.52 & \cellcolor{orange!17}0.43 \\
+\hypertarget{case3}{\textbf{(3)}} & \cellcolor{blue!20}Gemini & \cellcolor{blue!20}GPT & \cellcolor{blue!20}Codestral & \cellcolor{blue!20}DeepSeek & \cellcolor{green!19}0.81 & \cellcolor{red!12}0.33 & \cellcolor{green!13}0.82 & \cellcolor{orange!12}0.31 & \cellcolor{green!13}0.45 & \cellcolor{green!12}0.47 & \cellcolor{orange!18}0.30 & \cellcolor{green!19}0.80 & \cellcolor{green!19}0.60 \label{Case:3}\\
+& Gemini & DeepSeek & GPT & Codestral & \cellcolor{orange!19}0.33 & \cellcolor{orange!16}0.52 & \cellcolor{orange!11}0.76 & \cellcolor{orange!16}0.25 & \cellcolor{orange!11}0.37 & \cellcolor{orange!12}0.40 & \cellcolor{orange!16}0.32 & \cellcolor{orange!18}0.46 & \cellcolor{orange!19}0.41 \\
+& Gemini & DeepSeek & Codestral & GPT & \cellcolor{green!16}0.72 & \cellcolor{red!10}0.40 & \cellcolor{red!12}0.63 & \cellcolor{orange!18}0.22 & \cellcolor{orange!14}0.32 & \cellcolor{green!15}0.51 & \cellcolor{red!10}0.27 & \cellcolor{green!12}0.66 & \cellcolor{orange!10}0.50 \\
+& Gemini & Codestral & GPT & DeepSeek & \cellcolor{orange!16}0.42 & \cellcolor{red!11}0.36 & \cellcolor{orange!10}0.78 & \cellcolor{red!14}0.14 & \cellcolor{red!10}0.24 & \cellcolor{orange!13}0.39 & \cellcolor{red!14}0.20 & \cellcolor{orange!14}0.53 & \cellcolor{orange!19}0.41 \\
+& Gemini & Codestral & DeepSeek & GPT & \cellcolor{orange!14}0.45 & \cellcolor{orange!13}0.60 & \cellcolor{orange!14}0.73 & \cellcolor{orange!14}0.29 & \cellcolor{green!11}0.42 & \cellcolor{green!15}0.52 & \cellcolor{orange!12}0.38 & \cellcolor{orange!14}0.54 & \cellcolor{orange!12}0.48 \\
+\addlinespace[1.5ex]
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\begin{table*}[!htbp]
+\centering
+\setlength{\tabcolsep}{1.8pt}
+\caption{
+Effect of \texttt{max\_lines} on performance.
+Values are reported as mean $\pm$ 95\% confidence interval over \textcolor{red}{10} independent runs. 
+$^{*}$ denotes statistically significant differences against $\texttt{max\_lines} = 0$ (Wilcoxon signed-rank test~\citep{Wilcoxonsigned}).
+}
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{c
+cccc
+cc
+ccc}
+\toprule
+\multirow{2}{*}{Max} &
+\multicolumn{4}{c}{Subset Acc.} &
+\multicolumn{2}{c}{Change-aware Metrics} &
+\multicolumn{3}{c}{F1} \\
+\cmidrule(lr){2-5}
+\cmidrule(lr){6-7}
+\cmidrule(lr){8-10}
+Lines & B00 & B10 & D01 & D11 & HMB & HMD & Changed & Unchanged & Total \\
+\midrule
+\cellcolor{red!20}0    & 0.76 $\pm$ 0.03 & 0.29 $\pm$ 0.03 & 0.31 $\pm$ 0.06 & 0.66 $\pm$ 0.05 & 0.43 $\pm$ 0.05 & 0.40 $\pm$ 0.03 & 0.28 $\pm$ 0.03 & 0.70 $\pm$ 0.03 & 0.54 $\pm$ 0.01 \\
+
+100  & 0.76 $\pm$ 0.03 & 0.28 $\pm$ 0.03 & 0.36 $\pm$ 0.07 & 0.72 $\pm$ 0.04 & 0.48 $\pm$ 0.05 & 0.40 $\pm$ 0.03 & 0.29 $\pm$ 0.03 & 0.72 $\pm$ 0.02 & 0.55 $\pm$ 0.01 \\
+
+200  & 0.77 $\pm$ 0.04 & 0.27 $\pm$ 0.04 & 0.32 $\pm$ 0.06 & 0.67 $\pm$ 0.02 & 0.44 $\pm$ 0.06 & 0.38 $\pm$ 0.04 & 0.28 $\pm$ 0.04 & 0.71 $\pm$ 0.03 & 0.54 $\pm$ 0.02 \\
+
+400  & 0.78 $\pm$ 0.03 & 0.31 $\pm$ 0.04 & 0.29 $\pm$ 0.05 & 0.69 $\pm$ 0.05 & 0.41 $\pm$ 0.05 & 0.43 $\pm$ 0.04 & 0.29 $\pm$ 0.03 & 0.72 $\pm$ 0.02 & 0.55 $\pm$ 0.02 \\
+
+\cellcolor{green!20}600  & 0.77 $\pm$ 0.03 & 0.32 $\pm$ 0.04 & \cellcolor{gray!20}0.41 $\pm$ 0.05$^{*}$ & 0.69 $\pm$ 0.04 & \cellcolor{gray!20}0.52 $\pm$ 0.06$^{*}$ & 0.43 $\pm$ 0.04 & \cellcolor{gray!20}0.33 $\pm$ 0.03$^{*}$ & 0.71 $\pm$ 0.02 & \cellcolor{gray!20}0.56 $\pm$ 0.02$^{*}$ \\
+
+800  & 0.72 $\pm$ 0.05 & 0.29 $\pm$ 0.04 & 0.35 $\pm$ 0.06 & 0.70 $\pm$ 0.04 & 0.46 $\pm$ 0.05 & 0.41 $\pm$ 0.04 & 0.30 $\pm$ 0.03 & 0.69 $\pm$ 0.04 & 0.54 $\pm$ 0.02 \\
+
+1000 & 0.73 $\pm$ 0.04 & 0.29 $\pm$ 0.02 & 0.36 $\pm$ 0.07 & \cellcolor{gray!20}0.72 $\pm$ 0.04$^{*}$ & 0.47 $\pm$ 0.06 & 0.41 $\pm$ 0.02 & 0.30 $\pm$ 0.02 & 0.71 $\pm$ 0.02 & 0.55 $\pm$ 0.01 \\
+\bottomrule
+\end{tabular}
+}
+
+\label{tab:context-sensitivity}
+\end{table*}
+
+\paragraph{Comparative Analysis and Performance}
+\label{par:comparitive_analysis}
+\textcolor{red}{Results of all methods and baselines are reported in \autoref{tab:compare-results}. MAD framework significantly improves accuracy on the most challenging status-transition subset (D01) through a controlled trade-off on previously-benign instances (see \autoref{sec:ddc} for detailed analysis), and hence addressing the \emph{illusion of accuracy} by achieving non-zero HMB and HMD while keeping a competitive Total F1 (see the guiding principle in \autoref{sec:guiding_principle})
+}
+
+\begin{table*}[!htbp]
+\centering
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{Performance comparison of methods and baselines on lucene project. We use DeepSeek-Reasoning and Qwen2.5-Coder-32B for M0 and M5 respectively.
+$^{*}$ For Random Forest, metrics are computed after excluding propagated errors (see \autoref{sec:Rethinking_SDP} for details).
+}
+\label{tab:compare-results}
+
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{l
+cccc
+cc
+ccc}
+\toprule
+& \multicolumn{4}{c}{\textbf{Subset Accuracies}}
+& \multicolumn{2}{c}{\textbf{Change-aware}}
+& \multicolumn{3}{c}{\textbf{F1 Scores}} \\
+\cmidrule(lr){2-5}
+\cmidrule(lr){6-7}
+\cmidrule(lr){8-10}
+\textbf{Method}
+& \textbf{B00} & \textbf{D01} & \textbf{D11} & \textbf{B10}& \textbf{HMB} & \textbf{HMD}
+& \textbf{Changed} & \textbf{Unchanged} & \textbf{Total} \\
+\midrule
+Naive All Benign Prediction
+& 1.00 & \cellcolor{red!20}0.00 & 0.00 & 1.00
+& \cellcolor{red!30}0.00 & \cellcolor{red!30}0.00
+& 0.42 & 0.49 & 0.48 \\
+Naive Label-persistent Classifier
+& 1.00  & \cellcolor{red!20}0.00 & 1.00 & 0.00
+& \cellcolor{red!30}0.00  & \cellcolor{red!30}0.00
+& 0.0  & 1.0  & 0.73  \\
+\midrule
+Random Forest*
+& 1.00  & \cellcolor{red!20}0.00  & 0.68  & {0.04} 
+& \cellcolor{red!30}0.00  & \cellcolor{red!30}{0.07} 
+&{0.00}  & 0.90  & 0.70  \\
+M0 (Single-version Classification)
+& 0.99  & \cellcolor{red!20}0.00  & 0.37  & 0.86 
+& \cellcolor{red!30}0.00  & \cellcolor{green!25}0.51 
+& 0.49  & 0.49  & 0.50  \\
+M5 (Diff-only Reasoning)
+& 0.99  & \cellcolor{red!20}0.00  & 0.63 & 0.62 
+& \cellcolor{red!30}0.00  & \cellcolor{green!30}0.62
+& 0.31  & 0.85  & 0.70  \\
+Multi-Agent Debate \textcolor{red}{(MAD)}
+& 0.71 & \cellcolor{green!20}0.52 & 0.80 & 0.18
+& \cellcolor{green!35}0.60 & \cellcolor{green!20}0.30
+& 0.27 & 0.52 & 0.51  \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+\textcolor{red}{
+\autoref{tab:compare-results} alone does not fully capture MAD's advantages. Unlike standard baselines, MAD framework, along with predicting a label, also produces explicit reasoning about \emph{why} a file is considered \emph{Benign} or \emph{Defective}. This makes the decision process transparent and enables practitioners to assess whether the underlying logic is sound (see \autoref{sec:mad_decision_logic}). The framework shows greater robustness compared to LLM baselines such as M0 and M5, due to \emph{Proposer-Skeptic} dynamic (\autoref{sec:debate_arch}). The four-agent interaction produces informative aspects of code changes and simultaneously provides insights that can support developers in understanding and reviewing defect-prone changes.
+}
+
+\section{Discussion}
+\label{sec:discussion}
+\subsection{Rethinking Traditional File-Level SDP: Why Illusion of Accuracy Occurs}
+\label{sec:Rethinking_SDP}
+Let $(x_1, x_2)$ be an evolution pair with defect labels $(y_1, y_2)$. Consider a change $x_2 = f_\epsilon(x_1)$ that flips the defect label while introducing only a minor edit. Traditional SDP models assume that such defect-relevant changes induce sufficiently large movements in embedding space to cross the learned decision boundary. However, as illustrated in \autoref{fig:embedding_projection}, even changes that introduce critical defects can often result in negligible embedding shifts. We show the most critical label-transition scenarios in \autoref{fig:multi_fig}.
+
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{embedding_space_paper_ready.pdf}
+\caption{3D projection of embeddings for benign and defective variants of a source code. Despite a race-condition edit, both map nearby, showing why embedding-based models trained on historical files can misclassify, while even a simple single-version classification by LLMs (see \autoref{fig:prompt_m0}) correctly predicts both instances.}
+\label{fig:embedding_projection}
+\end{figure*}
+
+\begin{figure*}[!htbp]
+
+\centering
+
+% --- Row 1 ---
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion0000.pdf}
+    \centering \raisebox{0pt}{\textbf{(a)}} % subfigure label
+\end{minipage}\hfill
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion1111.pdf}
+    \centering \raisebox{0pt}{\textbf{(b)}}
+\end{minipage}\hfill
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion1101.pdf}
+    \centering \raisebox{0pt}{\textbf{(c)}}
+\end{minipage}\hfill
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion0010.pdf}
+    \centering \raisebox{0pt}{\textbf{(d)}}
+\end{minipage}
+
+\vspace{0.2cm}
+
+% --- Row 2 ---
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion0111.pdf}
+    \centering \raisebox{0pt}{\textbf{(e)}}
+\end{minipage}\hfill
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion1000.pdf}
+    \centering \raisebox{0pt}{\textbf{(f)}}
+\end{minipage}\hfill
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion1110.pdf}
+    \centering \raisebox{0pt}{\textbf{(g)}}
+\end{minipage}\hfill
+\begin{minipage}{0.2375\textwidth}
+    \includegraphics[width=\textwidth]{fig_discussion0110.pdf}
+    \centering \raisebox{0pt}{\textbf{(h)}}
+\end{minipage}
+\caption{Illustration of embedding-based defect prediction under file evolution. The red irregular region denotes the true defective boundary, while the gray elliptical region represents the estimated decision boundary. Each subfigure depicts an evolution pair $(x_1, x_2)$ with ground-truth labels $(y_1, y_2)$ and predicted labels $(\hat{y}_1, \hat{y}_2)$. (a--b) Label-persisted cases (B00, D11). (c--d) Label-changing cases (B10, D01). (e--f) \emph{Wrong in being right} phenomenon. (g) Benign-class bias. (h) Weak models misclassifying both versions. Other cases are omitted due to symmetry or low frequency.}
+\label{fig:multi_fig}
+\end{figure*}
+
+\paragraph{High Unchanged-F1 and Low changed-F1} \autoref{fig:multi_fig}\hyperref[fig:multi_fig]{~(a)} and \autoref{fig:multi_fig}\hyperref[fig:multi_fig]{~(b)} show how this geometry favors label-persisted evolution pairs (B00 and D11). 
+Because embeddings change little across versions, predictions are naturally reused, inflating \textcolor{red}{\emph{Unchanged}} performance (as seen in \autoref{sec:RQ1}). In contrast, \autoref{fig:multi_fig}\hyperref[fig:multi_fig]{~(c)} and \autoref{fig:multi_fig}\hyperref[fig:multi_fig]{~(d)} show how the same logic degrades performance on label-changing subsets (B10 and D01).
+
+\paragraph{Wrong in Being Right} \autoref{fig:multi_fig}\hyperref[fig:multi_fig]{~(e)} and \autoref{fig:multi_fig}\hyperref[fig:multi_fig]{~(f)} reveal a more subtle but critical mode, which we call \emph{wrong in being right}. When a classifier learns an incorrect decision boundary around $x_1$, this error can be subtly propagated to $x_2$ due to high embedding similarity. \textbf{If the true label flips across versions, the propagated error is evaluated as correct}. This issue is evident in \autoref{tab:lucene_changed_correctness}. 
+
+\begin{table}[!htbp]
+\centering
+\renewcommand{\arraystretch}{1.5} 
+\setlength{\tabcolsep}{12pt} 
+\caption{Train–test correctness matrices for the weak linear SVM model on B10 and D01 subsets of common files. Changed-F1 scores are: 0.551 (train), 0.381 (test), and 0.0 (test without propagated errors).}
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{|c|c|c|c|}
+\hline
+Subset & Train/Test & $\hat{y}_2 = y_2$ & $\hat{y}_2 \neq y_2$ \\
+\hline
+\multirow{2}{*}{\textbf{B10 (1→0)}} & $\hat{y}_1 = y_1$ & 0  & 22 \\
+\cline{2-4}
+ & $\hat{y}_1 \neq y_1$ & \textbf{44} & 0 \\
+\hline
+\multirow{2}{*}{\textbf{D01 (0→1)}} & $\hat{y}_1 = y_1$ & 0  & 16 \\
+\cline{2-4}
+ & $\hat{y}_1 \neq y_1$ & \textbf{9} & 0 \\
+\hline
+\end{tabular}
+}
+\label{tab:lucene_changed_correctness}
+\end{table}
+
+\subsection{Why Change-Aware Formulation is Necessary}
+\label{sec:justification_change_aware}
+
+Consider the traditional file-level, within-project, SDP formulation that uses only a single file ($X_{t+1}$) for prediction. 
+\autoref{thm:label-persistence} shows that the Bayes-optimal predictor collapses to the naive label-persistent classifier in \autoref{sec:RQ1} (\autoref{fig:naive_classifier}). Furthermore, a change-aware predictor that conditions on the differences $D$ is statistically well-posed (\autoref{thm:necessity-of-change}). Check \ref{appendix:bayes_proof} and \ref{appendix:necessity_change} for the proof.
+\begin{theorem}[Bayes-Optimality of Naive Label-Persistent Classifier]
+\label{thm:label-persistence}
+Let $f^\star:\mathcal U \to \{0,1\}$ be the Bayes-optimal classifier:
+\[
+f^\star(x) = \arg\max_{y \in \{0,1\}} \mathbb P(Y_{t+1}=y \mid X_{t+1}=x).
+\]
+Suppose label changes occur with small probability: $\mathbb P(Y_{t+1} \neq Y_t) = \varepsilon \in (0, \tfrac12)$ \text{(Empirically shown in \autoref{sec:RQ1})}.
+
+Then, with probability at least $1-\varepsilon$,
+\[
+f^\star(X_{t+1}) = Y_t.
+\]
+\end{theorem}
+\begin{theorem}[Necessity of Conditioning on Change]
+\label{thm:necessity-of-change}
+No predictor based solely on $X_{t+1}$ can consistently estimate defect
+transition probabilities.
+\end{theorem}
+When distinct pairs $(X_t, D)$ lead to the same $X_{t+1}$, the change $D$ cannot be recovered from $X_{t+1}$ alone. Conditioning on $X_{t+1}$ therefore merges cases with and without changes. As a result, $\mathbb{P}(Y_{t+1} \mid X_{t+1})$ cannot capture the transition behavior driven by changes, and predictors that ignore $D$ cannot model defect transitions. Conditioning on the change $D$ separates \emph{what the file is} from \emph{how it got there}, allowing the model to focus on the causal event that drives label transitions.
+
+\subsection{\textcolor{red}{Model-Level Analysis and Biases of Change-Aware LLM Baselines}}
+\label{sec:discussion_model_biases}
+\textcolor{red}{
+We focus our analysis on the B10 and D11 subsets in \autoref{tab:m5_subsets} (\autoref{sec:RQ2}). Models have distinct bias patterns. For instance, DeepSeek-Reasoning and GPT-5-Mini show a bug-fixing bias, achieving high B10 accuracy (86.2\% and 76.9\%, respectively) but low D11 performance (both 37.8\%); these models exhibit a prior assumption that \textit{"changes are more likely to fix bugs than preserve them"}. In contrast, GPT-O4-Mini shows a defect-preserving bias, with low B10 accuracy (26.2\%) but high D11 performance (62.2\%), requiring that defects persist unless strong evidence indicates otherwise. Other models like Qwen2.5-Coder-32B (63.1\% vs. 62.2\%) and Codestral-2501 (41.5\% vs. 64.4\%)  maintain higher performance and lower gap between B10 and D11. A report of model characteristics and bias patterns is provided in \autoref{tab:model_bias_groups}.}
+\begin{table}[!htbp]
+\centering
+\caption{
+\textcolor{red}{Model grouping based on change-aware bias patterns (M5). Gap is defined as $\text{Acc}_{D11} - \text{Acc}_{B10}$. 
+Perf. is the normalized $\min(\text{Acc}_{B10}, \text{Acc}_{D11})$, categorized as Low, Mid, or Top. The Reasoning column indicates whether a model uses a reasoning-oriented architecture. Code column shows whether a model is specifically designed for code-oriented tasks.}}
+\label{tab:model_bias_groups}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{tabular}{l c c c c c}
+\toprule
+\textbf{Model} & \textbf{Size} & \textbf{Reasoning} & \textbf{Code} & \textbf{Perf.} & \textbf{Gap} \\
+\midrule
+
+\multicolumn{6}{l}{\textbf{Bug-fixing bias (B10 $\gg$ D11)}} \\
+\midrule
+GPT-5-Nano & Small & \xmark & \xmark & Low & -70.8 \\
+Open-Mixtral-8x7B & Large & \xmark & \xmark & Low & -66.4 \\
+Mistral-Small-2503 & Small & \xmark & \xmark & Mid & -61.2 \\
+DeepSeek-Reasoning & Large & \cmark & \xmark & Mid & -48.4 \\
+GPT-5-Mini & Small & \xmark & \xmark & Mid & -39.1 \\
+\midrule
+
+\multicolumn{6}{l}{\textbf{Balanced behavior}} \\
+\midrule
+Gemini-2.5-Flash-Lite & Small & \xmark & \xmark & Mid & -16.3 \\
+Qwen2.5-Coder-32B & Small & \xmark & \cmark & \textbf{Top} & -0.9 \\
+Codestral-2405 & Small & \xmark & \cmark & Mid & 13.8 \\
+Codestral-2501 & Small & \xmark & \cmark & \textbf{Top} & 22.9 \\
+\midrule
+
+\multicolumn{6}{l}{\textbf{Defect-preserving bias (D11 $\gg$ B10)}} \\
+\midrule
+DeepSeek-V3.1 & Large & \xmark & \xmark & Mid & 27.5 \\
+GPT-O4-Mini & Small & \cmark & \xmark & Mid & 36.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{red}{
+Qwen2.5-Coder and Codestral are trained on large-scale code corpora and specialized for code-related tasks. In the context of change-aware LLM baselines (\autoref{sec:RQ2}), these smaller code-specialized models outperform larger ones such as GPT-O4-Mini and DeepSeek-Reasoning. In general, differences in biases or performance across the four subsets are not explained by model size or whether it is reasoning-oriented; for example, DeepSeek-Reasoning and GPT-O4-Mini are both agentic reasoning models but exhibit opposite biases (bug-fixing vs. defect-preserving), while performance differences are also not consistent across model scale. This indicates that change-aware reasoning is influenced more by training data and alignment objectives than by scale or reasoning architecture.
+}
+
+\subsection{Impact of Debate Rounds and Comprehensive \textcolor{red}{Results} of \textcolor{red}{MAD}}
+\label{sec:impact_debate}
+\autoref{tab:mad_overall_performance} shows that a single debate round is generally sufficient across \textcolor{red}{projects in \autoref{sec:dataset_desc}}. One-round debate consistently achieves stronger results on the B00 subset while maintaining often stable and competitive HMB and HMD scores, leading to a clear and significant advantage in Total F1.
+\textcolor{red}{
+\paragraph{Number-of-Rounds Bias}
+Multiple debate rounds (i.e., two or three rounds) appears to shift the model toward predicting a higher number of instances as \textit{Defective} relative to the single-round debate. While this behavior can lead to an increase in accuracy of the D01 subset and, consequently, Changed F1, it is generally associated with a consistent decrease in B00 accuracy and Total F1. This trade-off indicates that the model is not necessarily improving its ability to distinguish between benign and defect-inducing changes, but rather becoming more biased toward positive (\textit{Defective}) predictions. This can be further verified by looking at a similar trade-off between B10 and D11 subset. One possible explanation could be that longer interactions between the \emph{Proposer} and \emph{Skeptic} introduce signs of uncertainty or disagreement, which may be interpreted by the \emph{Judge} model as evidence of a potential defect, even in cases where no defect exists.
+}
+
+\begin{table*}[!htbp]
+\centering
+\caption{Impact of Debate Rounds on the Overall Performance of \textcolor{red}{MAD} Framework. Best results per \textcolor{red}{project} and metric are shown in bold. $^{*}$ Zero accuracy on the B10 subset for groovy is due to the extremely small size of only three instances.}
+\label{tab:mad_overall_performance}
+\adjustbox{max width=\textwidth}{
+\begin{tabular}{c c c c c c c c c c c}
+\toprule
+{Dataset} 
+& {Debate} 
+& \multicolumn{4}{c}{{Subset Accuracies}} 
+& \multicolumn{2}{c}{{Change-aware}} 
+& \multicolumn{3}{c}{{F1 Scores}} \\
+\cmidrule(lr){3-6}
+\cmidrule(lr){7-8}
+\cmidrule(lr){9-11}
+& {Rounds}
+& {B00} 
+& {D01} 
+& {D11} 
+& {B10} 
+& {HMB} 
+& {HMD} 
+& {Changed} 
+& {Unchanged} 
+& {Total} \\
+\midrule
+
+\multirow{3}{*}{lucene}
+ & 1 & \textbf{0.72} & \underline{0.52} & \underline{0.80} & \underline{0.18} & \textbf{0.60} & \underline{0.30} & \underline{0.28} & \textbf{0.53} & \textbf{0.52} \\
+ & 2 & 0.58 & 0.48 & \textbf{0.96} & 0.15 & 0.52 & 0.27 & 0.24 & 0.46 & 0.45 \\
+& 3 & \underline{0.66} & \textbf{0.54} & 0.79 & \textbf{0.25} & \underline{0.59} & \textbf{0.38} & \textbf{0.33} & \underline{0.48} & \underline{0.49} \\
+\midrule
+
+\multirow{3}{*}{groovy}
+ & 1 & \textbf{0.56} & \textbf{0.50} & \underline{0.75} & 0.00* & \textbf{0.53} & 0.00* & \underline{0.28} & \textbf{0.43} & \textbf{0.46} \\
+ & 2 & \underline{0.45} & \underline{0.40} & \textbf{0.88} & \textbf{0.33} & \underline{0.42} & \textbf{0.48} & \textbf{0.35} & \underline{0.39} & \underline{0.40} \\
+ & 3 & {0.45} & 0.30 & 0.50 & \underline{0.33} & {0.36} & \underline{0.40} & 0.29 & 0.35 & 0.36 \\
+\midrule
+
+
+\multirow{3}{*}{derby}
+ & 1 & \textbf{0.67} & 0.32 & {0.77} & \textbf{0.23} & 0.43 & \textbf{0.35} & \textbf{0.21} & \textbf{0.61} & \textbf{0.50} \\
+ & 2 & \underline{0.53} & \textbf{0.74} & \underline{0.83} & \underline{0.16} & \textbf{0.62} & \underline{0.27} & \underline{0.21} & \underline{0.53} & \underline{0.45} \\
+ & 3 & 0.47 & \underline{0.50} & \textbf{0.95} & 0.15 & \underline{0.48} & {0.27} & 0.18 & 0.42 & 0.39 \\
+\midrule
+
+\multirow{3}{*}{hbase}
+ & 1 & \textbf{0.75} & 0.29 & 0.72 & \textbf{0.29} & {0.42} & \textbf{0.42} & \textbf{0.29} & \textbf{0.57} & \textbf{0.51} \\
+ & 2 & \underline{0.62} & \underline{0.42} & \underline{0.85} & 0.13 & \textbf{0.50} & {0.23} & 0.23 & \underline{0.51} & \underline{0.46} \\
+ & 3 & 0.50 & \textbf{0.51} & \textbf{0.91} & \underline{0.18} & \underline{0.50} & \underline{0.30} & \underline{0.29} & {0.44} & 0.43 \\
+\midrule
+\multirow{3}{*}{jruby}
+ & 1 & \textbf{0.61} & 0.40 & \textbf{0.93} & \textbf{0.29} & 0.48 & \textbf{0.44} & \textbf{0.24} & \textbf{0.49} & \textbf{0.41} \\
+ & 2 & 0.51 & \textbf{0.67} & 0.86 & \underline{0.12} & \textbf{0.58} & \underline{0.21} & \underline{0.15} & 0.43 & 0.34 \\
+ & 3 & \underline{0.55} & \underline{0.60} & \underline{0.93} & 0.11 & \underline{0.57} & 0.20 & 0.13 & \underline{0.46} & \underline{0.36} \\
+\midrule
+
+
+\multirow{3}{*}{camel}
+& 1 & \textbf{0.76} & 0.30 & \underline{0.90} & \textbf{0.35} & 0.43 & \textbf{0.50} & \underline{0.32} & \textbf{0.47} & \textbf{0.48} \\
+& 2 & 0.67 & \underline{0.48} & 0.85 & \underline{0.29} & \textbf{0.56} & \underline{0.43} & \textbf{0.35} & \underline{0.43} & \underline{0.44} \\
+& 3 & \underline{0.60} & \textbf{0.49} & \textbf{0.95} & {0.18} & \underline{}{0.54} & 0.30 & {0.27} & {0.40} & {0.41} \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\subsection{\textcolor{red}{On the Cost of Defect Discovery}}
+\label{sec:ddc}
+\textcolor{red}{
+The baselines in \autoref{sec:RQ1} and \autoref{sec:RQ2} achieve near-perfect B00 accuracy while failing entirely on D01. The results of MAD in \autoref{tab:all-combinations} and \autoref{tab:compare-results} reflect an inherent trade-off between detecting rare defects and maintaining low false positives, so it is a natural follow-up to define the term Defect-Discovery Cost (DDC):}
+\textcolor{red}{
+\begin{align}
+\text{DDC}
+&= \frac{\#\text{Misclassified B00}}{\#\text{Correctly classified D01}} \nonumber \\
+&= \frac{|\mathrm{B00}|}{|\mathrm{D01}|} \cdot
+   \frac{1 - \mathrm{Acc}_{\mathrm{B00}}}{\mathrm{Acc}_{\mathrm{D01}}}
+\label{eq:dc}
+\end{align}}
+\textcolor{red}{
+DDC measure captures how many B00 instances are sacrificed for the sake of discovering one single D01 instance. \autoref{eq:dc} has two components: (1) the \textbf{class imbalance factor} $|\mathrm{B00}| / |\mathrm{D01}|$, which is related to an intrinsic characteristic of project's label distribution, and (2) the \textbf{effective DDC} $(1- \mathrm{Acc}_{\mathrm{B00}}) / \mathrm{Acc}_{\mathrm{D01}}$), which captures the actual cost of method’s defect discovery on the given project. It is worth noting that the second term can still be influenced by multiple factors, including (1) project-specific characteristics, (2) model-specific behavior, and (3) their interaction effects.}
+
+\textcolor{red}{
+We can formalize a version of \emph{illusion of accuracy} as follows: when a method’s performance on a dataset satisfies $\mathrm{Acc}_{\mathrm{B00}} \to 1^{+}$ and $\mathrm{Acc}_{\mathrm{D01}} \to 0^{+}$ (check Random Forest in \autoref{tab:compare-results}), the term
+\[
+\frac{1 - \mathrm{Acc}_{\mathrm{B00}}}{\mathrm{Acc}_{\mathrm{D01}}}
+\]
+yields the indeterminate form $0/0$. This makes DDC non-interpretable in the limiting case. Furthermore, if $\mathrm{Acc}_{\mathrm{D01}} \to 0^{+}$ while $\mathrm{Acc}_{\mathrm{B00}} < 1$, then
+\[
+\frac{1 - \mathrm{Acc}_{\mathrm{B00}}}{\mathrm{Acc}_{\mathrm{D01}}} \to +\infty,
+\]
+implying that effective DDC can get arbitrarily large. These two cases characterize the \emph{illusion of accuracy} present in \autoref{sec:RQ1} and \autoref{sec:RQ2}.}
+
+\textcolor{red}{
+The effective DDC can be analyzed in two meaningful regimes. When $\mathrm{Acc}_{\mathrm{B00}} + \mathrm{Acc}_{\mathrm{D01}} > 1$, the B00 error rate is smaller than D01 accuracy, so the ratio falls below 1. In this case, the ratio reduces the overall DDC below the class-imbalance factor. When $\mathrm{Acc}_{\mathrm{B00}} + \mathrm{Acc}_{\mathrm{D01}} < 1$, B00 errors outweigh defect discovery, so the ratio exceeds 1. Here, the ratio amplifies the DDC beyond what is implied by class-imbalance alone. A useful reference point is the scenario where $\mathrm{Acc}_{\mathrm{B00}} + \mathrm{Acc}_{\mathrm{D01}} = 1$, in which case the effective DDC equals 1 and the DDC reduces exactly to the class-imbalance factor.}
+
+\textcolor{red}{
+\autoref{fig:ddc} illustrates the DDC measure along with its two components across five projects (lucene is omitted due to its anomalously low effective DDC, as it was used for various hyperparameter selection throughout \autoref{sec:RQ3}). MAD remains largely unaffected by the increase in class-imbalance factor, and even shows stronger behavior on more imbalanced projects. Notably, the effective DDC for MAD remains close to or below 1 across all projects, so its trade-off between B00 and D01 generally leads to a net-reduction in DDC, although leaving substantial room for improvement. Consequently, while DDC captures the absolute cost which also includes project properties, the effective DDC provides a more faithful measure of model performance.
+}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{ddc_decomposition.pdf}
+    \caption{Class-imbalance factor, effective DDC, and absolute DDC measures (\autoref{eq:dc}) of MAD's performance across five projects.}
+    \label{fig:ddc}
+\end{figure}
+
+\subsection{\textcolor{red}{Understanding MAD's Decision Logic}}
+\label{sec:mad_decision_logic}
+\textcolor{red}{
+We conducted a qualitative analysis of 40 representative code change instances, balanced across MAD's prediction correctness and the four status-transition subsets. Generative AI tools assisted in summarization, with all derived insights manually verified for accuracy. An example of MAD’s decision logic is shown in \autoref{fig:MAD_B10_example.png}.}
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{example insight MAD B10.png}
+    \caption{\textcolor{red}{An example illustrating MAD's decision logic from derby project. For a code change replacing generic error mapping with \texttt{SQLState-to-XAException} logic, the \emph{Analyzer} produces more solid reasons for \emph{Benign} (75\%), the \emph{Proposer} supports \emph{Benign}, the \emph{Skeptic} warns of potential incomplete mappings, and the \emph{Judge} confirms \emph{Benign} (85\%).}}
+    \label{fig:MAD_B10_example.png}
+\end{figure}
+
+\textcolor{red}{
+When changes involve adding new functionality or developer's attempts to fix a previously buggy functionality, the \emph{Analyzer} generally provides more solid reasons for \emph{Benign}. In contrast, when the change alters existing functionality with complex logic, or when a fix remains incomplete and lacks the full logic, the \emph{Analyzer}'s arguments get more solid for \emph{Defective}. Nevertheless, since the agent employs dual-sided reasoning, a lack of sufficient justification for either case can force the agent to produce superficial arguments based on hypothetical scenarios rather than refraining from providing an explanation altogether.
+This insight propagates to the next stages. The \emph{Proposer} attempts to view changes positively and justify them favorably; for fixes, it aligns the changes with developer's comments. Meanwhile, the Skeptic views changes in terms of what potential bugs they may introduce in the future. The \emph{Judge}’s decision depends on the \emph{Skeptic}’s ability to provide concrete evidence from the code change and identify a line of reasoning that could plausibly lead to a defect.}
+
+\subsection{\textcolor{red}{Analyzing the Relationship between Code-Change Characteristics and MAD}}
+\label{sec:code_change_chars_MAD}
+\textcolor{red}{
+We select 10 characteristics over source code changes and investigate their relationship with MAD outcomes via a logistic fit (see \autoref{tab:feature_coefficients}). Higher \texttt{change\_span} and semantic diversity (\texttt{token\_entropy}) in code changes are associated with higher failure rates ($\text{err}$) and probability of positive prediction ($y_p=1$) by MAD. In contrast, refactoring-like changes are associated with a lower likelihood of $y_p=1$, and this pattern is also observed in the previously-benign group. The limited statistically significant coefficients for $\text{err}$ and $y_p=1$ suggest that MAD's prediction patterns and performance may not be properly explained by such simple models, especially for previously-defective instances, which is reassuring as it reaffirms the inherent complexity of MAD’s decision-making beyond what these simple features can capture.
+}
+\begin{table*}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{
+\textcolor{red}{
+Log-odds coefficients for the outcomes $sign(y_p - y_t)$ (err) and $y_p = 1$ (positive label prediction by MAD). The coefficients are reported over the complete set and the subsets $D01 \cup B00$ (previously benign) and $D11 \cup B10$ (previously defective). $^*$ and $^{**}$ denote significance at $p < 0.05$ and $p < 0.01$, respectively.
+}
+}
+\label{tab:feature_coefficients}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|m{8.5cm}|*{6}{>{\centering\arraybackslash}m{1.4cm}|}}
+\hline
+
+\multirow{2}{*}{\textbf{Feature}} 
+& \multirow{2}{*}{\textbf{Formula / Description}}
+& \multicolumn{6}{c|}{\textbf{Coefficients}} \\ \cline{3-8}
+
+& 
+& \multicolumn{2}{c|}{\textbf{Total}} 
+& \multicolumn{2}{c|}{$D01 \cup B00$} 
+& \multicolumn{2}{c|}{$D11 \cup B10$} \\ \cline{3-8}
+
+& 
+& err & $y_p$ 
+& err & $y_p$ 
+& err & $y_p$ \\
+
+\hline
+
+\texttt{change\_ratio} 
+& $\log(1 + \text{\#changes})$, where \#changes is the count of changed lines.
+& 0.026 & 0.117
+& 0.145 & 0.279
+& -0.233 & -0.041 \\ \hline
+
+\texttt{change\_span} 
+& $\log(1 + (\max(L)-\min(L)+1))$, where $L$ is the set of line numbers
+& \textbf{0.123$^{*}$} & \textbf{0.144$^{**}$}
+& \textbf{0.131$^{*}$} & 0.114
+& 0.174 & 0.174 \\ \hline
+
+\texttt{change\_density} 
+& $|L|/[max(L)-\min(L)+1]$, ratio of changed lines to total span
+& -0.186 & -0.179
+& -0.132 & -0.084
+& 0.065 & 0.204 \\ \hline
+
+\texttt{change\_burstiness} 
+& $\sigma(\Delta L)/\mu(\Delta L)$, where $\Delta L$ is the gaps between changed lines
+& \textbf{-0.101$^{*}$} & -0.041
+& -0.100 & -0.096
+& -0.060 & 0.006 \\ \hline
+
+\texttt{token\_entropy} 
+& $-\sum_{i} p_i \log p_i$, Shannon entropy of tokens in changed code
+& \textbf{0.225$^{**}$} & \textbf{0.187$^{**}$}
+& 0.149 & 0.018
+& 0.169 & -0.110 \\ \hline
+
+\texttt{nesting\_score} 
+& $\log(1 + \text{nested control blocks})$, counts nested \texttt{if}, \texttt{for}, \texttt{while}
+& 0.015 & 0.013
+& -0.105 & -0.135
+& 0.206 & 0.011 \\ \hline
+
+\texttt{total\_calls} 
+& $\log(1 + \text{method calls})$
+& 0.088 & 0.069
+& \textbf{0.165$^{*}$} & -0.001
+& -0.200 & 0.011 \\ \hline
+
+\texttt{mean\_fan\_out} 
+& $\log(1 + \mu(OC))$, where $OC$ is outgoing call counts per method
+& -0.138 & -0.122
+& -0.212 & -0.013
+& 0.126 & -0.160 \\ \hline
+
+\texttt{num\_methods\_changed} 
+& $\log(1 + \text{changed methods})$
+& -0.081 & -0.036
+& -0.151 & -0.001
+& 0.244 & 0.202 \\ \hline
+
+\texttt{refactor\_likelihood} 
+& ${V}/({CF+1})$, where $V$ is unique tokens and $CF$ control-flow tokens
+& -0.006 & -0.013
+& \textbf{-0.011$^{*}$} & \textbf{-0.012$^{*}$}
+& 0.007 & -0.005 \\ \hline
+
+\texttt{const} 
+& Constant term
+& -1.442$^{**}$ & -1.547$^{**}$
+& -1.759$^{**}$ & -1.711$^{**}$
+& 0.616 & 0.783 \\
+
+\hline
+\end{tabular}
+}
+\end{table*}
+
+\subsection{\textcolor{red}{Computational Cost of MAD Framework}}
+\textcolor{red}{
+\autoref{tab:mad_cost} reports MAD's computational costs for all four roles (\autoref{sec:debate_arch}). The runtime overhead introduced by context-expansion (\autoref{alg:context_pipeline}) and prompt construction for agents remains negligible ($<1$ second per file). It should be noted that the reported values are derived from our specific implementation and are subject to variations based on environmental and LLM inference parameters (\autoref{tab:experimental_settings}), specific code optimizations, and the characteristics of the LLM API provider such as network latency, server-side caching mechanisms, and memory management strategies.
+}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textcolor{red}{Computational cost breakdown of MAD framework. Values are reported as mean $\pm$ 95\% confidence interval and represent the average value per file. Tok/s (tokens per second) denotes the effective generation throughput, computed as the total number of output tokens divided by the runtime.}}
+\label{tab:mad_cost}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{10pt}
+\resizebox{1.0\linewidth}{!}{
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Component} & \multicolumn{2}{c|}{\textbf{Token Usage}} & \textbf{Runtime (s)} & \textbf{Tok/s} \\
+\cline{2-3}
+ & \textbf{Input} & \textbf{Response} & & \\
+\hline
+Analyzer  & $1204.45 \pm 97.41$  & $2761.34 \pm 54.84$ & $12.60 \pm 0.31$ & $221.88 \pm 3.47$ \\
+\hline
+Proposer  & $3965.79 \pm 135.63$ & $868.55 \pm 9.68$   & $23.45 \pm 0.87$ & $62.97 \pm 1.61$  \\
+\hline
+Skeptic   & $4834.34 \pm 138.25$ & $992.19 \pm 8.66$   & $5.24 \pm 0.12$  & $210.22 \pm 2.60$ \\
+\hline
+Judge     & $5826.53 \pm 140.86$ & $837.21 \pm 15.76$  & $14.73 \pm 0.62$ & $77.55 \pm 1.69$  \\
+\hline
+\hline
+\textbf{Total} & $15831.12 \pm 506.74$ & $5459.28 \pm 64.11$ & $56.03 \pm 1.17$ & $113.35 \pm 1.78$ \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Limitations}
+The change-aware formulation relies on access to the previous defect status of a file. While this assumption naturally follows in file-level, within-project setting, it restricts applicability in scenarios where historical labels are missing or cannot be reliably annotated. 
+Our problem formulation and evaluation is limited to common files, excluding added files which are outside the scope of this work. Additionally, the context expansion algorithm in \autoref{sec:subset_motivation_retrieval} does not distinguish more informative methods from less relevant ones.
+Although this is still better than using the change in isolation, all retrieved context is treated uniformly, which can include redundant code or lead to the truncation of more informative parts under \texttt{max\_lines} limit.
+\textcolor{red}{Moreover, since this is the first work introducing change-aware SDP, there are no prior methods for fair comparison. This limits our ability to benchmark the proposed framework or to meaningfully analyze method–project interaction effects discussed in \autoref{sec:ddc}.}
+\textcolor{red}{In terms of scope,} we specifically focus on file-level, within-project SDP. The observations and conclusions drawn here do not necessarily generalize to other types of defect prediction, such as commit-level or cross-project settings.
+
+\section{Threats to Validity}
+\label{sec:validity}
+We discuss potential threats that may affect the credibility and generalizability of our results, grouped into internal, external, and construct validity.
+\subsection{Internal Validity}
+Internal validity concerns whether the observed effects stem from our methods rather than uncontrolled factors.  
+LLM baselines are sensitive to prompt design and hyperparameters; despite using standardized templates, minor variations may affect reasoning. \textcolor{red}{MAD} framework mitigates hallucination but may still converge to incorrect consensus when both agents share similar biases.
+\subsection{External Validity}
+\textcolor{red}{External validity concerns the generalizability of our findings. The experiments on the chosen projects may not fully capture modern industrial settings such as microservices, polyglot systems, or rapid-release environments. The limited number of studied projects may limit the generalizability of the analyses in \autoref{sec:impact_debate} and \autoref{sec:ddc}. Our file-level focus may differ from real-world defect management at commit, function, or line-level. Furthermore, reliance on LLMs may limit reproducibility in organizations with cost, privacy, or licensing constraints.}
+\subsection{Construct Validity}
+Construct validity examines whether our design and metrics capture the intended concepts. Change-aware defect prediction depends on accurate status-transition labels; noise in bug labels may affect performance on the four transition subsets.
+Finally, the context expansion algorithm focuses on local caller-callee relations, which may overlook broader architectural dependencies in highly modular systems.
+\section{Conclusions}
+\label{sec:conclusion}
+Traditional single-file formulation of SDP is fundamentally misaligned with the realities of software evolution, and its reported success can largely be driven by an \emph{"illusion of accuracy"} caused by label-persistence bias. By conditioning predictions on code changes, we demonstrated that a change-aware formulation is not only more informative but necessary to avoid pitfalls such as deceptively-high F1 score and the \emph{"wrong in being right"} phenomenon. Our analysis further revealed that a meaningful evaluation must itself be change-aware, leading us to metrics such as changed-F1 and unchanged-F1, subset-wise accuracies (B00,D01,D11,B10), and the corresponding harmonic means (HMB and HMD). 
+
+We found that LLMs are less deceptive than traditional embedding-based approaches, which consistently fail on defect-introducing and defect-fixing cases despite high total F1. Nonetheless, single-agent LLMs still struggle with newly introduced defects (D01), a limitation that is effectively solved by our Multi-Agent Debate \textcolor{red}{(MAD)} framework, taking the first steps toward a more balanced and reliable performance across all evolution subsets. Together, these findings argue for a paradigm shift in SDP toward change-aware modeling and evaluation, and suggest that \textcolor{red}{MAD} framework is a promising direction for reliable change-aware software defect prediction.
+
+\section{Future Works}
+\label{sec:future_works}
+Future work includes relaxing the reliance on previous defect labels to support change-aware prediction when historical annotations are missing or unreliable. \textcolor{red}{Possible mitigation strategies include bootstrapping approaches that initialize labels using heuristic rules or using code similarity as weak supervision signals.}
+Additionally, \textcolor{red}{MAD} framework, while \textcolor{red}{addressing} the \emph{illusion of accuracy}, still falls far short of practical performance, \textcolor{red}{particularly on the B10 subset}, leaving considerable room for improvement despite its high complexity.
+\textcolor{red}{Possible directions include better context expansion strategies to prioritize the most informative code elements, for example by weighting them based on caller/callee importance.}
+
+\textcolor{red}{
+It is also valuable to explore alternative change-aware approaches with less computational cost and improved performance, or redesign a MAD with a simpler structure, yet more efficient information flow.
+One other insightful direction is to conduct project-level analysis using Mining Software Repositories (MSR) techniques to uncover fine-grained, project-specific characteristics and better understand system evolution over time. Such analyses can reveal where change-aware methods struggle on individual projects and help guide improvements toward better performance.
+Finally, we hope our findings encourage the research community to further explore the change-aware approach. Such efforts may, perhaps, move the field beyond the \emph{illusion of accuracy} and toward generating genuine insight.}
+
+\section{Declarations}
+
+\subsection{Funding}
+This research received no external funding.
+
+\subsection{Ethical approval}
+Ethical approval: Not applicable.
+
+\subsection{Informed consent}
+Informed consent: Not applicable.
+
+\subsection{Data Availability Statement}
+The datasets generated and/or analyzed during the current study are available at:
+\begin{itemize}
+    \item \textbf{Data repository:}\\ \url{https://github.com/awsm-research/line-level-defect-prediction}
+    \item \textbf{Code repository:}\\ \url{https://github.com/mhhokama/from-illusion-to-insight}
+\end{itemize}
+
+\subsection{Conflict of Interest}
+The authors declare that they have no conflict of interest.
+
+\subsection{Clinical trial number}
+Clinical trial number: Not applicable.
+
+\section{Acknowledgment}
+The authors would like to sincerely thank Dr. Narjes Rohani for her invaluable guidance throughout this work. Her insightful feedback and technical advice greatly improved the quality of the paper.
+
+
+% \bibliographystyle{elsarticle-num} 
+% \bibliographystyle{elsarticle-num-names} 
+% \bibliographystyle{elsarticle-num}
+\bibliographystyle{elsarticle-harv}
+% \bibliography{elsarticle-template-num}
+\bibliography{cas-refs}
+
+\pagebreak
+
+\appendix
+
+\subsection{Unified Diff Example}
+\label{appendix:unified_diff_exp}
+See \autoref{fig:unified_diff_example}.
+
+
+\begin{figure}[h]
+    \centering
+    \begin{adjustbox}{width=\columnwidth}
+        \begin{lstlisting}[style=diff,basicstyle=\ttfamily\scriptsize]
+--- a/DefectExample.java
++++ b/DefectExample.java
+@@ -3,10 +3,10 @@ public class DefectExample {
+     public static int calculateSum(int[] arr) {
+         int total = 0;
+-        // Defective loop condition
+-        for (int i = 0; i <= arr.length; i++) {
++        // Corrected loop condition
++        for (int i = 0; i < arr.length; i++) {
+             total += arr[i];
+         }
+         return total;
+     }
+ }
+        \end{lstlisting}
+    \end{adjustbox}
+    \caption{Example of a unified diff patch highlighting a single-line bug fix}
+    \label{fig:unified_diff_example}
+\end{figure}
+
+% \subsection{Parameters and Configuration of Models and Algorithms}
+
+
+\subsection{Proof of \autoref{thm:label-persistence} (Bayes-Optimality of Naive Label-Persistent Classifier)}
+\label{appendix:bayes_proof}
+
+\begin{proof}
+Fix $x$ such that $\mathbb P(X_{t+1}=x) > 0$.  
+By the law of total probability over $Y_t \in \{0,1\}$, we can write
+\begin{align*}
+&\mathbb P(Y_{t+1}=1 \mid X_{t+1}=x) \\
+&= \mathbb P(Y_{t+1}=1 \mid Y_t=0, X_{t+1}=x) \cdot \mathbb P(Y_t=0 \mid X_{t+1}=x) \\
+&\quad + \mathbb P(Y_{t+1}=1 \mid Y_t=1, X_{t+1}=x) \cdot \mathbb P(Y_t=1 \mid X_{t+1}=x).
+\end{align*}
+
+Since $X_{t+1} = h(X_t,D)$ deterministically and $h$ is invertible, conditioning on $X_{t+1}=x$ restricts $(X_t,D)$ to the set
+\[
+\mathcal S_x := \{(u,d) : h(u,d) = x\}.
+\]
+
+Now consider the probability of label persistence for each $(X_t,D) \in \mathcal S_x$:
+
+\[
+\mathbb P(Y_{t+1}=Y_t \mid X_t=u, D=d)=
+\begin{cases}
+1, & d=\emptyset,\\
+\le 1-\varepsilon, & d\neq\emptyset.
+\end{cases}
+\]
+
+
+Let $p_0 = \mathbb P(D = \emptyset \mid X_{t+1}=x)$ denote the probability that the file did not change. Then, using the law of total probability over $D$ conditional on $Y_t$ and $X_{t+1}$, we have
+\begin{align*}
+&\mathbb P(Y_{t+1} = Y_t \mid Y_t, X_{t+1}=x) \\
+&= \sum_{d \in \mathcal D} \mathbb P(Y_{t+1} = Y_t \mid Y_t, D=d, X_{t+1}=x) \\ &\cdot\mathbb P(D=d \mid Y_t, X_{t+1}=x) \\
+&\ge p_0 \cdot 1 + (1-p_0) \cdot (1-\varepsilon) \\
+&= 1 - (1-p_0)\varepsilon \ge 1-\varepsilon,
+\end{align*}
+because $0 \le p_0 \le 1$.
+
+Finally, averaging over $Y_t$ (via the first law of total probability step) gives
+\[
+\mathbb P(Y_{t+1} = Y_t \mid X_{t+1}=x) \ge 1-\varepsilon > \frac12.
+\]
+
+Therefore, the Bayes-optimal classifier chooses the previous label:
+\[
+f^\star(X_{t+1}) = Y_t \quad \text{with probability at least } 1-\varepsilon.
+\]
+\end{proof}
+\subsection{Proof of \autoref{thm:necessity-of-change} (Necessity of Conditioning on Change)}
+\label{appendix:necessity_change}
+\begin{proof}
+Assume there exist distinct pairs $(X_t,D) \neq (X_t',D')$ such that
+\[
+h(X_t,D) = h(X_t',D') = X_{t+1}.
+\]
+Then the mapping from $(X_t,D)$ to $X_{t+1}$ is not injective in $D$. Hence, for a fixed value of $X_{t+1}$, multiple values of $D$ are possible with positive probability. This implies that $D$ cannot be expressed as a measurable function of $X_{t+1}$ alone.
+
+Because defect transitions depend on $D$, the conditional distribution
+$\mathbb P(Y_{t+1} \mid Y_t, D)$ varies across different values of $D$ that map to the same $X_{t+1}$. Conditioning only on $X_{t+1}$ therefore averages over
+these distinct change events:
+\[
+\mathbb P(Y_{t+1} \mid X_{t+1})
+=
+\mathbb E\!\left[
+\mathbb P(Y_{t+1} \mid Y_t, D)
+\,\middle|\,
+X_{t+1}
+\right],
+\]
+which is generally different from $\mathbb P(Y_{t+1} \mid Y_t, D)$ for any
+specific change $D$.
+\end{proof}
+
+\subsection{System Prompt for LLM Baselines}
+\label{appendix:system_prompt}
+
+All LLM-based baselines use the system prompt shown in \autoref{fig:system_prompt} to ensure consistent behavior across models.
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[System Prompt]
+You are an expert software engineer and code reviewer.
+Your task is to analyze source code and code changes to determine whether a file is Defective or Benign.
+Carefully reason about correctness, logic, and potential defects based only on the provided information.
+Do not assume missing context or speculate beyond the given input.
+Return only the final classification when asked.
+\end{promptbox}
+\caption{System prompt used for all LLM-based baselines.}
+\label{fig:system_prompt}
+\end{figure}
+
+\subsection{Prompts Used For LLM Baselines}
+\label{appendix:prompts_llm}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Diff-guided reasoning]
+You are given SRC1 (known to be Defective) and SRC2, along with the exact differences (added/removed/changed lines). Use these to decide the status of SRC2.
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[SRC1]
+\textless earlier version\textgreater
+
+[SRC2]
+\textless modified version\textgreater
+
+[Differences]
+\textless added/removed lines\textgreater
+
+Review the differences and reason carefully. Is SRC2 Defective or Benign?
+\end{promptbox}
+\caption{Prompt used for the Diff-guided reasoning setting.}
+\label{fig:prompt_m2}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Direct comparison]
+You are given SRC1 (known to be Defective) and SRC2 code. Compare the two versions and decide if SRC2 is Defective or Benign.
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[SRC1]
+\textless earlier version\textgreater
+
+[SRC2]
+\textless modified version\textgreater
+
+Think step by step and decide whether SRC2 is Defective or Benign.
+\end{promptbox}
+\caption{Prompt used for the Direct comparison setting.}
+\label{fig:prompt_m1}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[SRC1-only change reasoning]
+You are only given SRC1 (known to be Defective) and the differences/unified diff. Based on how the code has changed, predict if the new SRC2 is Defective or Benign, even though SRC2 code is hidden.
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[SRC1]
+\textless earlier version\textgreater
+
+[Differences]
+\textless added/removed lines\textgreater
+
+[Unified diff]
+\textless patch-style diff\textgreater
+
+Based only on the observed changes, predict whether the unseen SRC2 would be Defective or Benign.
+\end{promptbox}
+\caption{Prompt used for the SRC1-only change reasoning setting.}
+\label{fig:prompt_m4}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Diffs with exemplars]
+You are given the differences and unified diff. SRC1 was Defective. Judge whether these changes are likely to change SRC2's status or keep it Defective. Some example defective code lines are also provided.
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[Differences]
+\textless added/removed lines\textgreater
+
+[Unified diff]
+\textless patch-style diff\textgreater
+
+[Defective Examples]
+\textless example buggy lines\textgreater
+
+Compare the diffs and examples of defective code. Does SRC2 appear Defective or Benign?
+\end{promptbox}
+\caption{Prompt used for the Diffs with exemplars setting.}
+\label{fig:prompt_m7}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Local-context reasoning]
+You are given only the locally relevant code changes with a few lines of context around them. SRC1 is known to be Defective. Based only on these local modifications, predict whether the updated SRC2 is Defective or Benign.
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[Local Context]
+\textless modified lines with nearby context\textgreater
+
+[Differences]
+\textless added/removed lines\textgreater
+
+Considering only the local code context and changes, predict if SRC2 is Defective or Benign.
+\end{promptbox}
+\caption{Prompt used for the Local-context reasoning setting.}
+\label{fig:prompt_m6}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Patch-aware reasoning]
+You are given SRC1 (known to be Defective), SRC2, the differences, and a unified diff (like a patch). Use all this information to determine if SRC2 is Defective or Benign.
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[SRC1]
+\textless earlier version\textgreater
+
+[SRC2]
+\textless modified version\textgreater
+
+[Differences]
+\textless added/removed lines\textgreater
+
+[Unified diff]
+\textless patch-style diff\textgreater
+
+Use all provided information to conclude whether SRC2 is Defective or Benign.
+\end{promptbox}
+\caption{Prompt used for the Patch-aware reasoning setting.}
+\label{fig:prompt_m3}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{promptbox}[Semantic repair reasoning]
+You are given the differences, unified diff, and status of SRC1 (known to be Defective). Analyze the changes and determine whether SRC2 is Defective or Benign:
+- Do the modifications fix an existing defect?
+- Do they introduce a new defect?
+- Or leave the code unchanged?
+
+[SRC1] → [Defective]
+[SRC2] → [???]
+
+[Differences]
+\textless added/removed lines\textgreater
+
+[Unified diff]
+\textless patch-style diff\textgreater
+
+Think step by step and decide the final status of SRC2.
+\end{promptbox}
+\caption{Prompt used for the Semantic repair reasoning setting.}
+\label{fig:prompt_m8}
+\end{figure}
+
+\end{document}
