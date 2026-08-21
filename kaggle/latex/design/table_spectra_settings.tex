@@ -1,0 +1,85 @@
+% Structure taken verbatim from kaggle/lecture.txt; values verified
+% against the implementation by research/design/build_design_tables.py.
+\begin{table}[!htbp]
+\centering
+\caption{Canonical \method{} architecture and training settings.}
+\label{tab:spectra_settings}
+
+\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{2pt}
+
+\begin{tabularx}{\columnwidth}{
+@{}
+>{\raggedright\arraybackslash}X
+>{\raggedleft\arraybackslash}p{0.37\columnwidth}
+@{}}
+\toprule
+{Setting (symbol)} & {Value} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{{Architecture and representation}}} \\
+{Input graph ($n_{\max}$; relations)}
+& {256 nodes; AST+DDG} \\
+{Node typing/hash
+($|\mathcal K_{\mathrm{can}}|,n_{\mathrm{char}},N_{\mathrm{hash}},r_{\max}$)}
+& {24; 3; 4,096; 4} \\
+{Lexical features
+($\gamma_{\mathrm{lex}}^{(0)},p_{\mathrm{lex}}$)}
+& {0.20; 0.30} \\
+{Structural encoder
+($d,L_{\mathrm{enc}},p_{\mathrm{enc}}$)}
+& {256; 2; 0.10} \\
+{Latent assignment
+($m,I_{\mathrm{assign}}$)}
+& {32; 3} \\
+{Latent affinity/refinement
+($H_a,\eta^{(0)},L_{\mathrm{ref}}$)}
+& {4; 1.0; 2} \\
+{Adaptive temperature
+($\beta_u,T_{\min},T_{\max}$)}
+& {0.75; 0.20; 1.20} \\
+{Temperature init./clipping
+($b_T^{(0)},w_T^{(0)},s_{\max}$)}
+& {$-0.55$; 1.25; 20} \\
+{Eigendecomposition jitter
+($\epsilon_{\mathrm{eig}}$)}
+& {$10^{-4}$} \\
+{Chebyshev order ($K_{\mathrm{cheb}}$)}
+& {12} \\
+{Spectral density
+($n_{\mathrm{bins}},n_{\mathrm{heat}},n_{\mathrm{band}}$)}
+& {256; 256; 2} \\
+{Spectral descriptor ($d_s$)}
+& {152} \\
+{Trainable parameters ($m=32$)}
+& {3,016,855} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{{Training and regularization}}} \\
+{Class/similarity settings
+($w_{\max},\mu_{\mathrm{spec}}$)}
+& {10; 0.25} \\
+{Hard-negative mining
+($\kappa_{\mathrm{hard}},\mu_{\mathrm{hard}}$)}
+& {0.25; 0.10} \\
+{Graph regularization
+($\bar a_0,\mu_{\mathrm{conn}}$)}
+& {0.15; 0.03} \\
+{Graph-reg.\ weights
+($\alpha_{\mathrm{den}},\alpha_{\mathrm{conn}}$)}
+& {2; 0.1} \\
+{Loss weights
+($\lambda_{\mathrm{spec}},\lambda_{\mathrm{hard}},\lambda_{\mathrm{rec}},\lambda_{\mathrm{graph}}$)}
+& {0.30; 0.20; 0.05; 0.01} \\
+{Optimizer}
+& {AdamW} \\
+{Learning rate / weight decay
+($\eta_{\mathrm{lr}},\lambda_{\mathrm{wd}}$)}
+& {$10^{-4}$; $10^{-4}$} \\
+{Batch / accumulation
+($B,N_{\mathrm{acc}},BN_{\mathrm{acc}}$)}
+& {32; 4; 128} \\
+{Epochs; seed}
+& {4; 42} \\
+\bottomrule
+\end{tabularx}
+\end{table}

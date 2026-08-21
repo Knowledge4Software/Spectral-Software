@@ -1,0 +1,2743 @@
+%% 
+%% Copyright 2007-2020 Elsevier Ltd
+%% 
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%%
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%% 
+
+%% Template article for Elsevier's document class `elsarticle'
+%% with numbered style bibliographic references
+%% SP 2008/03/01
+%%
+%% 
+%%
+%% $Id: elsarticle-template-num.tex 190 2020-11-23 11:12:32Z rishi $
+%%
+%%
+\PassOptionsToPackage{dvipsnames}{xcolor}
+% \documentclass[authoryear,preprint,12pt]{elsarticle}
+% \documentclass[numbers,webpdf]{ima-authoring-template}%
+% \documentclass[a4paper,fleqn]{cas-sc}
+
+%% Use the option review to obtain double line spacing
+% \documentclass[preprint,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+% \documentclass[authoryear,final,1p,times,twocolumn]{elsarticle}
+% \documentclass[final,3p,times]{elsarticle}
+% \documentclass[authoryear,final,3p,times,twocolumn]{elsarticle}
+% \documentclass[final,5p,times]{elsarticle}
+\documentclass[final,5p,times,twocolumn]{elsarticle}
+
+% \setkeys{Gin}{draft} 
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+
+\usepackage{xcolor}
+\usepackage{colortbl}
+
+% \usepackage[style=authoryear, maxcitenames=1]{biblatex}
+% \usepackage[authoryear]{natbib}
+
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{amsthm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{arydshln}
+\usepackage{adjustbox}
+\usepackage{textcomp}
+\usepackage{enumitem}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\SetKwInput{KwInit}{Init}
+
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{stfloats}
+
+\usepackage{subfig}
+
+\usepackage[most]{tcolorbox}
+
+\usepackage{tikz}
+\usetikzlibrary{
+    arrows.meta,
+    positioning,
+    fit,
+    calc,
+    backgrounds,
+    shapes.geometric
+}
+
+\usepackage{listings}
+
+\usepackage{xurl}
+\usepackage{url}
+
+\usepackage[colorlinks=true,
+    linkcolor=MidnightBlue,
+    citecolor=ForestGreen,
+    urlcolor=BrickRed
+]{hyperref}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}}
+\newcommand{\method}{\textsc{SPECTRA-Siam}}
+\newcommand{\concat}{\mathbin\Vert}
+\newcommand{\relu}[1]{\left[#1\right]_{+}}
+\newcommand{\todoauthor}[1]{\textcolor{red}{[AUTHOR CHECK: #1]}}
+\newcommand{\added}[1]{{\color{green!50!black}#1}}
+\newcommand{\safeincludegraphics}[2][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \fbox{\parbox[c][3cm][c]{0.90\linewidth}{%
+      \centering Missing draft figure:\\[-1mm]
+      \texttt{\detokenize{#2}}%
+    }}%
+  }%
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\newtheorem*{proofsketch}{Proof Sketch}
+\theoremstyle{plain}
+
+\definecolor{titlegray}{HTML}{555555}
+\definecolor{framegray}{gray}{0.6}
+\definecolor{lightgray}{gray}{0.97}
+
+\newtcolorbox{promptbox}[1][]{
+    enhanced,
+    colback=lightgray,
+    colframe=framegray,
+    coltitle=white,
+    colbacktitle=titlegray,
+    fonttitle=\bfseries\itshape\normalsize,
+    title=#1,
+    attach boxed title to top left={xshift=0.6cm,yshift=-3mm},
+    boxed title style={
+        boxrule=0.8pt,
+        colframe=titlegray,
+        top=3pt,
+        bottom=3pt,
+        left=8pt,
+        right=8pt,
+        rounded corners=south,
+    },
+    width=0.90\columnwidth,
+    before skip=6pt,
+    after skip=12pt,
+    boxrule=0.8pt,
+    sharp corners=south,
+    rounded corners,
+    top=8pt,
+    bottom=6pt,
+    left=8pt,
+    right=8pt,
+    fontupper=\normalsize,
+    coltext=black,
+}
+
+\lstdefinelanguage{diff}{
+  morecomment=[f][\color{gray}]{@@},
+  morecomment=[f][\color{gray}]{---},
+  morecomment=[f][\color{gray}]{+++},
+  morecomment=[f][\color{red}]{-},
+  morecomment=[f][\color{green!60!black}]{+},
+}
+\lstdefinestyle{diff}{
+  language=diff,
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true
+}
+\definecolor{deepblue}{RGB}{0, 0, 139} 
+
+\newtcolorbox{boxnote}{
+  colback=white,
+  boxrule=0.4pt,
+  borderline west={2pt}{0pt}{black!60},
+}
+
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\subsubsectionautorefname}{Section}
+\renewcommand{\algorithmautorefname}{Algorithm}
+\renewcommand{\appendixautorefname}{Appendix}
+
+\newcommand{\gain}[1]{\textcolor{green!50!black}{(+#1$\uparrow$)}}
+\newcommand{\dropv}[1]{\textcolor{red!70!black}{(-#1$\downarrow$)}}
+\newcommand{\smallgain}[1]{\textcolor{gray}{(+#1$\uparrow$)}}
+\newcommand{\smalldrop}[1]{\textcolor{gray}{(-#1$\downarrow$)}}
+\newcommand{\samev}{\textcolor{gray}{(.00)}}
+
+\newcommand{\subfigref}[2]{%
+    \hyperref[#2]{Figure~\ref*{#1}\subref*{#2}}%
+}
+
+\journal{Applied Soft Computing}
+
+\begin{document}
+
+\begin{frontmatter}
+
+%% Title, authors and addresses
+
+%% use the tnoteref command within \title for footnotes;
+%% use the tnotetext command for theassociated footnote;
+%% use the fnref command within \author or \address for footnotes;
+%% use the fntext command for theassociated footnote;
+%% use the corref command within \author for corresponding author footnotes;
+%% use the cortext command for theassociated footnote;
+%% use the ead command for the email address,
+%% and the form \ead[url] for the home page:
+%% \title{Title\tnoteref{label1}}
+%% \tnotetext[label1]{}
+%% \author{Name\corref{cor1}\fnref{label2}}
+%% \ead{email address}
+%% \ead[url]{home page}
+%% \fntext[label2]{}
+%% \cortext[cor1]{}
+%% \affiliation{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+%% \fntext[label3]{}
+
+\title{Toward a Spectral Representation of Codes through Latent Graph Learning for Semantic Code Clone Detection}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{}
+%% \affiliation[label1]{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+%%
+%% \affiliation[label2]{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+
+\author[mce]{Mohsen Hesamolhokama}
+\ead{hokama@ce.sharif.edu}
+
+\author[math]{Ali Sadeghi}
+\ead{amirahmad.shafiee@sharif.edu}
+
+\author[math]{Kousha Moeini}
+\ead{amirahmad.shafiee@sharif.edu}
+
+\author[math]{Behnam Rohani}
+\ead{behnam.rohani058@sharif.edu}
+
+\author[mce]{Mohammadamin Fazli}
+\ead{fazli@sharif.edu}
+
+\author[mce]{Jafar Habibi}
+\ead{jhabibi@sharif.edu}
+
+\address[mce]{Department of Computer Engineering, Sharif University of Technology, Tehran, Iran}
+\address[math]{Department of Mathematical Sciences, Sharif University of Technology, Tehran, Iran}
+
+% \cortext[cor1]{Corresponding author.}
+% \fntext[fn1]{Authors Mohsen Hesamolhokama and Behnam Rohani contributed equally to this work.}
+
+\begin{abstract}
+Semantic clone detection requires a code representation that reflects what a program computes rather than how it is written. Graph spectra provide a compact description of program structure that is invariant to node ordering. A spectrum, however, is only as informative as the graph it is computed on, and existing spectral methods fix that graph to an AST, CFG, DDG, or CPG before the detection objective is known. We present \method{}, a Siamese model that learns the graph on which the spectral representation is computed. For each fragment, the AST and the data-dependence edges projected onto it are mapped to a language-independent node vocabulary. Soft slot assignment then compresses them into a fixed number of latent nodes. The model infers a weighted adjacency over these slots and describes the resulting normalized Laplacian through eigenvalue density, heat traces, and differentiable Chebyshev spectral energies. The fixed slot count keeps descriptors comparable across fragments of very different length, while clone supervision determines the topology they describe. We evaluate on four benchmarks: the CodeXGLUE BigCloneBench split, SemanticCloneBench, GPTCloneBench, and ATCoder. The learned latent graph improves substantially over spectra of predefined program graphs, raising F1 from 0.419 to 0.868 on the CodeXGLUE split and from 0.667 to 0.867 on ATCoder. It exceeds the implemented non-graph, graph-based, and hybrid baselines on SemanticCloneBench and GPTCloneBench, and trails the strongest of them on the remaining two benchmarks. A feature ablation separates the contributions of topology, canonical node labels, and lexical residuals, and transfer is assessed zero-shot across datasets and across source languages.
+\end{abstract}
+
+% Use if graphical abstract is present
+% \begin{graphicalabstract}
+% \includegraphics{figs/grabs.pdf}
+% \end{graphicalabstract}
+
+\begin{keyword}
+%% keywords here, in the form: keyword \sep keyword
+%% PACS codes here, in the form: \PACS code \sep code
+%% MSC codes here, in the form: \MSC code \sep code
+%% or \MSC[2008] code \sep code (2000 is the default)
+Code Representation \sep Graph Representation \sep Graph Spectral Analysis \sep Latent Graph Learning \sep CCD \sep Code Similarity
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:introduction}
+% --- Paragraph 1: from source code to its representation to code clones
+Nearly every automated software engineering task begins with source code, and its usefulness to an automated system depends on how it is represented \cite{allamanis2018survey}. An effective representation preserves enough of a program's meaning to support reasoning about what it does, which matters most in tasks that compare fragments: code search \cite{gu2018deepcs}, plagiarism detection \cite{schleimer2003winnowing}, and vulnerability analysis \cite{zhou2019devign}. Code Clone Detection (CCD) is a prominent example, identifying fragments that are identical, similar, or functionally equivalent. Such clones are widespread and increase maintenance effort, since changes to one fragment must be propagated consistently to its counterparts \cite{juergens2009clones,roy2007survey}.
+
+% --- Paragraph 2: methods for representing code; contrastive learning (similarity) ---
+Approaches to code representation differ chiefly in how much program structure they preserve. The earliest treated code as text or token sequences \cite{schleimer2003winnowing}. As the importance of program structure became clearer, later approaches encoded abstract syntax trees (ASTs) with tree-based neural networks \cite{mou2016tbcnn}, while another line learned distributed representations from word embeddings \cite{mikolov2013word2vec,alon2019code2vec}. The Transformer \cite{vaswani2017attention} and pre-trained models such as BERT \cite{devlin2019bert} were then adapted to source code, giving rise to CodeBERT \cite{feng2020codebert}, GraphCodeBERT \cite{guo2021graphcodebert}, CodeT5 \cite{wang2021codet5}, and UniXcoder \cite{guo2022unixcoder}. Despite their differences, all share one objective: fragments with similar meaning should map to similar representations. Contrastive learning encourages this directly \cite{chen2020simclr}, through semantics-preserving program transformations \cite{jain2021contracode,bui2021corder} or self-supervised objectives over AST structure \cite{bui2021infercode}.
+
+% --- Paragraph 3: semantic clone detection and representation learning ---
+This requirement is sharpest in CCD, where a representation must recognize equivalent functionality behind differing surface forms. Clones fall into four types \cite{roy2007survey}: the first three are syntactic, whereas Type-IV semantic clones share functionality despite substantial syntactic difference and are far harder to detect \cite{alomari2020semanticclonebench}. Representation learning now dominates this problem, through deep feature models \cite{white2016deep,wei2017cdlh}, AST-based encoders \cite{zhang2019astnn}, control-flow and data-flow representations \cite{zhao2018deepsim}, token-level models \cite{li2017cclearner}, and graph neural networks over augmented syntax trees \cite{wang2020faast,wu2020scdetector}, evaluated on benchmarks such as BigCloneBench \cite{svajlenko2014bigclonebench}. Two issues make this especially difficult. First, semantic clone detectors often perform poorly when applied to projects that differ from the training data, which limits how well benchmark results reflect performance on unseen code \cite{sonnekalb2022generalizability}. This problem is further complicated by overlap and duplication
+across clone benchmarks~\cite{svajlenko2014bigclonebench}. Second, cross-language clone detection removes much of the shared lexical and syntactic structure that same-language methods rely on. In polyglot settings, equivalent functionality may be implemented in very different forms, making program behavior the main source of commonality \cite{perez2019crosslang,zhang2024fsdclcd,alam2023gptclonebench}. A useful representation should therefore generalize well across both projects and programming languages.
+
+% --- Paragraph 4: limits of current representations ---
+Despite this progress, current representations still fall short. Pre-trained models such as CodeBERT have a short, fixed input window, and self-attention grows quadratically with input length \cite{feng2020codebert,vaswani2017attention}; work on long inputs such as Longformer \cite{beltagy2020longformer} and BigBird \cite{zaheer2020bigbird} confirms the constraint, which is worse for code because functions are often long. Such models also treat code as ordinary text, yet code has explicit structure such as control flow and data dependence \cite{hindle2012naturalness,allamanis2018survey} that models ignoring it fail to capture \cite{chen2021codex,dou2023llmsurvey}. Graph representations preserve that structure but are hard to compare. Graph edit distance is expensive and returns only a distance, with no representation one can study further \cite{komondoor2001slicing}, while graph neural networks need training, add computational cost, and can overfit \cite{kipf2017gcn,xu2019gin}, returning us to the generalization gap \cite{sonnekalb2022generalizability}. {A graph spectrum offers an alternative invariant summary. The eigenvalues of the adjacency matrix or Laplacian are unchanged by node relabeling \cite{chung1997spectral,mohar1991laplacian}, encode global connectivity \cite{fiedler1973algebraic}, follow from standard linear algebra without solving node correspondence, and can be truncated to a bounded number of leading values \cite{defferrard2016cnngraph}. Spectral descriptors are well established as structure signatures in other domains, from the heat kernel signature in geometry processing \cite{sun2009hks,zhang2010spectralmesh} to spectral embeddings in graph mining \cite{belkin2003laplacian,narayanan2017graph2vec}.In software engineering, by contrast, their use has remained
+largely architectural, partitioning module dependency graphs
+into subsystems~\cite{mitchell2006software}. We are aware of no work that treats the spectrum of a program graph as the representation of a code fragment, leaving spectral methods essentially unexplored for source code representation learning and clone detection. A spectrum is not a complete graph invariant, moreover, and its discriminative power depends on the graph it is computed from.}
+
+% --- Paragraph 5: our spectral approach ---
+{This motivates our central design choice: rather than selecting a program graph in advance, we learn one. Treating the adjacency as a latent variable optimized jointly with the predictor is the premise of latent graph learning \cite{kipf2018nri,franceschi2019lds,chen2020idgl,zhu2021gslsurvey,saha2023adaptive}. We propose \method{}, a Siamese model that learns the graph on which a spectral code representation is computed. Each fragment's AST and projected data-dependence edges are mapped to a language-independent vocabulary of canonical node categories, then compressed by soft slot assignment into 32 latent nodes \cite{ying2018diffpool}. The model infers a weighted adjacency over these slots, describes its normalized Laplacian through eigenvalue density, heat traces, and differentiable Chebyshev spectral energies \cite{chung1997spectral,defferrard2016cnngraph}, and fuses the result with pooled latent-node states. The fixed slot count keeps descriptors comparable across fragments of very different length, while clone supervision, not a prior commitment to an AST, CFG, DDG, or CPG \cite{yamaguchi2014cpg}, determines the topology. A vocabulary shared across parsers makes the cross-language setting reachable. Since \method{} requires task-specific training, we test generalization rather than assume it, evaluating on four benchmarks for detection accuracy, the contribution of each input signal, latent-graph capacity, and zero-shot transfer across datasets and languages.}
+
+
+\definecolor{kwcolor}{RGB}{0,0,180}
+\definecolor{cmtcolor}{RGB}{0,128,0}
+\definecolor{strcolor}{RGB}{170,0,0}
+\definecolor{bgcolor}{RGB}{248,248,248}
+\lstdefinestyle{javastyle}{
+  language=Java, basicstyle=\scriptsize\ttfamily,
+  keywordstyle=\color{kwcolor}\bfseries, commentstyle=\color{cmtcolor}\itshape,
+  stringstyle=\color{strcolor}, numberstyle=\tiny\color{gray},
+  backgroundcolor=\color{bgcolor}, frame=single, framesep=2pt,
+  showstringspaces=false, breaklines=true, columns=fullflexible, keepspaces=true,
+  aboveskip=2pt, belowskip=2pt,
+}
+
+\subsection{A Motivating Example}
+\label{sec:motivating_exp}
+
+\begin{figure*}[t]
+\centering
+% ----------------------- row 1: the three code fragments -----------------
+\begin{minipage}[t]{0.32\linewidth}
+\begin{lstlisting}[style=javastyle,caption={A: sum with a for loop.},label={lst:for}]
+int sumArray(int[] a) {
+    int s = 0;
+    for (int i=0; i<a.length; i++)
+        s += a[i];
+    return s;
+}
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\begin{lstlisting}[style=javastyle,caption={B: sum with a while loop.},label={lst:while}]
+int aggregate(int[] v) {
+    int acc = 0, k = 0;
+    while (k < v.length) {
+        int x = v[k];
+        acc = acc + x;
+        k = k + 1;
+    }
+    return acc;
+}
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\begin{lstlisting}[style=javastyle,caption={C: triangle area (unrelated).},label={lst:area}]
+double area(double x,
+            double y, double z) {
+    double s = (x+y+z)/2;
+    double p = s*(s-x);
+    double q = p*(s-y);
+    double r = q*(s-z);
+    return Math.sqrt(r);
+}
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+% ------------- row 2: small graphs (left) + barcode (right) ----------------
+\begin{minipage}[c]{0.70\linewidth}
+\centering
+\begin{tikzpicture}[
+   vtx/.style={circle,draw,semithick,fill=white,minimum size=5mm,inner sep=0pt,font=\scriptsize},
+   every path/.style={semithick}]
+  % A: 3-node loop
+  \node[vtx](a1) at (0,0){1};   \node[vtx](a2) at (0,-0.8){2};
+  \node[vtx](a3) at (0,-1.6){3}; \node[vtx](a6) at (1.1,-1.6){6};
+  \node[vtx](a4) at (-0.7,-2.4){4}; \node[vtx](a5) at (0.7,-2.4){5};
+  \draw (a1)--(a2)--(a3); \draw (a3)--(a4)--(a5)--(a3); \draw (a3)--(a6);
+  \node[font=\scriptsize] at (0.2,-3.0){(a) graph of A};
+  % B: 4-node loop (diamond)
+  \begin{scope}[xshift=37mm]
+    \node[vtx](b1) at (0,0){1};      \node[vtx](b2) at (0,-0.85){2};
+    \node[vtx](b6) at (1.2,-0.85){6};
+    \node[vtx](b3) at (-0.8,-1.7){3}; \node[vtx](b5) at (0.8,-1.7){5};
+    \node[vtx](b4) at (0,-2.55){4};
+    \draw (b1)--(b2); \draw (b2)--(b6); \draw (b2)--(b3)--(b4)--(b5)--(b2);
+    \node[font=\scriptsize] at (0.2,-3.1){(b) graph of B};
+  \end{scope}
+  % C: horizontal chain (no loop)
+  \begin{scope}[xshift=58mm, yshift=-1.0cm]
+    \node[vtx](c1) at (0,0){1};   \node[vtx](c2) at (0.7,0){2};
+    \node[vtx](c3) at (1.4,0){3}; \node[vtx](c4) at (2.1,0){4};
+    \node[vtx](c5) at (2.8,0){5}; \node[vtx](c6) at (3.5,0){6};
+    \draw (c1)--(c2)--(c3)--(c4)--(c5)--(c6);
+    \node[font=\scriptsize] at (1.75,-0.7){(c) graph of C};
+  \end{scope}
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.27\linewidth}
+\centering
+% grayscale barcode: darkness = lambda / lambda_max, lambda_max = 5.236
+\begin{tikzpicture}[every path/.style={thin}]
+  \def\cw{0.38}
+  \node[font=\scriptsize] at (-0.4,0)    {A};
+  \foreach \i/\p in {0/0,1/9,2/19,3/46,4/57,5/97}
+     {\fill[black!\p] (\i*\cw,-0.19) rectangle ++(\cw,0.38);
+      \draw (\i*\cw,-0.19) rectangle ++(\cw,0.38);}
+  \node[font=\scriptsize] at (-0.4,-0.7) {B};
+  \foreach \i/\p in {0/0,1/15,2/19,3/38,4/57,5/100}
+     {\fill[black!\p] (\i*\cw,-0.89) rectangle ++(\cw,0.38);
+      \draw (\i*\cw,-0.89) rectangle ++(\cw,0.38);}
+  \node[font=\scriptsize] at (-0.4,-1.4) {C};
+  \foreach \i/\p in {0/0,1/5,2/19,3/38,4/57,5/71}
+     {\fill[black!\p] (\i*\cw,-1.59) rectangle ++(\cw,0.38);
+      \draw (\i*\cw,-1.59) rectangle ++(\cw,0.38);}
+\end{tikzpicture}\\[2pt]
+{\scriptsize spectrum as a barcode\\(each cell $=\lambda_i$, darker $=$ larger)}
+\end{minipage}
+
+\caption{Three Java fragments, their graphs, and their spectra as a
+grayscale barcode. A and B both sum an array and are clones, but A has a
+three-node loop and B a four-node loop, so their graphs differ. Their
+barcodes still look almost the same, while the unrelated function C, which
+has no loop, is lighter in the last cell.}
+\label{fig:motivating_exp}
+\end{figure*}
+
+\autoref{fig:motivating_exp} shows two Java functions that sum an integer
+array using different loops and variable names, alongside an unrelated
+function C that computes a triangle area. A and B share no identifiers, so
+token- and line-based comparison finds little in common
+\cite{roy2007survey,alomari2020semanticclonebench}, and their graphs differ
+as well: A has a three-node loop, B a four-node loop. Their sorted Laplacian
+spectra nonetheless nearly coincide,
+$\{0,\,0.485,\,1.000,\,2.425,\,3.000,\,5.089\}$ against
+$\{0,\,0.763,\,1.000,\,2.000,\,3.000,\,5.236\}$, whereas C gives
+$\{0,\,0.268,\,1.000,\,2.000,\,3.000,\,3.732\}$ with a visibly smaller
+leading eigenvalue. Euclidean distance between sorted spectra is $0.53$ for
+the clone pair and $1.44$ and $1.58$ for the non-clone pairs, so a single
+threshold separates them. Being invariant to relabelling and stable under
+small edits, the spectrum matches behaviourally equivalent code that differs
+on the surface. {That separation, however, depends entirely on the graph
+that was drawn, and no fixed construction guarantees so favourable an
+arrangement in general. The question is therefore not which predefined graph
+yields the most informative spectrum, but whether the graph itself can be
+learned from clone supervision.}
+
+\subsection{Contributions}
+\label{subsec:contributions}
+The main contributions of this paper are as follows:
+
+\begin{itemize}
+    \item \textbf{A Latent Graph Learning Network for Spectral Code Representation}: We propose a Siamese latent-graph network with soft slot assignment and multi-head attention that learns a fixed-size weighted latent graph and derives a multi-scale spectral representation from its normalized Laplacian, substantially improving spectral discriminative power over conventional program graphs.
+
+    \item \textbf{Comprehensive Comparison with Semantic CCD Baselines}: We compare our approach with a diverse set of state-of-the-art non-graph, graph-based, hybrid graph--code, and pretrained approaches over Java, Python, C++, and C\# under both single-language and cross-language setting, demonstrating relatively competitive performance across multiple evaluation settings.
+
+    \item \textbf{Cross-Dataset and Cross-Language Generalization}: We systematically analyze the generalization power of \method{} across dataset and language boundaries under strict leakage-free evaluation, providing a rigorous assessment of its generalizability beyond conventional within-dataset settings.
+\end{itemize}
+
+\subsection{Paper Organization}
+\label{subsec:outline}
+The rest of this paper is organized as follows. \autoref{sec:related_work} reviews related work on code clone
+detection, source code representation, spectral analysis of graphs, and latent graph learning. We then present our
+latent graph induction and spectral representation, followed by the experimental setup and the results on single-language and cross-language benchmarks. Finally, we analyze the spectral representation space and conclude with a summary and directions for future work.
+
+\section{Related Work}
+\label{sec:related_work}
+
+\subsection{Code Clone Detection}
+\label{subsec:ccd}
+Code clone detection has been studied for more than two decades. Methods are often distinguished by the representation used to compare code fragments. Roy and Cordy \cite{roy2007survey} classify clones into four types. Type-1 clones differ only in formatting or naming. Type-2 and Type-3 clones allow increasingly larger syntactic changes. Type-4 clones implement the same functionality despite having different syntax.
+
+Early scalable detectors relied mainly on text or tokens. \emph{CCFinder} \cite{kamiya2002ccfinder} normalizes token sequences before comparison. Ducasse et al.\ \cite{ducasse1999language} instead compare source code at the line level in a language-independent manner, while \emph{CP-Miner} \cite{li2006cpminer} mines copy-paste patterns in large software systems. \emph{NiCad} \cite{roy2008nicad} combines source transformation, pretty-printing, normalization, and line-based comparison to find near-miss clones. Later methods improved scalability through more selective comparison. \emph{SourcererCC} \cite{sajnani2016sourcerercc} uses an inverted index, \emph{CCAligner} \cite{wang2018ccaligner} compares overlapping code windows, and \emph{Oreo} \cite{saini2018oreo} uses filtering before clone comparison. \emph{StoneDetector} \cite{heinze2025stonedetector} takes a different route by extracting paths from dominator trees and comparing their encodings. These methods can scale to large code bases, but text and token similarity alone becomes less reliable as two implementations diverge syntactically.
+
+Tree-based methods make syntax explicit. Baxter et al.\ \cite{baxter1998clone} detect clones by matching AST subtrees, while \emph{DECKARD} \cite{jiang2007deckard} maps AST subtrees to numerical vectors and clusters similar vectors. ASTs provide more information than raw text, but syntax alone may still be insufficient when equivalent code is reorganized substantially. Program graphs can capture relations that are less tied to source order. Komondoor and Horwitz \cite{komondoor2001slicing} and Krinke \cite{krinke2001identifying} use program dependence graphs (PDGs), whose edges describe control and data dependencies. Such representations can reveal similarities that are difficult to see from tokens or syntax trees, although graph and subgraph matching can be computationally expensive.
+
+More recent approaches learn code representations from data. White et al.\ \cite{white2016deep} were among the early works to apply deep learning to clone detection using lexical and syntactic information. \emph{CDLH} \cite{wei2017cdlh} formulates functional clone detection as supervised hashing over AST-based LSTMs. \emph{ASTNN} \cite{zhang2019astnn} splits an AST into statement-level subtrees and encodes their sequence with recurrent neural networks (RNNs). Other approaches use tree-based convolution \cite{yu2019neural} or recursive neural models over ASTs \cite{buch2019learning}.
+
+GNN-based methods incorporate additional program relations into the learned representation. Wang et al.\ \cite{wang2020faast} introduce the flow-augmented AST (\emph{FA-AST}), which adds control-flow and data-flow edges to the AST and applies graph neural networks for clone detection. Yu et al.\ \cite{yu2023graphsemantics} use either a CFG or a PDG and learn graph representations with attention at several levels before comparing code fragments. For cross-language clone detection, \emph{FSD-CLCD} \cite{zhang2024fsdclcd} builds graph representations from ASTs and transfers functional information across languages through knowledge distillation. 
+
+Other work focuses on computational cost or alternative input representations. Zhang et al.\ \cite{zhang2023efficient} reduce Transformer cost through code token learners, \emph{CCStokener} \cite{wang2023ccstokener} enriches token representations with semantic information, and \emph{Code2Img} \cite{hu2023code2img} converts AST adjacency matrices into images processed by convolutional networks. \emph{BigCloneBench} \cite{svajlenko2014bigclonebench} is widely used to evaluate many of these learning-based clone detectors.
+
+\subsection{Source Code Representation}
+\label{subsec:representation}
+How code is represented determines which similarities a detector can observe. The AST describes the syntactic organization of a program, while the control-flow graph (CFG) describes possible execution paths and the PDG adds control and data dependencies.The code property graph (CPG) introduced by Yamaguchi et al.\
+\cite{yamaguchi2014cpg} brings syntax, control flow, and data flow
+into a unified graph and was originally developed for vulnerability
+discovery.
+
+A different line of work learns vector representations of code. \emph{code2vec} \cite{alon2019code2vec} represents a code fragment through paths sampled from its AST and combines them into a fixed-length vector. Pre-trained language models learn from much larger source-code corpora. \emph{CodeBERT} \cite{feng2020codebert} learns joint representations of programming language and natural language. \emph{GraphCodeBERT} \cite{guo2021graphcodebert} also uses data-flow information during pre-training and applies the resulting model to tasks including clone detection. Models such as ASTNN \cite{zhang2019astnn} and FA-AST \cite{wang2020faast} similarly learn representations from program trees or graphs.
+
+% Each representation emphasizes different properties of the program. An AST, for example, gives a detailed view of syntax but does not encode the same relations as a CFG or PDG. The choice of graph therefore affects what information is available to a downstream model.
+
+\subsection{Spectral Analysis of Graphs}
+\label{subsec:spectral}
+
+Spectral graph theory studies graphs through the eigenvalues and eigenvectors of matrices associated with them, most commonly the adjacency matrix and graph Laplacian \cite{chung1997spectral,mohar1991laplacian}. The Laplacian spectrum reflects several properties of a graph. A classical example is the connection between the second-smallest Laplacian eigenvalue and graph connectivity established by Fiedler \cite{fiedler1973algebraic}. Eigenvalues are also unchanged by a permutation of the node ordering, which makes them useful when the identity or ordering of nodes should not affect the representation.
+
+Spectral methods appear in many areas of graph analysis. Laplacian eigenvectors are used in spectral clustering \cite{shi2000normalized,ng2002spectral,vonluxburg2007tutorial} and Laplacian eigenmaps \cite{belkin2003laplacian}. Eigenvalue and eigenvector information has also been used for graph matching \cite{leordeanu2005spectral} and shape analysis \cite{sun2009hks,zhang2010spectralmesh}. In graph neural networks, Bruna et al.\ \cite{bruna2014spectral} define convolution using the graph Laplacian spectrum. Defferrard et al.\ \cite{defferrard2016cnngraph} make these filters local and efficient through Chebyshev polynomials, and Kipf and Welling \cite{kipf2017gcn} derive a simpler graph convolution from a first-order approximation of spectral filtering.
+
+% These methods assume that the graph on which the spectrum or filter is defined is already available. For source code, this means that the result depends on the program representation chosen beforehand. Spectral methods have been studied extensively for general graphs, but their use as representations for code clone detection remains limited~\cite{??}. Our work combines spectral analysis with a graph whose connections are learned from the clone-detection objective rather than fixed by a parser or program-analysis rule.
+
+\subsection{Latent Graph Learning}
+\label{subsec:latent_graph}
+
+Most message-passing networks assume that the graph structure is known beforehand. This assumption can be restrictive when the available graph is not a good representation for the downstream task. Latent graph learning, often studied under the broader term graph structure learning, addresses this problem by estimating the graph along with the predictive model \cite{zhu2021gslsurvey}. 
+
+Several methods illustrate different ways to do this. Neural Relational Inference (NRI) \cite{kipf2018nri} learns a latent interaction graph from observations of a dynamical system. Franceschi et al.\ \cite{franceschi2019lds} learn the parameters of a graph neural network and a discrete probability distribution over graph edges through bi-level optimization. IDGL \cite{chen2020idgl} repeatedly updates node embeddings and reconstructs a graph from learned similarities between them. Other methods learn neighborhoods and allow the number of selected neighbors to vary \cite{saha2023adaptive}. Graph pooling provides another way to handle graphs of varying sizes by learning how input nodes are grouped into a smaller graph. DiffPool \cite{ying2018diffpool} learns a soft assignment from input nodes to a fixed number of clusters and produces a smaller graph at the next layer.
+
+Latent graph learning is particularly relevant to our setting. Existing graph-based code models start from relations obtained through parsing or program analysis, such as those in an AST, CFG, PDG, CPG, or a manually augmented graph \cite{yamaguchi2014cpg,wang2020faast,yu2023graphsemantics,zhang2024fsdclcd}. Some software-engineering methods also simplify these graphs before learning. AMPLE \cite{wen2023ample}, for example, simplifies code graphs and combines information from different edge types for vulnerability detection. The simplification rules are nevertheless specified before model training. 
+
+Our method differs in two respects. It maps each code fragment to a graph with a fixed number of learned nodes, which gives spectra of the same dimension across fragments of different lengths. It also learns the weighted adjacency matrix together with the clone-detection objective. The graph used to compute the spectral representation is therefore produced by the model itself. To our knowledge, previous clone-detection methods have not combined learned graph construction with a spectral representation in this way.
+
+\section{Methodology}
+\label{sec:methodology}
+Spectral representations provide compact, permutation-invariant descriptions of graph structure and have been used for graph comparison and matching \cite{wilson2008study}. Their discriminative content, however, depends on the graph being represented. Using a fixed AST, CFG, or DDG therefore commits the representation to a predefined structural view of the program. We instead learn a latent graph from semantic-clone supervision and optimize it jointly with the downstream prediction task \cite{yu2021deep}.
+
+\subsection{Problem Formulation}
+\label{sec:problem_formulation}
+Let $\mathcal{L}$ denote a set of programming languages, $\mathcal{C}_{\ell}$ the set of code fragments written in language $\ell\in\mathcal{L}$, and $\mathcal{C}=\bigcup_{\ell\in\mathcal{L}}\mathcal{C}_{\ell}$. Given a labeled training set $\mathcal{D}_{\mathrm{tr}}=\{(c_i,c_j,y_{ij})\}$, where $c_i,c_j\in\mathcal{C}$,
+\begin{equation}
+y_{ij}=
+\begin{cases}
+1, & c_i\equiv_{\mathrm{func}}c_j,\\
+0, & \text{otherwise},
+\end{cases}
+\label{eq:clone_label}
+\end{equation}
+indicates whether the two fragments implement the same functionality. Let $\mathcal{G}_{m,d}$ denote the space of weighted attributed graphs with $m$ latent nodes, each represented by a $d$-dimensional feature vector. We seek a parameterized code-to-graph mapping $G_{\Theta}:\mathcal{C}\rightarrow\mathcal{G}_{m,d}$ such that $G_{\Theta}(c)=(Z_{\Theta}(c),A_{\Theta}(c))$. The graph is represented by its spectral signature $s_{\Theta}(c)=\operatorname{Spec}(G_{\Theta}(c))\in\mathbb{R}^{d_s}$. Define
+\begin{equation}
+S_{\Theta}(c_i,c_j)
+=
+\cos\!\left(s_{\Theta}(c_i),s_{\Theta}(c_j)\right).
+\label{eq:spectral_similarity_old}
+\end{equation}
+and let the spectral loss be
+\begin{equation}
+\ell_{ij}(\Theta)
+=
+y_{ij}(1-S_{\Theta}(c_i,c_j))
++
+(1-y_{ij})[S_{\Theta}(c_i,c_j)-\mu_{\mathrm{spec}}]_{+},
+\label{eq:spectral_loss_old}
+\end{equation}
+where $[x]_{+}=\max(0,x)$ and $\mu_{\mathrm{spec}}\in[0,1)$ is the negative-pair similarity margin, specifying the maximum similarity tolerated for negative pairs. The objective then is to learn $g_{\Theta}$ such that functional equivalence is preserved in the induced spectral space, i.e.,
+\begin{equation}
+\Theta^{*}
+=
+\arg\min_{\Theta}
+\mathbb{E}_{(c_i,c_j,y_{ij})\sim\mathcal{D}_{\mathrm{tr}}}
+\left[\ell_{ij}(\Theta)\right].
+\label{eq:latent_graph_objective_old}
+\end{equation}
+At inference time, the complete model produces a clone probability $\widehat{p}_{ij}$ for each pair. Clone detection is performed as $\widehat{y}_{ij}=\mathbb{I}[S_{\Theta^{*}}(c_i,c_j)\geq\gamma]$, where $\gamma$ is the decision threshold.
+
+\subsection{\method{}}
+\label{sec:spectra_siam}
+\method{} uses a Siamese architecture with shared parameters for the two code fragments \cite{bromley1993signature}. Each branch constructs a normalized attributed program graph and encodes its syntactic and data-dependence relations. It then maps the variable-size graph to a fixed set of latent nodes to learn their weighted adjacency and derives a multi-scale spectral representation. Spectral features are then compared by a pairwise classifier to output a prediction in $[0,1]$. \autoref{fig:spectra_overview} summarizes the pipeline.
+
+\begin{figure*}[t]
+    \centering
+    \safeincludegraphics[width=1.0\textwidth]{figures/main_fig.png}
+    \caption{\method{} architecture.}
+    \label{fig:spectra_overview}
+\end{figure*}
+
+\subsubsection{Stage 1: Initial representation and Language Normalization}
+\label{sec:input_representation}
+Each code fragment is first converted into an attributed graph whose nodes have numerical representations and whose edges encode structural relations. Combining syntactic structure with semantic or data-flow relations is common in learned program representations \cite{allamanis2018learning,yamaguchi2014cpg}. We use AST to provide the node backbone and augment it with DDG edges whose endpoints can both be mapped to AST nodes. The edges are made bidirectional before batching.
+
+\paragraph{Canonical node types}
+Parser node names vary across languages and extraction tools, so raw types are mapped to a shared vocabulary $\mathcal{K}_{\mathrm{can}}$: 
+\begin{quote}\scriptsize Control\_If, Control\_Loop, Control\_Switch, Control\_Return, Control\_Break, Control\_Generic, Var\_Decl, Func\_Decl, Class\_Decl, Param\_Decl, Assign\_Op, Binary\_Op, Unary\_Op, Call\_Expr, Access\_Expr, Literal\_Num, Literal\_Str, Literal\_Bool, Literal\_Null, Literal\_Generic, Structural\_Block, Identifier\_Context, Type\_Meta, and Canonical\_Unknown. 
+\end{quote} 
+The mapping covers \texttt{Joern}, Python's AST parser, and the language-specific parser fallbacks used in preprocessing; unmatched types are assigned to \texttt{Canonical\_Unknown}.
+
+\paragraph{Hashed lexical features}
+The canonical type alone does not preserve all information carried by the original node label. We therefore keep a small amount of lexical information for each node. Non-numeric labels are split at punctuation and camel-case boundaries~\cite{hill2014empirical}, and literals are normalized. The resulting sub-tokens, together with their character $n_{\mathrm{char}}$-grams, are mapped by a deterministic hash function to $N_{\mathrm{hash}}$ indices \cite{weinberger2009feature}. This keeps the lexical vocabulary at a fixed size regardless of the source language or dataset. We keep at most $r_{\max}$ lexical features per node and ignore labels that contain only line numbers. For node $v$, let $\kappa(t_v)$ be its canonical type and $\ell_{v1},\ldots,\ell_{vr}$ its lexical features. We combine the embedding of the canonical type with the average embedding of these lexical features:
+\begin{equation}
+h_v^{(0)}
+=
+\operatorname{LN}\!\left(
+E_{\mathrm{can}}(\kappa(t_v))
++
+\gamma_{\mathrm{lex}}
+\frac{1}{r}
+\sum_{q=1}^{r}
+E_{\mathrm{lex}}(\ell_{vq})
+\right),
+\
+\gamma_{\mathrm{lex}}=\sigma(g_{\mathrm{lex}}).
+\label{eq:node_initialization_old}
+\end{equation}
+where $E_{\mathrm{can}}$ and $E_{\mathrm{lex}}$ are learned embedding tables. The learned scalar $\gamma_{\mathrm{lex}}\in(0,1)$ controls how strongly the lexical information contributes to the initial node representation. Layer normalization and dropout are applied to the lexical features during training to improve numerical stability and provide regularization \cite{ba2016layer,srivastava2014dropout}. Graphs are restricted to the first $n_{\max}$ serialized AST nodes; padding is excluded from message passing and reconstruction.
+
+\subsubsection{Stage 2: Relation-Aware Structural Encoding}
+\label{sec:relation_encoder}
+AST and DDG edges represent different relations and should therefore use separate transformations~\cite{schlichtkrull2018modeling}. Let $H^{(l)}\in\mathbb{R}^{n\times d}$ contain node states at layer $l$ and $A^{(r)}$ denote the adjacency for relation $r\in\mathcal{R}$. Each layer computes
+\begin{equation}
+\begin{aligned}
+U^{(l)}
+&=
+H^{(l)}W_0^{(l)}
++
+\sum_{r\in\mathcal{R}}
+\widetilde{A}^{(r)}H^{(l)}W_r^{(l)},\\
+H^{(l+1)}
+&=
+\operatorname{LN}\!\left[
+H^{(l)}
++
+\operatorname{Dropout}
+\bigl(\operatorname{GELU}(U^{(l)})\bigr)
+\right],
+\end{aligned}
+\label{eq:relation_layer}
+\end{equation}
+where $\widetilde{A}^{(r)}$ is row-normalized, with a minimum degree denominator of one. $W_0^{(l)}$ transforms the current state and $W_r^{(l)}$ is relation specific. The residual, normalization, GELU, and dropout components follow standard formulations \cite{he2016deep,ba2016layer,hendrycks2016gaussian,srivastava2014dropout}. The encoder uses $L_{\mathrm{enc}}$ layers of dimension $d$.
+
+\subsubsection{Stage 3: Latent Graph Induction}
+\label{sec:latent_induction}
+We reduce the number of node states to $m$ latent nodes using iterative soft assignment, following the general idea of differentiable graph pooling
+\cite{ying2018hierarchical}. For normalized input key $k_v$ and latent query $q_j$,
+\begin{equation}
+P_{vj}
+=
+\frac{\exp(q_j^{\top}k_v/\sqrt{d})}
+{\sum_{u=1}^{m}\exp(q_u^{\top}k_v/\sqrt{d})}.
+\label{eq:slot_assignment}
+\end{equation}
+Latent updates normalize contributions over valid input nodes and use a GRU followed by a residual MLP~\cite{cho2014gru,he2016deep}. After $I_{\mathrm{assign}}$ iterations, the latent states form $Z\in\mathbb{R}^{m\times d}$. To limit information loss during pooling, $\widehat{H}=PZ$ reconstructs the input states. With $M_v$ indicating valid nodes,
+\begin{equation}
+\mathcal{L}_{\mathrm{rec}}
+=
+\frac{1}{\sum_v M_v}
+\sum_v
+M_v
+\frac{1}{d}
+\left\|
+h_v^{(0)}-\widehat{h}_v
+\right\|_2^2.
+\label{eq:reconstruction_loss}
+\end{equation}
+The observed structure is projected into latent space as
+\begin{equation}
+B=P^{\top}A_{\mathrm{in}}P,
+\qquad
+\widetilde{B}
+=
+\frac{B}{\max_{i,j}B_{ij}+\epsilon},
+\label{eq:structure_projection}
+\end{equation}
+where $A_{\mathrm{in}}$ combines the enabled input relations and $\widetilde{B}$ serves as a prior. Task-dependent affinities are obtained from $H_a$ scaled dot-product attention heads~\cite{vaswani2017attention}:
+\begin{equation}
+S
+=
+\operatorname{Sym}\!\left(
+\frac{1}{H_a}
+\sum_{h=1}^{H_a}
+\frac{Q_hK_h^{\top}}{\sqrt{d_h}}
+\right)
++
+\eta\widetilde{B},
+\label{eq:latent_affinity}
+\end{equation}
+where $\eta$ learns the contribution of the projected AST/DDG structure. Thus, the latent topology combines observed structure with task-dependent affinities, following the general setting of graph structure learning~\cite{jin2020graph}.
+
+\paragraph{Adaptive edge temperature}
+We convert $S$ to continuous edge weights using a temperature conditioned on graph size and density. For $n(c)$ valid nodes, define node occupancy $u(c)=n(c)/n_{\max}$ and
+$\rho_{\mathrm{in}}(c)=\operatorname{clip}_{[0,1]}(\sum_{r,i,j}A_{ij}^{(r)}/n(c)^2)$.
+Their mixture is
+$\chi(c)=\beta_u u(c)+(1-\beta_u)\rho_{\mathrm{in}}(c)$, giving
+\begin{equation}
+T(c)
+=
+T_{\min}
++
+(T_{\max}-T_{\min})
+\sigma\!\left(
+b_T+\operatorname{softplus}(w_T)\chi(c)
+\right).
+\label{eq:adaptive_temperature}
+\end{equation}
+After clipping $S$ to $[-s_{\max},s_{\max}]$, the latent adjacency is
+\begin{equation}
+A_{\Theta}(c)
+=
+\operatorname{Sym}\!\left[
+\sigma\!\left(\frac{S}{T(c)}\right)
+\odot
+(\mathbf{1}\mathbf{1}^{\top}-I_m)
+\right].
+\label{eq:latent_adjacency}
+\end{equation}
+$A_{\Theta}(c)$ is symmetric, continuous, and zero-diagonal; no hard edge threshold is applied. $L_{\mathrm{ref}}$ additional graph layers refine $Z$ using this learned adjacency. \autoref{fig:latent_graph_induction} summarizes the complete latent-graph induction process.
+
+\begin{figure}[!htbp]
+    \centering
+    \safeincludegraphics[width=0.9\columnwidth]{figures/latent_graph_induction.png}
+    \caption{
+    Latent graph induction in \method{}.
+    }
+    \label{fig:latent_graph_induction}
+\end{figure}
+
+\subsubsection{Stage 4: Multi-Scale Spectral Representation}
+\label{sec:multiscale_spectrum}
+The learned graph and its latent-node attributes are summarized jointly through an attributed graph-spectral representation. We first construct the normalized Laplacian
+\begin{equation}
+L_{\Theta}
+=
+I_m-D_{\Theta}^{-1/2}A_{\Theta}D_{\Theta}^{-1/2},
+\qquad
+D_{\Theta}
+=
+\operatorname{diag}(A_{\Theta}\mathbf{1}),
+\label{eq:normalized_laplacian}
+\end{equation}
+whose eigenvalues lie in $[0,2]$ for an undirected graph with non-negative edge weights \cite{chung1997spectral}. A small deterministic diagonal perturbation up to $\epsilon_{\mathrm{eig}}$ is added before eigen-decomposition to improve numerical stability. We then combine three complementary spectral summaries.
+
+\paragraph{Eigenvalue density}
+For normalized Laplacian eigenvalues
+$\lambda_1,\ldots,\lambda_m$, a Gaussian-smoothed profile
+\cite{banerjee2008spectrum,lewitus2016characterizing} is evaluated at $N_\xi$ centers $\xi_j\in[0,2]$:
+\begin{equation}
+d_j
+=
+\frac{1}{m}
+\sum_{i=1}^{m}
+\exp\!\left[
+-\frac{1}{2}
+\left(
+\frac{\lambda_i-\xi_j}{\sigma_{\mathrm{dens}}}
+\right)^2
+\right],
+\quad
+j=1,\ldots,N_{\xi},
+\label{eq:eigenvalue_density}
+\end{equation}
+giving $d(c)\in\mathbb{R}^{N_{\xi}}$.
+
+\paragraph{Heat traces}
+Heat diffusion captures structure across scales
+\cite{sun2009concise}. At logarithmically spaced $t_q\in[t_{\min},t_{\max}]$,
+\begin{equation}
+h_q
+=
+\frac{1}{m}
+\sum_{i=1}^{m}
+\exp(-t_q\lambda_i),
+\qquad
+q=1,\ldots,N_t,
+\label{eq:heat_trace}
+\end{equation}
+yielding $h(c)\in\mathbb{R}^{N_t}$.
+
+\paragraph{Graph-signal Chebyshev energies}
+To preserve information about node attributes within the spectral representation, the refined latent states $Z$ are projected to $N_{\mathrm{sig}}$ graph-signal channels:
+\begin{equation}
+\widetilde{X}
+=
+ZW_s
+\in\mathbb{R}^{m\times N_{\mathrm{sig}}}.
+\label{eq:raw_graph_signal}
+\end{equation}
+The signals are RMS-normalized across latent nodes:
+\begin{equation}
+X_{vr}
+=
+\frac{\widetilde{X}_{vr}}
+{
+\sqrt{
+\frac{1}{m}
+\sum_{u=1}^{m}
+\widetilde{X}_{ur}^{\,2}
++\epsilon
+}
+},
+\qquad
+r=1,\ldots,N_{\mathrm{sig}}.
+\label{eq:graph_signal}
+\end{equation}
+This normalization removes signal-scale effects before spectral filtering~\cite{stankovic2022introduction}. Since the normalized-Laplacian spectrum lies in $[0,2]$, we use $\widetilde{L}=L_{\Theta}-I_m$ and the Chebyshev recurrence
+\begin{equation}
+T_0(X)=X,\quad
+T_1(X)=\widetilde{L}X,\quad
+T_k(X)=2\widetilde{L}T_{k-1}(X)-T_{k-2}(X).
+\end{equation}
+Chebyshev approximations allow spectral filtering without explicit eigenvector multiplication \cite{defferrard2016chebnet}. For $N_{\mathrm{band}}$ Gaussian filters,
+\begin{equation}
+Y_b
+=
+\sum_{k=0}^{K_{\mathrm{cheb}}}
+a_{bk}T_k(X),
+\qquad
+b=1,\ldots,N_{\mathrm{band}},
+\label{eq:chebyshev_filter}
+\end{equation}
+where the filter centers lie in $[\omega_{\min},\omega_{\max}]$
+with bandwidth $\sigma_{\mathrm{filt}}$ and fixed coefficients $a_{bk}$.
+Band importance is conditioned on the current latent representation
+using soft attention~\cite{bahdanau2014neural}.With $\bar{z}=m^{-1}\sum_i z_i$ and $\alpha=\operatorname{softmax}(W_a\bar{z})$,
+\begin{equation}
+e_{br}
+=
+\alpha_b
+\frac{1}{m}
+\sum_{i=1}^{m}
+Y_b(i,r)^2.
+\label{eq:spectral_energy_old}
+\end{equation}
+Thus $e(c)\in\mathbb{R}^{N_{\mathrm{band}}N_{\mathrm{sig}}}$, and the complete descriptor is
+\begin{equation}
+s_{\Theta}(c)
+=
+d(c)\concat h(c)\concat e(c)
+\in\mathbb{R}^{d_s},
+\
+d_s
+=
+N_{\xi}+N_t+N_{\mathrm{band}}N_{\mathrm{sig}}.
+\label{eq:spectral_descriptor}
+\end{equation}
+The eigendecomposition used for $d(c)$ and $h(c)$ is computed without gradient propagation, whereas the Chebyshev path remains differentiable and propagates supervision through the learned adjacency and graph-signal projection.
+
+\subsubsection{Spectral Embedding and Pairwise Prediction}
+\label{sec:head}
+We compute $\phi_{\Theta}(c)=\operatorname{Norm}_2\!\left(g_s(s_{\Theta}(c))\right)\in\mathbb{R}^{d_{\phi}},$ where $g_s$ is a learned projection. For pair $(c_i,c_j)$, with $\phi_i=\phi_{\Theta}(c_i)$ and $\phi_j=\phi_{\Theta}(c_j)$, we form
+\begin{equation}
+q_{ij}
+=
+\phi_i
+\concat\phi_j
+\concat|\phi_i-\phi_j|
+\concat(\phi_i\odot\phi_j)
+\concat\cos(\phi_i,\phi_j),
+\label{eq:pair_vector}
+\end{equation}
+where $q_{ij}\in\mathbb{R}^{4d_{\phi}+1}$. An $L_{\mathrm{pair}}$-layer MLP maps $q_{ij}$ to a scalar logit, and a sigmoid yields $\widehat{p}_{ij}$.
+
+\subsubsection{Training Objective}
+\label{sec:training_objective}
+Training combines classification, spectral contrast, hard-negative separation, reconstruction, and graph regularization.
+
+\paragraph{Classification loss}
+With $N_+$ and $N_-$ denoting clone and non-clone training pairs, define $w_+=\min(w_{\max},N_-/\max(1,N_+))$. For mini-batch $\mathcal{B}$,
+\begin{equation}
+\mathcal{L}_{\mathrm{cls}}
+=
+-\frac{1}{|\mathcal{B}|}
+\sum_{(i,j)\in\mathcal{B}}
+\left[
+w_+y_{ij}\log\widehat{p}_{ij}
++
+(1-y_{ij})\log(1-\widehat{p}_{ij})
+\right].
+\label{eq:classification_loss}
+\end{equation}
+
+\paragraph{Spectral contrastive loss}
+For $c^s_{ij}=\cos(s_{\Theta}(c_i),s_{\Theta}(c_j))$, contrastive supervision \cite{hadsell2006contrastive} is
+\begin{equation}
+\mathcal{L}_{\mathrm{spec}}
+=
+\frac{1}{|\mathcal{B}|}
+\sum_{(i,j)\in\mathcal{B}}
+\left[
+y_{ij}(1-c^s_{ij})^2
++
+(1-y_{ij})
+\relu{c^s_{ij}-\mu_{\mathrm{spec}}}^{2}
+\right].
+\label{eq:spectral_contrastive}
+\end{equation}
+
+\paragraph{Hard-negative loss} To emphasize confusable non-clones
+\cite{wang2022disco}, let
+$c^{\phi}_{ij}=\cos(\phi_i,\phi_j)$ and let $\mathcal{K}$ index the
+$\max(1,\lfloor\kappa_{\mathrm{hard}}N_-^{\mathcal{B}}\rfloor)$ largest negative-pair values of
+$\relu{c^{\phi}_{ij}-\mu_{\mathrm{hard}}}^{2}$. Then
+\begin{equation}
+\mathcal{L}_{\mathrm{hard}}
+=
+\frac{1}{|\mathcal{K}|}
+\sum_{(i,j)\in\mathcal{K}}
+\relu{
+c^{\phi}_{ij}-\mu_{\mathrm{hard}}
+}^{2}.
+\label{eq:hard_negative}
+\end{equation}
+
+\paragraph{Graph regularization}
+For a batch of latent adjacencies, let
+\begin{equation}
+\bar{a}(A)
+=
+\frac{
+\sum_{b=1}^{|\mathcal{B}|}\sum_{i\neq j}A_{b,ij}
+}{
+|\mathcal{B}|m(m-1)
+},
+\qquad
+\mathcal{L}_{\mathrm{den}}
+=
+\bigl(\bar{a}(A)-\bar{a}_0\bigr)^2.
+\end{equation}
+We also record a connectivity term based on the second-smallest Laplacian eigenvalue, i.e., algebraic connectivity \cite{fiedler1973algebraic}:
+\begin{align}
+&\mathcal{L}_{\mathrm{conn}}
+=
+\frac{1}{|\mathcal{B}|}
+\sum_b
+\relu{\mu_{\mathrm{conn}}-\lambda_2^{(b)}}^2,
+\\
+&\mathcal{L}_{\mathrm{graph}}
+=
+\alpha_{\mathrm{den}}\mathcal{L}_{\mathrm{den}}
++
+\alpha_{\mathrm{conn}}\mathcal{L}_{\mathrm{conn}}.
+\label{eq:graph_regularizer}
+\end{align}
+Because $\lambda_2^{(b)}$ is computed without gradient propagation,
+$\mathcal{L}_{\mathrm{conn}}$ affects the reported scalar objective but not the parameter updates. The complete objective is
+\begin{equation}
+\begin{aligned}
+\mathcal{L}_{\mathrm{total}}
+={}&\mathcal{L}_{\mathrm{cls}}
++\lambda_{\mathrm{spec}}\mathcal{L}_{\mathrm{spec}}
++\lambda_{\mathrm{hard}}\mathcal{L}_{\mathrm{hard}}\\
+&+\lambda_{\mathrm{rec}}\mathcal{L}_{\mathrm{rec}}
++\lambda_{\mathrm{graph}}\mathcal{L}_{\mathrm{graph}}.
+\end{aligned}
+\label{eq:complete_loss_old}
+\end{equation}
+
+\subsubsection{Optimization}
+\label{sec:optimization}
+
+All learnable components are optimized with AdamW
+\cite{loshchilov2019adamw}. Neural layers use mixed-precision GPU
+computation \cite{micikevicius2018mixed}, while latent-adjacency
+construction and spectral operations use single precision for
+numerical stability. Numerical hyperparameters are reported in \autoref{tab:spectra_settings} of \autoref{sec:settings}. Checkpoint and decision-threshold selection use only the validation split (see \autoref{sec:protocol}).
+
+
+\section{Experimental Design}
+\label{sec:experimental_design}
+
+\subsection{Research Questions}
+\label{sec:research_questions}
+The objective of this study is to determine whether learning a latent graph can improve spectral code representation for effective and generalizable semantic clone detection. To achieve this objective, we formulate three main research questions as follows:
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{RQ1}
+\emph{To what extent does the learned graph latent space improve the discriminative power of spectral representations for source code compared with conventional program graphs?}
+
+\item \textbf{RQ2}
+\emph{How effective is \method{} compared with state-of-the-art non-graph, graph-based, hybrid graph--code, and pretrained models under conventional evaluation?}
+
+\item \textbf{RQ3}
+\emph{How well does \method{} generalize across different semantic CCD datasets and programming languages compared with state-of-the-art models?}
+
+\end{itemize}
+
+\subsection{Dataset}
+\label{sec:datasets}
+We use three semantic clone datasets: BigCloneBench~\cite{svajlenko2014bigclonebench},
+filtered following the work of \cite{wang2020faast}, AtCoder~\cite{perez2019crosslang},
+and a benchmark derived from Project CodeNet~\cite{puri2021project}. BigCloneBench contains Java--Java pairs, while AtCoder contains Java--Python pairs. CodeNet covers four within-language configurations (Python--Python, Java--Java, C++--C++, and C\#--C\#) and all six cross-language configurations (Python--Java, Python--C++, Python--C\#, Java--C++, Java--C\#, and C++--C\#) The final CodeNet benchmark is balanced both by language configuration and clone label. Each of the ten configurations contains 10K pairs, with 5K clones and 5K non-clones, for 100K pairs in total. Non-clone pairs for AtCoder and CodeNet are formed from accepted solutions to different programming problems, following~\cite{perez2019crosslang}. \autoref{tab:datasets} summarizes the resulting datasets and data splits.
+
+\begin{table}[!htbp]
+\centering
+\caption{Datasets used in the evaluation. CodeNet contains ten balanced language configurations, each with 10K pairs and 5K clones.}
+\label{tab:datasets}
+
+\scriptsize
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{2.5pt}
+
+\begin{tabular}{|l|r|r|r|r|r|}
+\hline
+\textbf{Dataset} & \textbf{Total} & \textbf{Clones} &
+\textbf{Train} & \textbf{Val.} & \textbf{Test} \\
+\hline
+
+\makecell[l]{BigCloneBench\\\textit{Java--Java}}
+& 1,731,860
+& 561,521
+& 901,028
+& 415,416
+& 415,416
+\\
+\hline
+
+\makecell[l]{AtCoder\\\textit{Java--Python}}
+& 777,494
+& 388,747
+& 544,054
+& 116,704
+& 116,736
+\\
+\hline
+
+\makecell[l]{CodeNet\\\textit{10 configurations}}
+& 100,000
+& 50,000
+& 70,000
+& 15,000
+& 15,000
+\\
+\hline
+
+\end{tabular}
+\end{table}
+
+\paragraph{CodeNet's Clone Extraction Process} We construct CodeNet pairs from problem IDs and submission verdicts. Two distinct accepted submissions to the same problem form a clone, while accepted submissions to different problems form a non-clone. We first build a diversity-controlled pool of approximately one million pairs. For each language configuration, candidate problems are sampled across eight groups based on the number of pairs they can provide, and submissions are selected to vary in user, submission time, code size, and compiler variant. For same-language pairs, near-duplicates with Jaccard similarity of at least 0.90 are removed using normalized token shingles and MinHash/LSH \cite{broder1997resemblance,broder1998minwise}; we also prefer less-similar and less-used submissions and limit each submission to at most ten selected pairs. From this pool, we sample the final benchmark by language configuration and clone label, yielding 5K clone and 5K non-clone pairs for each of the ten configurations. The resulting 100K pairs are then split into 70K training, 15K validation, and 15K test pairs while preserving this stratification.
+
+\subsection{Baselines}
+\label{sec:baselines}
+We compare \method{} with six baseline families: fixed spectral representations, GNNs over conventional program graphs, non-graph code models, other graph-based models, a hybrid graph--code model, and pretrained code models. For the fixed spectral representations, we consider four downstream settings: no training (\textit{No Train}), Random Forest (RF) \cite{breiman2001random}, Logistic Regression (LR) \cite{hastie2009elements}, and a Siamese Neural Network (SNN) \cite{bromley1993signature}. Combined with AST, CFG, DDG, and CPG, this gives 16 fixed-spectral configurations. The GNN~\cite{gilmer2017neural} baselines use the same four graph views. We further evaluate Deckard~\cite{jiang2007deckard}, RtvNN~\cite{white2016deep}, CDLH~\cite{wei2017supervised}, ASTNN~\cite{zhang2019novel}, FA-AST+GGNN~\cite{wang2020detecting}, FA-AST+GMN~\cite{wang2020detecting}, and DeepSim~\cite{zhao2018deepsim}. Finally, CodeBERT~\cite{feng2020codebert}, GraphCodeBERT~\cite{guo2021graphcodebert}, UniXcoder~\cite{guo2022unixcoder}, and CodeT5~\cite{wang2021codet5} are evaluated using \emph{No Train}, RF, SNN~\cite{bromley1993signature}, and Principal Component Analysis (PCA)~\cite{jolliffe2005principal} followed by RF, and PCA followed by SNN (PCA+SNN). Their main hyperparameters/configurations are summarized in \autoref{tab:baselines}.
+
+\begin{table}[!htbp]
+\centering
+\caption{Baseline configurations. For neural models, the training column reports batch size / learning rate $\alpha$ / maximum epochs.}
+\label{tab:baselines}
+
+\tiny
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{1.6pt}
+
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+
+\begin{tabularx}{\columnwidth}{@{}
+m{0.19\columnwidth}
+m{0.34\columnwidth}
+X
+r@{}}
+\toprule
+Method & Input / architecture & Training & Params. \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{4}{@{}l}{\textit{Fixed spectral representations (AST, CFG, DDG, CPG)}} \\[1pt]
+
+No Train
+&
+136-D spectrum
+&
+No training
+&
+0
+\\
+\midrule
+
+RF
+&
+274-D pair features
+&
+\shortstack[l]{200 trees; depth 16; leaf 5\\
+balanced-subsample; seed 42}
+&
+--
+\\
+\midrule
+
+LR
+&
+274-D pair features
+&
+\shortstack[l]{train-only scaling; balanced\\
+max.\ 1,000 iter.; seed 42}
+&
+--
+\\
+\midrule
+
+SNN
+&
+$136\!\to\!256\!\to\!256\!\to\!128$
+&
+\shortstack[l]{$8192/10^{-3}/4$; dropout .10\\
+WD $10^{-4}$; clip 5.0}
+&
+202k
+\\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{4}{@{}l}{\textit{GNNs over conventional graphs (AST, CFG, DDG, CPG)}} \\[1pt]
+
+GCN
+&
+\shortstack[l]{5-D nodes; GCN $256/128$; mean pool\\
+$128+128+128=384$-D representation}
+&
+\shortstack[l]{$16/(5{\times}10^{-4})/4$; dropout .05\\
+WD $10^{-4}$; patience 2; clip 2.0}
+&
+989k
+\\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{4}{@{}l}{\textit{Token, tree, graph, and hybrid baselines}} \\[1pt]
+
+Deckard
+&
+\shortstack[l]{AST-category count vectors per subtree\\
+top-32 subtrees by size; cosine}
+&
+Validation threshold
+&
+0
+\\
+\midrule
+
+RtvNN
+&
+\shortstack[l]{256 AST nodes; recursive tree encoder\\
+emb.\ 128; hidden 192; 192-D}
+&
+\shortstack[l]{$32/(5{\times}10^{-4})/4$; dropout .15\\
+WD $10^{-4}$; patience 2; clip 1.0}
+&
+1.48--4.46M
+\\
+\midrule
+
+CDLH
+&
+\shortstack[l]{256 AST nodes; binary Tree-LSTM\\
+emb.\ 128; hidden 192; 32-bit hash}
+&
+\shortstack[l]{$16/10^{-3}/4$; WD 0\\
+patience 2; clip 1.0}
+&
+2.10--6.96M
+\\
+\midrule
+
+ASTNN
+&
+\shortstack[l]{256 nodes; 512 edges; 64 statement roots\\
+emb.\ 128; recursive subtree\\ + BiGRU 100; 200-D}
+&
+\shortstack[l]{$32/10^{-3}/4$; dropout .20\\
+WD 0; patience 2; clip 1.0}
+&
+1.15--2.16M
+\\
+\midrule
+
+FA-AST+GGNN
+&
+\shortstack[l]{256 nodes; 6 relations\\ (AST/CFG/DDG/CPG)\\
+hidden 192; 5 steps; gated readout; 192-D}
+&
+\shortstack[l]{$8/(5{\times}10^{-4})/4$; dropout .10\\
+WD $10^{-4}$; patience 2; clip 1.0}
+&
+556k
+\\
+\midrule
+
+FA-AST+GMN
+&
+\shortstack[l]{as FA-AST+GGNN, plus cross-graph\\
+attention at every propagation step}
+&
+\shortstack[l]{$4/(5{\times}10^{-4})/4$; dropout .10\\
+WD $10^{-4}$; patience 2; clip 1.0}
+&
+--
+\\
+\midrule
+
+DeepSim
+&
+\shortstack[l]{CFG/DDG feature matrix\\
+192-D representation}
+&
+\shortstack[l]{$32/(5{\times}10^{-4})/4$; WD $10^{-3}$\\
+patience 2; clip 1.0}
+&
+--
+\\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For the fixed spectral baselines, each AST, CFG, DDG, or CPG spectrum is sorted, zero-padded or truncated to 64 eigenvalues, and augmented with eight statistics: normalized spectral length $\min(|\lambda|/2000,10)$, mean, standard deviation, minimum, maximum, and the 25th, 50th, and 75th percentiles. This gives the 72-dimensional representation $x_b(c)=
+\operatorname{Stat}\!\left(\lambda(G_b(c))\right)
+\concat
+\lambda_{1:64}\!\left(G_b(c)\right)$.
+\emph{No Train} scores a pair by
+$s_b(c_i,c_j)=
+1/(1+\lVert x_b(c_i)-x_b(c_j)\rVert_2)$,
+whereas RF and LR use the 146-dimensional vector
+\begin{equation}
+r_{ij}
+=
+|x_i-x_j|
+\concat(x_i\odot x_j)
+\concat\cos(x_i,x_j)
+\concat\lVert x_i-x_j\rVert_2.
+\label{eq:fixed_pair_features}
+\end{equation}
+
+The GNN node features consist of a constant value, log
+in-degree, log out-degree, log total degree, and normalized
+serialized position. Deckard hashes normalized tokens, token bigrams, token- and line-count buckets, nesting depth, returns, branches, and loops. ASTNN applies two bottom-up tree-convolution layers before its statement-level BiGRU. FA-AST+GGNN and FA-AST+GMN use CPG as the available flow-augmented-AST proxy. DeepSim combines its CFG branch with source-code semantic/token features. All neural baselines implemented in our controlled repository use binary cross entropy (BCE) with logits, AdamW, validation-F1 early stopping, and mixed precision GPU training.
+
+\subsection{Experimental Protocol}
+\label{sec:protocol}
+Each method uses the train, validation, and test partitions given in \autoref{tab:datasets} of \autoref{sec:datasets}. Models are fitted on the training pairs, while all hyperparameter choices, checkpoint selection, and decision-threshold tuning are performed using only the training and validation splits. For the approximately balanced AtCoder and CodeNet datasets, validation accuracy is used as the model-selection criterion. For the imbalanced BigCloneBench dataset, we instead maximize binary F1 on the validation set. The test split is accessed only once for final performance reporting after model selection is complete.
+
+For RQ1, we also evaluate the spectral representation learned by \method{} independently of its original MLP head in \autoref{sec:head}, using \emph{No Train} RF, LR, and SNN as downstream predictors. For RQ2, we additionally evaluate three nested variants of \method{} to separate the contribution of structural topology, canonical node labels, and lexical information. \method{} \emph{(Topo.)} disables both the canonical node-type and hashed lexical features introduced in \autoref{sec:input_representation}. \method{} \emph{(Label)} adds the canonical node-type representation but keeps the hashed lexical features disabled. \method{} \emph{(Lex.)} is the complete model and uses both the canonical type and hashed lexical components of the node representation in \autoref{eq:node_initialization_old}. All three variants otherwise use the same latent-graph induction (\autoref{sec:latent_induction}), multi-scale spectral representation (\autoref{sec:multiscale_spectrum}), pairwise prediction head (\autoref{sec:head}), and training objective (\autoref{sec:training_objective}).
+
+For the CodeNet experiments in RQ3 (\autoref{sec:rq3}), J, P, C, and S denote Java, Python, C++, and C\#, respectively, and $Y$ denotes the target language. We consider three settings. In the \emph{within-language} setting, training uses $Y$--$Y$ pairs. In the \emph{endpoint-only} setting, a second language $X$ is selected; training uses $X$--$X$ and $Y$--$Y$ pairs, and evaluation is performed on the unseen $X$--$Y$ pair. In the \emph{bridge-assisted} setting, $X_1,X_2,X_3$ denote distinct non-target languages forming a path toward $Y$. Training includes $X_1$--$X_1$ and the consecutive cross-language pairs indicated by the path ($X_1$--$X_2$,$X_2$--$X_3$, $X_3$--$Y$), with optional same-language pairs for intermediate languages ($X_2$--$X_2$,$X_3$--$X_3$). Within-language and bridge-assisted settings are evaluated on $Y$--$Y$ test pairs.
+
+\subsection{Experimental Settings}
+\label{sec:settings}
+Learning experiments run in multiple Kaggle notebooks with a T4-class CUDA accelerator. Graph construction (AST, CFG, DDG, CPG) and dataset preparation are performed beforehand, using the repository's local Python/\texttt{Joern} pipeline, after which the cleaned data bundles are attached to Kaggle.
+
+We use a fixed canonical configuration for \method{} throughout the main experiments. This configuration specifies the graph input and latent construction, spectral representation, pair encoder, regularization terms, and optimization settings. The complete configuration is reported in \autoref{tab:spectra_settings}.  Our evaluation includes 893 neural training runs across different datasets, model variants, baselines, and cross-language settings. This gives us broad experimental coverage, but it also makes long training runs expensive. We therefore cap \method{} and the neural baselines at 4 epochs in the main evaluation, so that all methods are compared under a similar training budget. We study the effect of longer training separately in \autoref{sec:num_epochs}.
+
+\begin{table}[!htbp]
+\centering
+\caption{Canonical \method{} architecture and training settings.}
+\label{tab:spectra_settings}
+
+\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{2pt}
+
+\begin{tabularx}{\columnwidth}{
+@{}
+>{\raggedright\arraybackslash}X
+>{\raggedleft\arraybackslash}p{0.37\columnwidth}
+@{}}
+\toprule
+{Setting (symbol)} & {Value} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{{Architecture and representation}}} \\
+{Input graph ($n_{\max}$; relations)}
+& {256 nodes; AST+DDG} \\
+{Node typing/hash
+($|\mathcal K_{\mathrm{can}}|,n_{\mathrm{char}},N_{\mathrm{hash}},r_{\max}$)}
+& {24; 3; 4,096; 4} \\
+{Lexical features
+($\gamma_{\mathrm{lex}}^{(0)},p_{\mathrm{lex}}$)}
+& {0.20; 0.30} \\
+{Structural encoder
+($d,L_{\mathrm{enc}},p_{\mathrm{enc}}$)}
+& {256; 2; 0.10} \\
+{Latent assignment
+($m,I_{\mathrm{assign}}$)}
+& {32; 3} \\
+{Latent affinity/refinement
+($H_a,\eta^{(0)},L_{\mathrm{ref}}$)}
+& {4; 1.0; 2} \\
+{Adaptive temperature
+($\beta_u,T_{\min},T_{\max}$)}
+& {0.75; 0.20; 1.20} \\
+{Temperature init./clipping
+($b_T^{(0)},w_T^{(0)},s_{\max}$)}
+& {$-0.55$; 1.25; 20} \\
+{Eigendecomposition jitter
+($\epsilon_{\mathrm{eig}}$)}
+& {$10^{-4}$} \\
+{Chebyshev order ($K_{\mathrm{cheb}}$)}
+& {12} \\
+{Spectral density
+($n_{\mathrm{bins}},n_{\mathrm{heat}},n_{\mathrm{band}}$)}
+& {256; 256; 2} \\
+{Spectral descriptor ($d_s$)}
+& {152} \\
+{Trainable parameters ($m=32$)}
+& {3,016,855} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{{Training and regularization}}} \\
+{Class/similarity settings
+($w_{\max},\mu_{\mathrm{spec}}$)}
+& {10; 0.25} \\
+{Hard-negative mining
+($\kappa_{\mathrm{hard}},\mu_{\mathrm{hard}}$)}
+& {0.25; 0.10} \\
+{Graph regularization
+($\bar a_0,\mu_{\mathrm{conn}}$)}
+& {0.15; 0.03} \\
+{Graph-reg.\ weights
+($\alpha_{\mathrm{den}},\alpha_{\mathrm{conn}}$)}
+& {2; 0.1} \\
+{Loss weights
+($\lambda_{\mathrm{spec}},\lambda_{\mathrm{hard}},\lambda_{\mathrm{rec}},\lambda_{\mathrm{graph}}$)}
+& {0.30; 0.20; 0.05; 0.01} \\
+{Optimizer}
+& {AdamW} \\
+{Learning rate / weight decay
+($\eta_{\mathrm{lr}},\lambda_{\mathrm{wd}}$)}
+& {$10^{-4}$; $10^{-4}$} \\
+{Batch / accumulation
+($B,N_{\mathrm{acc}},BN_{\mathrm{acc}}$)}
+& {32; 4; 128} \\
+{Epochs; seed}
+& {4; 42} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\subsection{Evaluation Metrics}
+\label{sec:metrics}
+We treat clone pairs as the positive class and report precision, recall, F1, and accuracy:
+\begin{align}
+P &= \frac{TP}{TP+FP},
+&
+R &= \frac{TP}{TP+FN},
+\nonumber\\
+F1 &= \frac{2PR}{P+R},
+&
+\mathrm{Acc.} &= \frac{TP+TN}{TP+TN+FP+FN}.
+\label{eq:evaluation_metrics}
+\end{align}
+Here, $TP$, $TN$, $FP$, and $FN$ denote true positives, true negatives, false positives, and false negatives, respectively.
+
+\section{Experimental Results}
+\label{sec:exp_results}
+
+\subsection{RQ1: Discriminative Power of the Learned Spectral Representation}
+\label{sec:rq1}
+\autoref{tab:rq1} compares the learned latent spectrum of \method{} with the spectra derived from conventional program graphs under the same downstream settings. On BigCloneBench, the naive \emph{Predict All Clone} baseline already obtains .24 F1, and the untrained AST, CFG, DDG, and CPG spectra remain at essentially the same level (.24--.25), indicating little useful separation between clone and non-clone pairs. Training downstream classifiers like SNN improves these representations, but the best fixed-graph configuration reaches only .37 F1. In contrast, the spectrum learned by \method{} reaches .50 F1 with no downstream training at all, and rises to .67 when used with an SNN, despite removing the original prediction head of \method{} in \autoref{sec:head}.
+
+A similar pattern appears on the balanced AtCoder benchmark, where accuracy is the relevant measure; the naive baseline is .50, and the untrained fixed-graph spectra remain around chance (.49--.52). Relative to the strongest corresponding fixed-graph configuration, the learned spectrum improves accuracy by .08 with no training, .09 with RF, .11 with LR, and .12 with SNN, reaching .71 with SNN. The complete \method{} further increases accuracy to .81, showing an additional benefit from its learned prediction head. The score distributions in \autoref{fig:rq1_score_distributions} illustrate the same difference under the no-training comparison. The fixed AST spectrum (\subfigref{fig:rq1_score_distributions}{fig:rq1_best_spectral}) leaves clone and non-clone scores almost fully overlapping, whereas the learned latent spectrum (\subfigref{fig:rq1_score_distributions}{fig:rq1_method}) provides a much better separation.
+
+\begin{table}[!htbp]
+\centering
+\caption{Performance of \method{} and spectral baselines on BigCloneBench and AtCoder. The latent-spectrum rows use the learned spectral representation of \method{} without its original MLP prediction head in \autoref{sec:head}. Parenthesized values report the absolute change from the \emph{Predict All Clone} baseline; $\uparrow$ and $\downarrow$ denote improvement and degradation.}
+\label{tab:rq1}
+
+\footnotesize
+\setlength{\tabcolsep}{2.0pt}
+\renewcommand{\arraystretch}{1.00}
+
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+& \multicolumn{4}{c}{\textbf{BigCloneBench}}
+& \multicolumn{4}{c}{\textbf{AtCoder}} \\
+\cmidrule(lr){2-5}
+\cmidrule(l){6-9}
+\textbf{Method}
+& \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+& \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.} \\
+\midrule
+
+\textbf{\method{}}
+& .73 & .79 & \textbf{.76\,\gain{.52}} & .93
+& .78 & .86 & .82 & \textbf{.81\,\gain{.31}} \\
+
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{9}{@{}l}{\textit{Learned latent spectral representation}} \\
+
+\textbf{\method{} Spectrum + No Train}
+& .43 & .59 & \textbf{.50\,\gain{.26}} & .84
+& .60 & .60 & .60 & \textbf{.60\,\gain{.10}} \\
+
+\textbf{\method{} Spectrum + RF}
+& .67 & .64 & \textbf{.65\,\gain{.41}} & .91
+& .65 & .82 & .73 & \textbf{.69\,\gain{.19}} \\
+
+\textbf{\method{} Spectrum + LR}
+& .61 & .61 & \textbf{.61\,\gain{.37}} & .89
+& .62 & .81 & .70 & \textbf{.66\,\gain{.16}} \\
+
+\textbf{\method{} Spectrum + SNN}
+& .67 & .67 & \textbf{.67\,\gain{.43}} & .91
+& .69 & .78 & .73 & \textbf{.71\,\gain{.21}} \\
+
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{9}{@{}l}{\textit{Fixed-graph spectral representations}} \\
+
+AST + No Train
+& .14 & .96 & .24\,\samev & .17
+& .50 & .66 & .57 & .50\,\samev \\
+
+AST + RF
+& .33 & .41 & .37\,\gain{.13} & .81
+& .58 & .67 & .62 & \textbf{.60\,\gain{.10}} \\
+
+AST + LR
+& .18 & .44 & .26\,\smallgain{.02} & .66
+& .52 & .61 & .56 & .52\,\smallgain{.02} \\
+
+AST + SNN
+& .35 & .39 & \textbf{.37\,\gain{.13}} & .82
+& .56 & .70 & .62 & .57\,\gain{.07} \\
+
+\midrule
+
+CFG + No Train
+& .14 & .94 & .24\,\samev & .20
+& .51 & .92 & .66 & .52\,\smallgain{.02} \\
+
+CFG + RF
+& .25 & .41 & .31\,\smallgain{.07} & .75
+& .60 & .65 & .62 & .60\,\gain{.10} \\
+
+CFG + LR
+& .21 & .44 & .29\,\smallgain{.05} & .70
+& .53 & .76 & .63 & .55\,\gain{.05} \\
+
+CFG + SNN
+& .28 & .37 & .32\,\smallgain{.08} & .78
+& .57 & .75 & .65 & .59\,\gain{.09} \\
+
+\midrule
+
+DDG + No Train
+& .16 & .60 & .25\,\smallgain{.01} & .50
+& .50 & .19 & .28 & .50\,\samev \\
+
+DDG + RF
+& .25 & .39 & .30\,\smallgain{.06} & .76
+& .57 & .64 & .61 & .58\,\gain{.08} \\
+
+DDG + LR
+& .20 & .41 & .26\,\smallgain{.02} & .69
+& .51 & .76 & .61 & .51\,\smallgain{.01} \\
+
+DDG + SNN
+& .29 & .35 & .32\,\smallgain{.08} & .80
+& .56 & .69 & .62 & .58\,\gain{.08} \\
+
+\midrule
+
+CPG + No Train
+& .14 & .96 & .25\,\smallgain{.01} & .20
+& .50 & .88 & .64 & .49\,\smalldrop{.01} \\
+
+CPG + RF
+& .33 & .42 & .37\,\gain{.13} & .80
+& .58 & .65 & .61 & .59\,\gain{.09} \\
+
+CPG + LR
+& .20 & .50 & .29\,\smallgain{.05} & .67
+& .52 & .73 & .61 & .53\,\smallgain{.03} \\
+
+CPG + SNN
+& .34 & .38 & .36\,\gain{.12} & .81
+& .55 & .69 & .62 & .57\,\gain{.07} \\
+
+\midrule
+
+\textbf{Predict All Clone}
+& .14 & 1.00 & .24\,\samev & .14
+& .50 & 1.00 & .67 & .50\,\samev \\
+
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{figure}[!htbp]
+    \centering
+
+    \subfloat[\method{} Sepctrum + No Train.]{
+        \includegraphics[
+            width=0.98\columnwidth,
+            height=0.15\textheight
+        ]{figures/latent_NoTrain.pdf}
+        \label{fig:rq1_method}
+    }
+    
+    \vspace{2mm}
+    
+    \subfloat[AST + No Train.]{
+        \includegraphics[
+            width=0.98\columnwidth,
+            height=0.15\textheight
+        ]{figures/ast_NoTrain.pdf}
+        \label{fig:rq1_best_spectral}
+    }
+
+    \caption{Output-score distributions on BigCloneBench for the learned latent spectrum of \method{} and the fixed AST spectrum, both evaluated without a learned downstream prediction head.}
+    \label{fig:rq1_score_distributions}
+\end{figure}
+
+\subsection{RQ2: Comparative Effectiveness Against Existing Representations and Clone-Detection Methods}
+\label{sec:rq2}
+\autoref{tab:rq2_overall} compares \method{} with the baselines in \autoref{sec:baselines}. \method{} reaches .76 F1 on BigCloneBench, improving substantially over its topology-only variant (.42) and outperforming Deckard and all conventional GNN baselines, although RtvNN and DeepSim remain stronger at .93. On AtCoder, \method{} achieves .81 accuracy, matching CodeBERT + SNN and remaining close to ASTNN (.86), RtvNN (.85), and GraphCodeBERT + SNN (.85), while CodeT5 + SNN performs best at .89. \method{}'s strongest relative result appears on CodeNet with a .69 accuracy, slightly exceeding ASTNN (.68) and DeepSim (.67), and approaching RtvNN (.73), though the pretrained SNN variants remain stronger. The progression from topology to canonical labels accounts for most of the gain, while lexical features provide a further improvement on CodeNet. Overall, \method{} is competitive with established graph and recurrent clone detectors across the three benchmarks, with its clearest advantage over graph-based baselines appearing on CodeNet.
+
+\begin{table}[!htbp]
+\centering
+\caption{Test performance of \method{} and competing representations and clone-detection methods on BigCloneBench, AtCoder, and CodeNet. Rows highlighted in green mark the best performing baseline within each family.}
+\label{tab:rq2_overall}
+\scriptsize
+
+\setlength{\tabcolsep}{1.4pt}
+\renewcommand{\arraystretch}{1.0}
+\setlength{\aboverulesep}{0.2ex}
+\setlength{\belowrulesep}{0.2ex}
+
+\begin{adjustbox}{
+    max width=\columnwidth,
+    max totalheight=1.0\textheight,
+    keepaspectratio,
+    center
+}
+\begin{tabular}{@{}l*{12}{c}@{}}
+\toprule
+\textbf{Method}
+& \multicolumn{4}{c}{\shortstack{\textbf{BigCloneBench}}}
+& \multicolumn{4}{c}{\textbf{AtCoder}}
+& \multicolumn{4}{c}{\textbf{CodeNet}} \\
+\cmidrule(lr){2-5}
+\cmidrule(lr){6-9}
+\cmidrule(l){10-13}
+& \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+& \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+& \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.} \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{13}{@{}l}{\textit{Our method}}\\[0pt]
+
+\textbf{\method{} (Topo.)}
+& .40 & .45 & .42 & .83
+& .50 & .69 & .58 & .51
+& .52 & .98 & .68 & .53 \\
+
+\textbf{\method{} (Label)}
+& .76 & .75 & .76 & .93
+& .76 & .90 & .82 & .81
+& .61 & .90 & .73 & .67 \\
+
+\rowcolor{green!15}
+\textbf{\method{} (Lex.)}
+& .73 & .79 & .76 & .93
+& .78 & .86 & .82 & .81
+& .63 & .89 & .74 & .69 \\
+
+\rowcolor{black!7}
+\multicolumn{13}{@{}l}{\textit{Non-graph code baselines}}\\[0pt]
+
+Deckard
+& .37 & .36 & .36 & .83
+& .52 & .32 & .39 & .51
+& .50 & 1.00 & .67 & .50 \\
+
+\rowcolor{green!15}
+RtvNN
+& .95 & .91 & .93 & .98
+& .83 & .87 & .85 & .85
+& .68 & .87 & .76 & .73 \\
+
+CDLH
+& .93 & .90 & .91 & .98
+& .74 & .91 & .82 & .79
+& .63 & .86 & .73 & .68 \\
+
+\rowcolor{black!7}
+\multicolumn{13}{@{}l}{\textit{Other graph-based learning methods}}\\[0pt]
+
+\rowcolor{green!15}
+ASTNN
+& .85 & .81 & .83 & .95
+& .83 & .90 & .86 & .86
+& .62 & .90 & .74 & .68 \\
+
+FA-AST+GGNN
+& .94 & .86 & .90 & .97
+& .51 & 1.00 & .67 & .51
+& .58 & .90 & .71 & .62 \\
+
+FA-AST+GMN
+& .95 & .87 & .91 & .98
+& .51 & 1.00 & .67 & .51
+& .57 & .92 & .70 & .62 \\
+
+\rowcolor{black!7}
+\multicolumn{13}{@{}l}{\textit{Hybrid graph + code baseline}}\\[0pt]
+
+\rowcolor{green!15}
+DeepSim
+& .95 & .91 & .93 & .98
+& .70 & .75 & .72 & .71
+& .61 & .91 & .73 & .67 \\
+
+\rowcolor{black!7}
+\multicolumn{13}{@{}l}{\textit{Pretrained code models}}\\[0pt]
+
+CodeBERT + No Train
+& .17 & .43 & .24 & .63
+& .50 & 1.00 & .67 & .50
+& .51 & .98 & .67 & .51 \\
+
+CodeBERT + RF
+& .79 & .74 & .77 & .94
+& .65 & .59 & .62 & .64
+& .60 & .90 & .72 & .65 \\
+
+CodeBERT + SNN
+& .82 & .73 & .77 & .94
+& .72 & .87 & .79 & .76
+& .74 & .88 & .80 & .78 \\
+
+CodeBERT + PCA + RF
+& .81 & .70 & .75 & .94
+& .67 & .57 & .61 & .64
+& .53 & .94 & .68 & .56 \\
+
+CodeBERT + PCA + SNN
+& .81 & .82 & .81 & .95
+& .72 & .91 & .80 & .78
+& .57 & .94 & .71 & .61 \\
+
+GraphCodeBERT + No Train
+& .36 & .45 & .40 & .82
+& .50 & 1.00 & .67 & .50
+& .50 & .99 & .67 & .50 \\
+
+GraphCodeBERT + RF
+& .88 & .81 & .84 & .96
+& .67 & .56 & .61 & .64
+& .59 & .87 & .71 & .64 \\
+
+GraphCodeBERT + SNN
+& .90 & .91 & .90 & .97
+& .80 & .93 & .86 & .85
+& .74 & .90 & .81 & .79 \\
+
+GraphCodeBERT + PCA + RF
+& .83 & .82 & .82 & .95
+& .70 & .61 & .65 & .67
+& .56 & .90 & .69 & .60 \\
+
+GraphCodeBERT + PCA + SNN
+& .92 & .86 & .89 & .97
+& .73 & .90 & .81 & .79
+& .59 & .94 & .73 & .65 \\
+
+UniXcoder + No Train
+& .43 & .48 & .45 & .84
+& .63 & .89 & .74 & .68
+& .54 & .92 & .68 & .56 \\
+
+UniXcoder + RF
+& .85 & .71 & .77 & .94
+& .75 & .53 & .62 & .68
+& .67 & .82 & .74 & .71 \\
+
+\rowcolor{green!15}
+UniXcoder + SNN
+& .90 & .87 & .88 & .97
+& .83 & .93 & .88 & .87
+& .80 & .89 & .84 & .84 \\
+
+UniXcoder + PCA + RF
+& .83 & .79 & .81 & .95
+& .77 & .63 & .69 & .72
+& .63 & .83 & .71 & .67 \\
+
+UniXcoder + PCA + SNN
+& .90 & .82 & .86 & .96
+& .80 & .91 & .85 & .84
+& .70 & .85 & .77 & .74 \\
+
+CodeT5 + No Train
+& .22 & .41 & .29 & .73
+& .50 & 1.00 & .67 & .50
+& .50 & 1.00 & .67 & .50 \\
+
+CodeT5 + RF
+& .85 & .79 & .82 & .95
+& .69 & .62 & .65 & .67
+& .60 & .90 & .72 & .64 \\
+
+CodeT5 + SNN
+& .89 & .93 & .91 & .98
+& .84 & .93 & .88 & .88
+& .77 & .88 & .82 & .81 \\
+
+CodeT5 + PCA + RF
+& .79 & .79 & .79 & .94
+& .71 & .63 & .67 & .69
+& .56 & .89 & .69 & .60 \\
+
+CodeT5 + PCA + SNN
+& .87 & .89 & .88 & .97
+& .80 & .90 & .85 & .84
+& .62 & .91 & .74 & .68 \\
+
+\rowcolor{black!7}
+\multicolumn{13}{@{}l}{\textit{GNN baselines}}\\[0pt]
+
+GNN-AST
+& .21 & .51 & .30 & .68
+& .54 & .70 & .61 & .55
+& .62 & .69 & .66 & .64 \\
+
+GNN-CFG
+& .21 & .46 & .29 & .69
+& .59 & .67 & .63 & .60
+& .63 & .68 & .65 & .64 \\
+
+GNN-DDG
+& .22 & .50 & .31 & .69
+& .54 & .52 & .53 & .54
+& .63 & .71 & .67 & .65 \\
+
+GNN-CPG
+& .27 & .49 & .35 & .75
+& .56 & .56 & .56 & .56
+& .64 & .62 & .63 & .64 \\
+
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+
+\end{table}
+
+\autoref{tab:language} provides a finer view of the selected methods by language configuration. On CodeNet, \method{} averages .683 accuracy across the four same-language configurations and .689 across the six cross-language configurations. The near-identical averages suggest that crossing a language boundary does not by itself cause a substantial drop when the model is trained on all configurations. Java--Python is the strongest CodeNet configuration for \method{} at .718 accuracy, while C\#--C\# is the weakest at .639, a spread of about .08. Configurations involving C\# also tend to appear toward the lower end of the results. UniXcoder is the strongest representative in both groups, averaging .882 accuracy for both same-language and cross-language CodeNet pairs; RtvNN follows at .743 and .717, respectively. \method{} remains close to ASTNN and DeepSim, whose averages are around .67--.68 in both settings. The relative ordering is fairly stable across same-language and cross-language pairs.
+
+\begin{table*}[htbp]
+\centering
+\tiny
+\caption{Language-wise breakdown of the results for the best performing representative of each method family in \autoref{tab:rq2_overall} (GNN models dropped due to poor performance).}
+\label{tab:language}
+
+\setlength{\tabcolsep}{1.2pt}
+\renewcommand{\arraystretch}{0.90}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lll*{20}{c}@{}}
+\toprule
+
+\multirow{2}{*}{\textbf{Setting}}
+&
+\multirow{2}{*}{\textbf{Language pair}}
+&
+\multirow{2}{*}{\textbf{Dataset}}
+&
+\multicolumn{4}{c}{\textbf{\method{}}}
+&
+\multicolumn{4}{c}{\textbf{RtvNN}}
+&
+\multicolumn{4}{c}{\textbf{ASTNN}}
+&
+\multicolumn{4}{c}{\textbf{DeepSim}}
+&
+\multicolumn{4}{c}{\textbf{UniXcoder}}
+\\
+
+\cmidrule(lr){4-7}
+\cmidrule(lr){8-11}
+\cmidrule(lr){12-15}
+\cmidrule(lr){16-19}
+\cmidrule(l){20-23}
+
+&
+&
+&
+\textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+&
+\textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+&
+\textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+&
+\textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+&
+\textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Acc.}
+\\
+
+\midrule
+
+% ================================================================
+% Single-language
+% ================================================================
+
+\multirow{5}{*}{Single-language}
+
+& Java--Java
+& BigCloneBench
+& .734 & .792 & .762 & .932
+& .954 & .906 & .929 & .981
+& .848 & .812 & .829 & .954
+& .953 & .915 & .933 & .982
+& .914 & .878 & .896 & .972 \\
+
+& Java--Java
+& CodeNet
+& .653 & .900 & .757 & .711
+& .728 & .872 & .793 & .773
+& .672 & .887 & .765 & .727
+& .584 & .941 & .720 & .635
+& .866 & .904 & .885 & .882 \\
+
+& Python--Python
+& CodeNet
+& .651 & .918 & .762 & .712
+& .777 & .878 & .825 & .813
+& .669 & .930 & .778 & .734
+& .669 & .904 & .769 & .726
+& .901 & .933 & .917 & .915 \\
+
+& C++--C++
+& CodeNet
+& .635 & .797 & .707 & .670
+& .652 & .839 & .734 & .695
+& .585 & .857 & .695 & .624
+& .600 & .877 & .712 & .647
+& .859 & .879 & .869 & .867 \\
+
+& C\#--C\#
+& CodeNet
+& .587 & .941 & .723 & .639
+& .648 & .847 & .734 & .693
+& .574 & .945 & .714 & .621
+& .613 & .932 & .739 & .671
+& .837 & .889 & .862 & .858 \\
+
+\midrule
+
+% ================================================================
+% Cross-language
+% ================================================================
+
+\multirow{7}{*}{Cross-language}
+
+& Java--Python
+& AtCoder
+& .783 & .862 & .821 & .812
+& .834 & .875 & .854 & .850
+& .829 & .899 & .863 & .857
+& .701 & .748 & .723 & .714
+& .831 & .933 & .879 & .872 \\
+
+& Java--Python
+& CodeNet
+& .659 & .905 & .763 & .718
+& .680 & .921 & .782 & .744
+& .657 & .925 & .768 & .721
+& .625 & .931 & .748 & .684
+& .898 & .883 & .890 & .891 \\
+
+& Java--C++
+& CodeNet
+& .652 & .863 & .742 & .701
+& .662 & .852 & .745 & .709
+& .591 & .885 & .709 & .637
+& .592 & .928 & .723 & .644
+& .851 & .909 & .879 & .875 \\
+
+& Java--C\#
+& CodeNet
+& .614 & .903 & .731 & .668
+& .654 & .884 & .752 & .708
+& .616 & .908 & .734 & .671
+& .608 & .913 & .730 & .663
+& .852 & .871 & .861 & .860 \\
+
+& Python--C++
+& CodeNet
+& .650 & .861 & .741 & .697
+& .647 & .904 & .754 & .703
+& .622 & .901 & .736 & .675
+& .596 & .852 & .701 & .636
+& .888 & .900 & .894 & .893 \\
+
+& Python--C\#
+& CodeNet
+& .613 & .922 & .737 & .670
+& .663 & .884 & .758 & .716
+& .608 & .892 & .723 & .658
+& .650 & .938 & .768 & .715
+& .868 & .915 & .891 & .888 \\
+
+& C++--C\#
+& CodeNet
+& .631 & .861 & .728 & .679
+& .682 & .828 & .748 & .721
+& .636 & .895 & .743 & .691
+& .623 & .865 & .724 & .671
+& .855 & .911 & .882 & .878 \\
+
+\bottomrule
+\end{tabular}%
+}
+
+\end{table*}
+
+\subsection{RQ3: Bridge-Assisted Cross-Language Generalization}
+\label{sec:rq3}
+
+\autoref{tab:rq3_controls} first separates within-language performance from cross-language generalization without cross-language supervision. \method{} averages .685 accuracy across the four within-language settings, ranging from .65 on C\# to .73 on Python. When trained only on the two same-language endpoints and evaluated on their unseen cross-language pair, it averages .627. Relative to the mean within-language accuracy of the corresponding endpoints, this is an average drop of .058. The drop is smaller than for ASTNN (.162), DeepSim (.170), and RtvNN (.228), while UniXcoder is nearly unchanged (.001). Thus, among the non-pretrained methods, \method{} keeps its high performance when the language boundary is introduced; its endpoint-only accuracy also remains higher than ASTNN (.503), DeepSim (.580), and RtvNN (.522), although UniXcoder is stronger at .717.
+
+\begin{table}[!htbp]
+\centering
+\caption{Within- and cross-language generalization controls on CodeNet. J, P, C, and S denote Java, Python, C++, and C\#, respectively. The \emph{SL train} column lists the languages whose same-language pairs are used for training; for example, J,P denotes training on J--J and P--P. All values are accuracy.}
+\label{tab:rq3_controls}
+
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.00}
+
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+\textbf{SL train}
+& \textbf{Test}
+& \textbf{\method{}}
+& \textbf{ASTNN}
+& \textbf{DeepSim}
+& \textbf{RtvNN}
+& \textbf{UniXcoder} \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{7}{@{}l}{\textit{Within-language reference}} \\
+
+J & J--J
+& .70 & .73 & .77 & .79 & .74 \\
+
+P & P--P
+& .73 & .74 & .76 & .79 & .81 \\
+
+C & C--C
+& .66 & .60 & .73 & .70 & .70 \\
+
+S & S--S
+& .65 & .59 & .74 & .72 & .62 \\
+
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{7}{@{}l}{\textit{Cross-language generalization without cross-language supervision}} \\
+
+J,P & J--P
+& .71 & .54 & .51 & .49 & .76 \\
+
+J,C & J--C
+& .69 & .53 & .70 & .61 & .73 \\
+
+J,S & J--S
+& .63 & .54 & .49 & .49 & .73 \\
+
+P,C & P--C
+& .55 & .41 & .64 & .56 & .72 \\
+
+P,S & P--S
+& .59 & .53 & .66 & .50 & .71 \\
+
+C,S & C--S
+& .59 & .47 & .48 & .48 & .65 \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\autoref{tab:rq3_bridge_l1} and \autoref{tab:rq3_bridge_l2} examine whether cross-language bridges can recover target-language performance without using any target $Y$--$Y$ pairs. For \method{}, mean accuracy across all length-1 paths is .596. This increases to .631 across the mandatory length-2 paths and to .635 when intermediate same-language reinforcement is included. The same pattern is clearer when the best observed configuration for each target is considered: the average rises from .634 at length 1 to .680 at length 2, close to the .685 within-language reference. At length 2, the best observed accuracies are .631 for C\#, .703 for Java, .691 for Python, and .696 for C++. These fall only .019 and .039 below the C\# and Python references, respectively, while the Java and C++ results slightly exceed their within-language references by .003 and .036. The length-3 results in \autoref{tab:rq3_bridge_l3} will determine whether another bridge language provides a further gain or whether performance has largely saturated by length 2: [FILL: length-3 mean, best-per-target mean, and comparison with length 2].
+
+\begin{table}[!htbp]
+\centering
+\caption{Length-1 bridge-assisted generalization on CodeNet. Each path $X_1\!\rightarrow Y$ is trained using $X_1$--$X_1$ and $X_1$--$Y$, with no $Y$--$Y$ training pairs. Accuracy is measured on test $Y$--$Y$ pairs.}
+\label{tab:rq3_bridge_l1}
+
+\footnotesize
+\setlength{\tabcolsep}{3.0pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{width=0.95\columnwidth}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Training path}
+& \textbf{\method{}}
+& \textbf{ASTNN}
+& \textbf{RtvNN}
+& \textbf{DeepSim}
+& \textbf{UniXcoder} \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target C\# (S)}} \\
+
+J $\rightarrow$ S
+& .5007 & .5653 & .5713 & .5000 & .6833 \\
+P $\rightarrow$ S
+& .5753 & .5040 & .6240 & .6967 & .6600 \\
+C $\rightarrow$ S
+& .5673 & .4953 & .5687 & .5460 & .6580 \\
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target Java (J)}} \\
+
+P $\rightarrow$ J
+& .6364 & .7051 & .7298 & .6618 & .7240 \\
+C $\rightarrow$ J
+& .6878 & .6511 & .7191 & .7171 & .7660 \\
+S $\rightarrow$ J
+& .5917 & .5284 & .6664 & .4570 & .7420 \\
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target Python (P)}} \\
+
+J $\rightarrow$ P
+& .6083 & .7418 & .7029 & .5791 & .8273 \\
+C $\rightarrow$ P
+& .6144 & .6130 & .6841 & .6640 & .8367 \\
+S $\rightarrow$ P
+& .5446 & .5399 & .6875 & .7101 & .8200 \\
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target C++ (C)}} \\
+
+J $\rightarrow$ C
+& .6573 & .5547 & .6860 & .7254 & .7407 \\
+P $\rightarrow$ C
+& .6080 & .5780 & .6513 & .6711 & .7187 \\
+S $\rightarrow$ C
+& .5627 & .4753 & .5800 & .6269 & .6867 \\
+
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Length-2 bridge-assisted generalization on CodeNet. A path $X_1\!\rightarrow X_2\!\rightarrow Y$ uses $X_1$--$X_1$, $X_1$--$X_2$, and $X_2$--$Y$ as mandatory training configurations. Each cell reports accuracy as $\varnothing$ / $X_2$--$X_2$, where the second value additionally includes same-language reinforcement for the intermediate language. Evaluation is on $Y$--$Y$ test pairs.}
+\label{tab:rq3_bridge_l2}
+
+\scriptsize
+\setlength{\tabcolsep}{6.4pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{width=0.95\columnwidth}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Training path}
+& \textbf{\method{}}
+& \textbf{ASTNN}
+& \textbf{RtvNN}
+& \textbf{DeepSim}
+& \textbf{UniXcoder} \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target C\# (S)}} \\
+
+J $\rightarrow$ P $\rightarrow$ S
+& .5993/.6013 & .5040/.5667 & .5653/.6187 & .5927/.6700 & .7207/.7373 \\
+J $\rightarrow$ C $\rightarrow$ S
+& .5940/.5740 & .5007/.5007 & .5920/.5220 & .5620/.5227 & .7347/.7693 \\
+P $\rightarrow$ J $\rightarrow$ S
+& .6307/.5927 & .5093/.5020 & .5893/.5927 & .6207/.5960 & .7293/.7627 \\
+P $\rightarrow$ C $\rightarrow$ S
+& .6053/.5467 & .4947/.4980 & .5480/.5760 & .6327/.6053 & .7053/.7393 \\
+C $\rightarrow$ J $\rightarrow$ S
+& .5947/.5640 & .5100/.5033 & .5613/.5567 & .6047/.5720 & .7233/.7527 \\
+C $\rightarrow$ P $\rightarrow$ S
+& .5920/.5987 & .5087/.5247 & .5627/.6287 & .6687/.6473 & .6907/.7220 \\
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target Java (J)}} \\
+
+P $\rightarrow$ C $\rightarrow$ J
+& .6905/.6785 & .6451/.6538 & .6871/.6905 & .6611/.6511 & .7993/.8093 \\
+P $\rightarrow$ S $\rightarrow$ J
+& .6164/.6324 & .5664/.5997 & .6324/.6564 & .6584/.6204 & .8053/.8227 \\
+C $\rightarrow$ P $\rightarrow$ J
+& .6744/.6811 & .6211/.6751 & .6891/.6865 & .6344/.6384 & .8027/.8067 \\
+C $\rightarrow$ S $\rightarrow$ J
+& .6531/.7031 & .5991/.6084 & .6785/.7011 & .6137/.6284 & .8133/.8207 \\
+S $\rightarrow$ P $\rightarrow$ J
+& .6224/.6771 & .5984/.6631 & .6498/.6798 & .6638/.5824 & .7813/.8127 \\
+S $\rightarrow$ C $\rightarrow$ J
+& .6478/.6885 & .5564/.6438 & .6698/.7038 & .6771/.6664 & .7953/.8267 \\
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target Python (P)}} \\
+
+J $\rightarrow$ C $\rightarrow$ P
+& .6848/.6821 & .6559/.6740 & .7190/.6935 & .6606/.6273 & .8640/.8600 \\
+J $\rightarrow$ S $\rightarrow$ P
+& .6378/.6908 & .6284/.6197 & .6901/.7163 & .5995/.6836 & .8560/.8600 \\
+C $\rightarrow$ J $\rightarrow$ P
+& .6190/.6164 & .6808/.7183 & .6633/.7156 & .6551/.6382 & .8573/.8667 \\
+C $\rightarrow$ S $\rightarrow$ P
+& .6244/.6351 & .5808/.5996 & .6097/.7103 & .6544/.6599 & .8473/.8587 \\
+S $\rightarrow$ J $\rightarrow$ P
+& .6492/.6526 & .6546/.7223 & .6486/.7210 & .6001/.6415 & .8467/.8453 \\
+S $\rightarrow$ C $\rightarrow$ P
+& .6392/.6432 & .5687/.6566 & .6640/.7062 & .6741/.6653 & .8427/.8593 \\
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target C++ (C)}} \\
+
+J $\rightarrow$ P $\rightarrow$ C
+& .6587/.6293 & .5813/.5953 & .6480/.6767 & .6417/.6490 & .8007/.8187 \\
+J $\rightarrow$ S $\rightarrow$ C
+& .6407/.6427 & .5687/.5307 & .6387/.6427 & .6437/.6189 & .7720/.8173 \\
+P $\rightarrow$ J $\rightarrow$ C
+& .6147/.6960 & .5793/.5813 & .6607/.6553 & .6872/.6524 & .8067/.8200 \\
+P $\rightarrow$ S $\rightarrow$ C
+& .6253/.5573 & .5540/.5213 & .5913/.6147 & .6048/.6222 & .7693/.7980 \\
+S $\rightarrow$ J $\rightarrow$ C
+& .6420/.6473 & .5020/.5660 & .6533/.6773 & .6296/.6370 & .7720/.7840 \\
+S $\rightarrow$ P $\rightarrow$ C
+& .5853/.6040 & .5580/.5793 & .6173/.6487 & .6088/.6236 & .7853/.8067 \\
+
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{table*}[!htbp]
+\centering
+\caption{Length-3 bridge-assisted generalization on CodeNet. A path $X_1\!\rightarrow X_2\!\rightarrow X_3\!\rightarrow Y$ uses $X_1$--$X_1$, $X_1$--$X_2$, $X_2$--$X_3$, and $X_3$--$Y$ as mandatory training configurations, with no $Y$--$Y$ pairs. Each cell reports accuracy as $\varnothing$ / $X_2$--$X_2$ / $X_3$--$X_3$ / $X_2$--$X_2$+$X_3$--$X_3$, where the later values additionally include same-language reinforcement for the intermediate languages. Evaluation is on $Y$--$Y$ test pairs.}
+\label{tab:rq3_bridge_l3}
+
+\scriptsize
+\setlength{\tabcolsep}{8.0pt}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\aboverulesep}{0.15ex}
+\setlength{\belowrulesep}{0.15ex}
+
+\begin{adjustbox}{width=0.95\textwidth}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Training path}
+& \textbf{\method{}}
+& \textbf{ASTNN}
+& \textbf{RtvNN}
+& \textbf{DeepSim}
+& \textbf{UniXcoder} \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target C\# (S)}} \\
+
+J $\rightarrow$ P $\rightarrow$ C $\rightarrow$ S
+& .5393/.5993/.5720/.5987
+& .5020/.4993/.5007/.5053
+& .5453/.5720/.5453/.5653
+& .5973/.6553/.5780/.5993
+& .7553/.7440/.7540/.7880 \\
+
+J $\rightarrow$ C $\rightarrow$ P $\rightarrow$ S
+& .5313/.5867/.5833/.5907
+& .5007/.5133/.5033/.4887
+& .5460/.5500/.5787/.6013
+& .6100/.6413/.6500/.6873
+& .7520/.7587/.7467/.7673 \\
+
+P $\rightarrow$ J $\rightarrow$ C $\rightarrow$ S
+& .5127/.5320/.5160/.5673
+& .4940/.4973/.4973/.4953
+& .5420/.5400/.5413/.5467
+& .5920/.5580/.5773/.5733
+& .7420/.7573/.7407/.7693 \\
+
+P $\rightarrow$ C $\rightarrow$ J $\rightarrow$ S
+& .5587/.5753/.5540/.5673
+& .5087/.4947/.5180/.5500
+& .5573/.5333/.5600/.5340
+& .6200/.5933/.5667/.5833
+& .7407/.7507/.7727/.7787 \\
+
+C $\rightarrow$ J $\rightarrow$ P $\rightarrow$ S
+& .5773/.6240/.5533/.5907
+& .5087/.5060/.5220/.5813
+& .5593/.5713/.5893/.5753
+& .6373/.5860/.6620/.6480
+& .7360/.7687/.7460/.7780 \\
+
+C $\rightarrow$ P $\rightarrow$ J $\rightarrow$ S
+& .5487/.6047/.5607/.5640
+& .4980/.5080/.5680/.5140
+& .5813/.5600/.5687/.6180
+& .5647/.5947/.6180/.6260
+& .7600/.7660/.7860/.7800 \\
+
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target Java (J)}} \\
+
+P $\rightarrow$ C $\rightarrow$ S $\rightarrow$ J
+& .5757/.6464/.6077/.6418
+& .5837/.6244/.6071/.5777
+& .6684/.6518/.5911/.6491
+& .6678/.6271/.6184/.6331
+& .8227/.8233/.8220/.8200 \\
+
+P $\rightarrow$ S $\rightarrow$ C $\rightarrow$ J
+& .6471/.6711/.6611/.6604
+& .5777/.6271/.5991/.6211
+& .6611/.6744/.6191/.6791
+& .6444/.6231/.6711/.6624
+& .8033/.8193/.8207/.8320 \\
+
+C $\rightarrow$ P $\rightarrow$ S $\rightarrow$ J
+& .5804/.6518/.5884/.6498
+& .5777/.5984/.6111/.6044
+& .6404/.6845/.6458/.6818
+& .6111/.6131/.6124/.6291
+& .8173/.8253/.8220/.8247 \\
+
+C $\rightarrow$ S $\rightarrow$ P $\rightarrow$ J
+& .6564/.6631/.6037/.6451
+& .6251/.6211/.6771/.6718
+& .6785/.6518/.7085/.6931
+& .6217/.5670/.6258/.6104
+& .8233/.8293/.8080/.8227 \\
+
+S $\rightarrow$ P $\rightarrow$ C $\rightarrow$ J
+& .6404/.6404/.5550/.6758
+& .5664/.6271/.6351/.6411
+& .7171/.6758/.6798/.6658
+& .6404/.6017/.5944/.6684
+& .8093/.8193/.8300/.8207 \\
+
+S $\rightarrow$ C $\rightarrow$ P $\rightarrow$ J
+& .6004/.6338/.6157/.6624
+& .6431/.6584/.6798/.6604
+& .6744/.6891/.7058/.6938
+& .6251/.6177/.6151/.6011
+& .8160/.8267/.8307/.8253 \\
+
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target Python (P)}} \\
+
+J $\rightarrow$ C $\rightarrow$ S $\rightarrow$ P
+& .6848/.6774/.6861/.6311
+& .6714/.6117/.5842/.6559
+& .6459/.5848/.7324/.7398
+& .6646/.6741/.6667/.7040
+& .8707/.8700/.8660/.8827 \\
+
+J $\rightarrow$ S $\rightarrow$ C $\rightarrow$ P
+& .5211/.6432/.5547/.6338
+& .6284/.6304/.6613/.6512
+& .6767/.7009/.7103/.6982
+& .6599/.6110/.6531/.6470
+& .8567/.8680/.8673/.8673 \\
+
+C $\rightarrow$ J $\rightarrow$ S $\rightarrow$ P
+& .5734/.7049/.6023/.6747
+& .6177/.6901/.6123/.6600
+& .5989/.5842/.7150/.7391
+& .6640/.6219/.6395/.5737
+& .8627/.8733/.8680/.8780 \\
+
+C $\rightarrow$ S $\rightarrow$ J $\rightarrow$ P
+& .6144/.6593/.5560/.6177
+& .6512/.6365/.7136/.6875
+& .6908/.6868/.6378/.7029
+& .6341/.6239/.6687/.6517
+& .8647/.8620/.8713/.8673 \\
+
+S $\rightarrow$ J $\rightarrow$ C $\rightarrow$ P
+& .6372/.6660/.5755/.6224
+& .5996/.6539/.6848/.6667
+& .7042/.6989/.6640/.7384
+& .5913/.6191/.6314/.6619
+& .8620/.8560/.8513/.8767 \\
+
+S $\rightarrow$ C $\rightarrow$ J $\rightarrow$ P
+& .6318/.6848/.6653/.6962
+& .6687/.6754/.7210/.6982
+& .6479/.6968/.7217/.7337
+& .4657/.6551/.6667/.6449
+& .8573/.8680/.8680/.8600 \\
+
+
+\addlinespace[1pt]
+\rowcolor{black!7}
+\multicolumn{6}{@{}l}{\textit{Target C++ (C)}} \\
+
+J $\rightarrow$ P $\rightarrow$ S $\rightarrow$ C
+& .6333/.6633/.6267/.6193
+& .5587/.5880/.5380/.5440
+& .6113/.6180/.6040/.6167
+& .6263/.6517/.4943/.5948
+& .8033/.8260/.8267/.8327 \\
+
+J $\rightarrow$ S $\rightarrow$ P $\rightarrow$ C
+& .5720/.6447/.5727/.6493
+& .5673/.5420/.5980/.5793
+& .6393/.6520/.6500/.6800
+& .6035/.5948/.6155/.6229
+& .7987/.8273/.8340/.8367 \\
+
+P $\rightarrow$ J $\rightarrow$ S $\rightarrow$ C
+& .5527/.6740/.5533/.6000
+& .5547/.5700/.5533/.5433
+& .6067/.6313/.6020/.6280
+& .6048/.6457/.6330/.6316
+& .8000/.8233/.8160/.8287 \\
+
+P $\rightarrow$ S $\rightarrow$ J $\rightarrow$ C
+& .5433/.6267/.5873/.6487
+& .5773/.5627/.5360/.6040
+& .6640/.6140/.6673/.6740
+& .6658/.6557/.6537/.6155
+& .8067/.8387/.8167/.8313 \\
+
+S $\rightarrow$ J $\rightarrow$ P $\rightarrow$ C
+& .5960/.6573/.5933/.6253
+& .5400/.5773/.5340/.5933
+& .6380/.6633/.6620/.6707
+& .6082/.6222/.6336/.6149
+& .8067/.8233/.8393/.8327 \\
+
+S $\rightarrow$ P $\rightarrow$ J $\rightarrow$ C
+& .5867/.6113/.6087/.6387
+& .5600/.5960/.5673/.5953
+& .6547/.6673/.6580/.6653
+& .6356/.6450/.6236/.6517
+& .8127/.8193/.8373/.8320 \\
+
+
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}
+
+Intermediate same-language reinforcement has a comparatively small average effect at length 2. Adding $X_2$--$X_2$ changes \method{} accuracy by only +.004 on average, but the effect depends on the target: it changes the mean by -.023 for C\#, +.026 for Java, +.011 for Python, and +.002 for C++. Intermediate supervision is therefore not uniformly beneficial; the languages forming the bridge matter more than simply adding another same-language configuration. For length 3, [FILL: report the average changes produced by $X_2$--$X_2$, $X_3$--$X_3$, and both, and state whether reinforcement closer to the target is more useful].
+
+Path identity also matters at a fixed bridge length. For \method{}, the gap between the best and worst path for a given target ranges from .070 to .096 at length 1 and from .074 to .139 across the length-2 configurations. Consequently, the number of bridge links alone does not determine transfer quality; the particular sequence of languages can change the result substantially. Once \autoref{tab:rq3_bridge_l3} is complete, this analysis can be closed by reporting [FILL: the length-3 path spread and strongest final bridge languages]. Across all 156 bridge configurations, [FILL: number of configurations in which \method{} ranks first and its average difference from ASTNN, RtvNN, DeepSim, and UniXcoder].
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{\method{} Sensitivity to Hyperparameters}
+\label{sec:hyperparameter_sensitivity}
+We examine the sensitivity of \method{} on CodeNet by varying one hyperparameter at a time while keeping the remaining settings fixed to the canonical configuration in \autoref{tab:spectra_settings}. As shown in \autoref{fig:hyperparameter_sensitivity}, the model remains stable over the tested ranges, although the individual settings affect optimization differently; the corresponding final-epoch losses and test accuracies are reported in \autoref{tab:d1_sensitivity}. For the latent graph size, $m=32$ gives consistently low validation loss, while increasing the capacity to $m=48$ provides no clear benefit. For latent assignment, two to three iterations are sufficient, and additional refinement does not improve validation loss. The Chebyshev-order experiment shows that increasing spectral-filter order is not uniformly beneficial over the first five epochs; lower orders converge quickly, while $K_{\mathrm{cheb}}=12$ remains within the same general range. Batch size mainly affects the optimization trajectory: $B=8$ is less stable, whereas $B\in\{16,32,64\}$ gives similar and steadily decreasing validation loss. Overall, the results indicate that \method{} does not depend on a narrow hyperparameter choice during the first five epochs, and the canonical configuration provides a stable operating point.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[
+        width=\columnwidth
+    ]{figures/rq_hyperparameter_sensitivity_loss_only_clean.pdf}
+    \caption{Sensitivity of \method{} to four hyperparameters on CodeNet. From top to bottom, the panels vary latent graph size $m$, latent-assignment iterations $I_{\mathrm{assign}}$, Chebyshev order $K_{\mathrm{cheb}}$, and batch size $B$. Each panel reports training and validation BCE loss over the first five epochs while varying one hyperparameter and keeping all others fixed to the canonical configuration in \autoref{tab:spectra_settings}. Solid and dashed lines denote training and validation loss, respectively.}
+    \label{fig:hyperparameter_sensitivity}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{Final-epoch training and validation BCE loss, and test accuracy, for each hyperparameter setting in \autoref{fig:hyperparameter_sensitivity}. All runs use CodeNet with five epochs per arm.}
+\label{tab:d1_sensitivity}
+
+\footnotesize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.1}
+
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Hyperparameter} &
+\textbf{Value} &
+\textbf{Train BCE} &
+\textbf{Valid BCE} &
+\textbf{Test Acc.} \\
+\hline
+
+\multirow{4}{*}{$m$}
+& 16 & 0.5503 & 0.5476 & 0.6960 \\
+& 24 & 0.5566 & 0.5703 & 0.6850 \\
+& \textbf{32} & \textbf{0.5445} & \textbf{0.5437} & \textbf{0.7029} \\
+& 48 & 0.5591 & 0.5576 & 0.6838 \\
+\hline
+
+\multirow{4}{*}{$I_{\mathrm{assign}}$}
+& 1 & 0.5503 & 0.5464 & 0.7012 \\
+& \textbf{2} & \textbf{0.5344} & \textbf{0.5279} & \textbf{0.7056} \\
+& 3 & 0.5445 & 0.5437 & 0.7029 \\
+& 4 & 0.5625 & 0.5676 & 0.6746 \\
+\hline
+
+\multirow{4}{*}{$K_{\mathrm{cheb}}$}
+& \textbf{4} & \textbf{0.5224} & \textbf{0.5131} & \textbf{0.7273} \\
+& 8 & 0.5569 & 0.5558 & 0.6818 \\
+& 12 & 0.5445 & 0.5437 & 0.7029 \\
+& 16 & 0.5478 & 0.5457 & 0.6980 \\
+\hline
+
+\multirow{4}{*}{$B$}
+& 8 & 0.5850 & 0.5856 & 0.6417 \\
+& 16 & 0.5659 & 0.5594 & 0.6740 \\
+& 32 & 0.5662 & 0.5571 & 0.6867 \\
+& \textbf{64} & \textbf{0.5520} & \textbf{0.5566} & \textbf{0.6834} \\
+\hline
+
+\end{tabular}
+\end{table}
+\subsection{Number of Epochs}
+\label{sec:num_epochs}
+We study training duration by training \method{} on CodeNet and evaluating the same model on each validation subset after every epoch. \autoref{fig:d2_epochs} shows that validation loss falls quickly during the early epochs and continues to decrease more gradually thereafter, while the corresponding test accuracies are reported in \autoref{tab:d2_epochs}. The total validation curve becomes increasingly stable in the later epochs, and the individual language configurations follow the same overall trend despite differences in absolute loss. In particular, no subset shows a sustained late increase that would indicate clear overfitting to another language configuration. Most of the optimization gain is obtained early, while later epochs provide smaller improvements.
+
+\begin{table}[!htbp]
+\centering
+\caption{Test accuracy of \method{} on CodeNet after selected epochs, reported separately for same-language and cross-language configurations. \emph{Total} denotes accuracy over the complete test set.}
+\label{tab:d2_epochs}
+
+\footnotesize
+\setlength{\tabcolsep}{1.6pt}
+\renewcommand{\arraystretch}{0.95}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+\begin{tabularx}{0.95\columnwidth}{|c|Y|Y|Y|Y|Y|}
+\hline
+\rule{0pt}{2.4ex}\textbf{Ep.} &
+\textbf{Total} &
+\textbf{J--J} &
+\textbf{P--P} &
+\textbf{C++--C++} &
+\textbf{C\#--C\#} \\
+\hline
+\rule{0pt}{2.8ex}1  & .6388 & .6571 & .6841 & .6307 & .5880 \\
+2  & .6547 & .6558 & .6787 & .6560 & .6227 \\
+3  & .6748 & .7018 & .7123 & .6580 & .6333 \\
+4  & .6770 & .7118 & .7170 & .6527 & .6300 \\
+5  & .6992 & .7118 & .7089 & .6787 & .6720 \\
+10 & .7339 & .7685 & .7451 & .7000 & .7140 \\
+15 & .7587 & .7979 & .7673 & .7260 & .7480 \\
+20 & .7690 & .7932 & .7941 & .7220 & .7780 \\
+25 & .7700 & .8139 & .7907 & .7227 & .7440 \\
+30 & .7886 & .8232 & .8129 & .7407 & .7793 \\
+35 & .7903 & .8259 & \textbf{.8196} & .7413 & \textbf{.7947} \\
+40 & \textbf{.7929} & \textbf{.8372} & .8089 & \textbf{.7487} & .7940 \\
+\hline
+\end{tabularx}
+
+\vspace{-0.4mm}
+
+\begin{tabularx}{0.95\columnwidth}{|c|Y|Y|Y|Y|Y|Y|}
+\hline
+\rule{0pt}{2.4ex}\textbf{Ep.} &
+\textbf{J--P} &
+\textbf{J--C++} &
+\textbf{J--C\#} &
+\textbf{P--C++} &
+\textbf{P--C\#} &
+\textbf{C++--C\#} \\
+\hline
+\rule{0pt}{2.8ex}1  & .6662 & .6427 & .6067 & .6631 & .6227 & .6273 \\
+2  & .6756 & .6740 & .6340 & .6779 & .6468 & .6260 \\
+3  & .6952 & .6800 & .6520 & .6799 & .6810 & .6553 \\
+4  & .7093 & .6640 & .6573 & .6812 & .6843 & .6633 \\
+5  & .7301 & .6940 & .6860 & .7122 & .6910 & .7080 \\
+10 & .7665 & .7400 & .7133 & .7236 & .7393 & .7293 \\
+15 & .7894 & .7407 & .7640 & .7371 & .7721 & .7447 \\
+20 & .7873 & .7540 & .7613 & .7505 & .7949 & .7553 \\
+25 & .8055 & .7613 & .7700 & .7619 & .7755 & .7547 \\
+30 & .8122 & .7713 & .7827 & .7774 & .8070 & \textbf{.7793} \\
+35 & .8156 & .7560 & \textbf{.7880} & .7734 & \textbf{.8110} & .7780 \\
+40 & \textbf{.8210} & \textbf{.7780} & .7813 & \textbf{.7821} & .8029 & .7753 \\
+\hline
+\end{tabularx}
+
+\end{table}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[
+        width=\textwidth
+    ]{figures/d2_number_of_epochs_codenet_loss_only_clean.pdf}
+    \caption{Validation BCE loss of \method{} on CodeNet over 20 epochs. A single model is trained jointly on the full CodeNet training split and evaluated after each epoch on the complete validation set (\emph{Total}) and separately on each of the ten language configurations. Same-language configurations are shown with solid lines, cross-language configurations with dashed lines, and the aggregate result with a thicker black line.}
+    \label{fig:d2_epochs}
+\end{figure*}
+
+\subsection{Statistical Stability Across Training Runs}
+\label{sec:d3_statistical_stability}
+\autoref{tab:d3_stability} shows that the stability of \method{} depends strongly on the benchmark. On BigCloneBench, F1 is tightly concentrated at $.750\pm.011$ (range $.732$--$.762$), while accuracy varies by only $.004$ standard deviation; CodeNet is similarly stable, with F1 of $.736\pm.003$ (range $.733$--$.739$) and accuracy of $.678\pm.005$ (range $.674$--$.686$). These results are consistent with the single-run scores reported in RQ2 (.76 F1 on BigCloneBench and .69 accuracy on CodeNet). AtCoder, however, is substantially more sensitive to initialization: F1 falls to $.744\pm.106$ with a range of $.578$--$.821$, and accuracy to $.719\pm.129$ with a range of $.511$--$.812$. Thus, the .81 AtCoder accuracy reported in RQ2 is near the upper end of the observed runs and should be interpreted with greater caution than the BigCloneBench and CodeNet results. The bootstrap confidence intervals remain narrow across all three datasets, indicating little uncertainty from finite test-set sampling; notably, this does not remove the much larger seed-to-seed variation on AtCoder. Overall, the repeated runs support stable performance on BigCloneBench and CodeNet, but also identify AtCoder as a benchmark on which optimization variability is non-negligible.
+
+\begin{table}[!htbp]
+\centering
+\caption{Statistical stability of \method{} over 10 independent
+training runs. Mean and standard deviation are computed across random seeds; the final column reports a 95\% Student-t confidence interval for the mean of the per-seed results.}
+\label{tab:d3_stability}
+
+\scriptsize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.08}
+
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Dataset}
+& \textbf{Metric}
+& \textbf{Mean $\pm$ Std}
+& \textbf{Range}
+& \textbf{95\% CI} \\
+\midrule
+
+BigCloneBench
+& Prec.
+& .724 $\pm$ .028
+& [.687, .760]
+& [.690, .759] \\
+
+& Rec.
+& .780 $\pm$ .031
+& [.750, .828]
+& [.742, .819] \\
+
+& F1
+& .750 $\pm$ .011
+& [.732, .762]
+& [.736, .765] \\
+
+& Acc.
+& .929 $\pm$ .004
+& [.924, .933]
+& [.924, .934] \\
+
+\midrule
+AtCoder
+& Prec.
+& .681 $\pm$ .102
+& [.502, .783]
+& [.608, .754] \\
+
+& Rec.
+& .839 $\pm$ .079
+& [.668, .965]
+& [.783, .895] \\
+
+& F1
+& .748 $\pm$ .080
+& [.578, .821]
+& [.691, .805] \\
+
+& Acc.
+& .710 $\pm$ .115
+& [.503, .812]
+& [.628, .793] \\
+
+\midrule
+CodeNet
+& Prec.
+& .624 $\pm$ .005
+& [.620, .633]
+& [.618, .631] \\
+
+& Rec.
+& .897 $\pm$ .010
+& [.887, .914]
+& [.884, .909] \\
+
+& F1
+& .736 $\pm$ .003
+& [.733, .739]
+& [.732, .740] \\
+
+& Acc.
+& .678 $\pm$ .005
+& [.674, .686]
+& [.672, .685] \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{What the Learned Latent Graph Captures}
+\label{sec:d4_latent_graph_interpretation}
+We examine the latent graphs produced by \method{}. As described in \autoref{sec:latent_induction}, the assignment matrix $P$ maps the input AST/DDG nodes of each code fragment to $m=32$ latent nodes through soft assignment, following the general idea of differentiable graph pooling \cite{ying2018diffpool}. For this analysis only, we group the 24 canonical node types of \autoref{sec:input_representation} into seven categories: \emph{Control}, \emph{Declaration}, \emph{Operator}, \emph{Call/Access}, \emph{Literal}, \emph{Structure/Meta}, and \emph{Unknown}. Let $\mathcal{C}_{\mathrm{val}}$ be the set of distinct validation fragments and let $\kappa(v)$ denote the category of input node $v$. For latent node $u$, we define its assignment profile as
+\begin{equation}
+Q_{uk}
+=
+\frac{
+\sum_{c\in\mathcal{C}_{\mathrm{val}}}
+\sum_{v:\kappa(v)=k} P_{vu}(c)
+}{
+\sum_{c\in\mathcal{C}_{\mathrm{val}}}
+\sum_v P_{vu}(c)
+},
+\label{eq:d4_slot_profile}
+\end{equation}
+so each row of $Q$ gives the distribution of canonical-node groups assigned to a latent node. To examine the learned connections between these nodes, we also compute the mean weighted adjacency over the validation fragments, following the latent graph learning setting \cite{kipf2018nri,chen2020idgl,zhu2021gslsurvey} $\bar{A}=1/{|\mathcal{C}_{\mathrm{val}}|}\sum_{c\in\mathcal{C}_{\mathrm{val}}}A_{\Theta}(c)$.
+
+\autoref{fig:latent_graph_analysis} shows a correctly classified validation example. In the example, the clone has spectral similarity $.75$ to the anchor, compared with $.31$ for the non-clone. The assignment profile shows that some latent nodes favor particular canonical groups, while the mean adjacency shows that learned edge weights are not uniform across latent-node pairs.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[
+        width=1.0\columnwidth
+    ]{figures/latent_graph_discussion.pdf}
+    \caption{ Interpretation of the learned latent graph. \emph{Left:} Latent-slot specialization matrix $Q\in\mathbb{R}^{32\times7}$. Rows correspond to the shared latent slots $S_1,\ldots,S_{32}$ and columns to the seven coarse canonical node groups; color intensity gives the normalized assignment mass $Q_{uk}$. \emph{Right:} Validation-set mean latent adjacency $\bar{A}\in\mathbb{R}^{32\times32}$. Rows and columns correspond to the same shared latent slots, and color intensity gives the mean learned edge weight $\bar{A}_{uv}$. \emph{Bottom:} A representative held-out triplet consisting, from left to right, of an anchor fragment, its semantic-clone partner, and a non-clone partner. For visual clarity, only a compact 8-slot view is shown in the bottom row, obtained by selecting the eight most prominent latent slots from the anchor graph and displaying the same slot subset across all three examples. Node labels indicate the original latent-slot indices. The strip below each graph shows the ordered normalized-Laplacian eigenvalues $\lambda_1\leq\cdots\leq\lambda_{32}$ on a common color scale. }
+    \label{fig:latent_graph_analysis}
+\end{figure}
+
+\subsection{Limitations and Future Work}
+\label{sec:limitations}
+
+All main results cap \method{} and the neural baselines at four epochs so that
+893 training runs remain feasible on a single accelerator. This is well short of
+convergence: total CodeNet accuracy rises from .639 after one epoch to .828 after
+thirty-six. The reported scores therefore understate \method{}, and the same
+caveat applies to every neural baseline. We also fix one canonical configuration
+across all datasets rather than tuning per benchmark, which is not optimal; a
+Chebyshev order of four reached .727 test accuracy on CodeNet against .703 for the
+canonical order of twelve.
+
+Stability varies by benchmark. Across five seeds, F1 is tightly concentrated on
+BigCloneBench ($.750\pm.011$) and CodeNet ($.736\pm.003$) but spreads widely on
+AtCoder ($.744\pm.106$), so single-run comparisons on that benchmark should be
+read with caution. The input representation is also narrower than the pipeline
+allows: the main configuration uses only the AST and a projected DDG, truncates
+fragments at 256 nodes, and compresses every fragment into 32 latent slots
+regardless of size. Clone labels in AtCoder and CodeNet derive from problem
+identity rather than verified functional equivalence \cite{perez2019crosslang},
+a proxy that admits pairs solving one problem by different algorithms.
+
+Training to convergence with per-dataset tuning would settle the asymptotic
+standing of the method. Adding control-flow relations, or letting the model select
+among available views, is a direct extension. Since the spectral descriptor is
+task-agnostic once the graph is learned, applying the same construction to
+vulnerability detection or code search would test whether the learned topology
+carries beyond clone supervision.
+\label{sec:limitations}
+
+\subsection{Threats to Validity}
+\label{sec:threats}
+
+\paragraph{Internal validity.}
+Equal training budgets do not imply equal progress toward convergence, so the
+four-epoch cap favors architectures with faster early optimization.
+\autoref{sec:num_epochs} shows \method{} still improving well beyond that point,
+so the constraint plausibly works against it, though we cannot rule out that it
+penalizes particular baselines more. Main tables use seed 42, with variability
+quantified separately in \autoref{sec:d3_statistical_stability}. Hyperparameters
+were fixed a priori, and checkpoint and threshold selection use only training and
+validation splits. Baselines were re-implemented within our pipeline rather than
+transcribed from published tables, which removes protocol mismatch but ties their
+scores to our implementation choices.
+
+\paragraph{External validity.}
+We evaluate three benchmarks and four languages. Languages with different
+execution models are unrepresented, so the cross-language findings should not be
+read as covering polyglot systems in general. All three corpora consist of short,
+self-contained functions without project-specific dependencies, and results may
+not carry to repository-scale detection. Such corpora are also known to overlap,
+which inflates apparent generalization \cite{lopes2019adverse}; we remove
+same-language near-duplicates at a Jaccard threshold of .90 but perform no
+cross-benchmark deduplication.
+
+\paragraph{Construct validity.}
+Precision, recall, F1, and accuracy measure agreement with benchmark labels, not
+usefulness to a developer. What counts as a clone also differs by dataset:
+BigCloneBench uses human-assisted functional labels, whereas AtCoder and CodeNet
+equate clone status with shared problem identity, so their scores are not strictly
+comparable. Our central claim is that the learned graph, not the added predictor,
+drives the improvement. RQ1 tests this by stripping the prediction head, and
+\autoref{sec:d4_latent_graph_interpretation} adds slot-specialization and
+mean-adjacency evidence. Both are indirect: latent slots acquire non-uniform
+roles, but we do not establish that these correspond to program constructs a
+human would name.
+
+
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+A spectral descriptor inherits its usefulness from the graph it is computed on,
+yet existing spectral treatments of code fix that graph before the detection
+objective is known. This paper asked whether the graph itself can be learned.
+\method{} induces a fixed-size weighted latent graph from the AST and projected
+data-dependence relations of a fragment, describes its normalized Laplacian
+through eigenvalue density, heat traces, and Chebyshev energies, and optimizes the
+construction under clone supervision.
+
+The evidence supports the premise. Stripped of its prediction head, the learned
+spectrum reaches .50 F1 on BigCloneBench without downstream training and .67 with
+a Siamese head, against .37 for the best spectrum from a fixed program graph. The
+gain comes from the graph, not from the classifier placed on it. Against
+established detectors the picture is more measured: \method{} reaches .76 F1 on
+BigCloneBench, .81 accuracy on AtCoder, and .69 on CodeNet, surpassing Deckard and
+all conventional GNN baselines, but trailing RtvNN and DeepSim on BigCloneBench
+and the pretrained models on CodeNet.
+
+Its clearest advantage appears when the language changes. Trained only on
+same-language endpoints and tested on the unseen cross-language pair, \method{}
+loses .058 accuracy against .162 for ASTNN, .170 for DeepSim, and .228 for RtvNN,
+and length-2 bridges recover most of the remaining gap without any target-language
+pairs (.680 against a .685 within-language reference). Among methods trained from
+scratch, the language-normalized latent spectrum degrades least under this shift.
+These results come from a deliberately restricted budget with substantial headroom
+remaining, but they suggest that the choice of program graph, usually settled
+during preprocessing, is a modeling decision worth exposing to the objective.
+\section{Declarations}
+
+\subsection{Funding}
+This research received no external funding.
+
+\subsection{Ethical approval}
+Ethical approval: Not applicable.
+
+\subsection{Informed consent}
+Informed consent: Not applicable.
+
+\subsection{Data Availability Statement}
+The datasets generated and/or analyzed during the current study are available at:
+\begin{itemize}
+    \item \textbf{Data repository:}\\ 
+    \item \textbf{Code repository:}\\ \url{https://github.com/Knowledge4Software/Spectral-Software}
+\end{itemize}
+
+\subsection{Conflict of Interest}
+The authors declare that they have no conflict of interest.
+
+\subsection{Clinical trial number}
+Clinical trial number: Not applicable.
+
+\section{Acknowledgment}
+\IfFileExists{cas-refs.bib}{%
+  \bibliographystyle{elsarticle-harv}%
+  \bibliography{cas-refs}%
+}{%
+  \typeout{WARNING: cas-refs.bib is missing; bibliography omitted.}%
+}
+\end{document}

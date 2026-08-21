@@ -1,0 +1,171 @@
+% Structure taken verbatim from kaggle/lecture.txt; values verified
+% against the implementation by research/design/build_design_tables.py.
+\begin{table}[!htbp]
+\centering
+\caption{Baseline configurations. For neural models, the training column reports batch size / learning rate $\alpha$ / maximum epochs.}
+\label{tab:baselines}
+
+\tiny
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{1.6pt}
+
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+
+\begin{tabularx}{\columnwidth}{@{}
+m{0.19\columnwidth}
+m{0.34\columnwidth}
+X
+r@{}}
+\toprule
+Method & Input / architecture & Training & Params. \\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{4}{@{}l}{\textit{Fixed spectral representations (AST, CFG, DDG, CPG)}} \\[1pt]
+
+No Train
+&
+136-D spectrum
+&
+No training
+&
+0
+\\
+\midrule
+
+RF
+&
+274-D pair features
+&
+\shortstack[l]{200 trees; depth 16; leaf 5\\
+balanced-subsample; seed 42}
+&
+--
+\\
+\midrule
+
+LR
+&
+274-D pair features
+&
+\shortstack[l]{train-only scaling; balanced\\
+max.\ 1,000 iter.; seed 42}
+&
+--
+\\
+\midrule
+
+SNN
+&
+$136\!\to\!256\!\to\!256\!\to\!128$
+&
+\shortstack[l]{$8192/10^{-3}/4$; dropout .10\\
+WD $10^{-4}$; clip 5.0}
+&
+202k
+\\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{4}{@{}l}{\textit{GNNs over conventional graphs (AST, CFG, DDG, CPG)}} \\[1pt]
+
+GCN
+&
+\shortstack[l]{5-D nodes; GCN $256/128$; mean pool\\
+$128+128+128=384$-D representation}
+&
+\shortstack[l]{$16/(5{\times}10^{-4})/4$; dropout .05\\
+WD $10^{-4}$; patience 2; clip 2.0}
+&
+989k
+\\
+\midrule
+
+\rowcolor{black!7}
+\multicolumn{4}{@{}l}{\textit{Token, tree, graph, and hybrid baselines}} \\[1pt]
+
+Deckard
+&
+\shortstack[l]{AST-category count vectors per subtree\\
+top-32 subtrees by size; cosine}
+&
+Validation threshold
+&
+0
+\\
+\midrule
+
+RtvNN
+&
+\shortstack[l]{256 AST nodes; recursive tree encoder\\
+emb.\ 128; hidden 192; 192-D}
+&
+\shortstack[l]{$32/(5{\times}10^{-4})/4$; dropout .15\\
+WD $10^{-4}$; patience 2; clip 1.0}
+&
+1.48--4.46M
+\\
+\midrule
+
+CDLH
+&
+\shortstack[l]{256 AST nodes; binary Tree-LSTM\\
+emb.\ 128; hidden 192; 32-bit hash}
+&
+\shortstack[l]{$16/10^{-3}/4$; WD 0\\
+patience 2; clip 1.0}
+&
+2.10--6.96M
+\\
+\midrule
+
+ASTNN
+&
+\shortstack[l]{256 nodes; 512 edges; 64 statement roots\\
+emb.\ 128; recursive subtree\\ + BiGRU 100; 200-D}
+&
+\shortstack[l]{$32/10^{-3}/4$; dropout .20\\
+WD 0; patience 2; clip 1.0}
+&
+1.15--2.16M
+\\
+\midrule
+
+FA-AST+GGNN
+&
+\shortstack[l]{256 nodes; 6 relations\\ (AST/CFG/DDG/CPG)\\
+hidden 192; 5 steps; gated readout; 192-D}
+&
+\shortstack[l]{$8/(5{\times}10^{-4})/4$; dropout .10\\
+WD $10^{-4}$; patience 2; clip 1.0}
+&
+556k
+\\
+\midrule
+
+FA-AST+GMN
+&
+\shortstack[l]{as FA-AST+GGNN, plus cross-graph\\
+attention at every propagation step}
+&
+\shortstack[l]{$4/(5{\times}10^{-4})/4$; dropout .10\\
+WD $10^{-4}$; patience 2; clip 1.0}
+&
+--
+\\
+\midrule
+
+DeepSim
+&
+\shortstack[l]{CFG/DDG feature matrix\\
+192-D representation}
+&
+\shortstack[l]{$32/(5{\times}10^{-4})/4$; WD $10^{-3}$\\
+patience 2; clip 1.0}
+&
+--
+\\
+
+\bottomrule
+\end{tabularx}
+\end{table}
