@@ -83,36 +83,37 @@ def _read_codes(data_path: Path, needed_ids: set[int]) -> dict[int, str]:
     return codes
 
 
-def _graph_to_sparse_adjacency(graph: object) -> dict:
+def _graph_to_sparse_adjacency(graph: object, *, include_node_labels: bool = True) -> dict:
+    """Serialize only adjacency fields consumed by the benchmark suite."""
     if graph is None:
-        return {
-            "format": "adjacency_coo_v1",
-            "directed": True,
+        adjacency = {
             "num_nodes": 0,
             "num_edges": 0,
             "node_ids": [],
             "node_types": [],
-            "node_labels": [],
             "row": [],
             "col": [],
         }
+        if include_node_labels:
+            adjacency["node_labels"] = []
+        return adjacency
     nodes = list(graph.nodes())
     index = {node: i for i, node in enumerate(nodes)}
     rows, cols = [], []
     for source, target in graph.edges():
         rows.append(index[source])
         cols.append(index[target])
-    return {
-        "format": "adjacency_coo_v1",
-        "directed": bool(graph.is_directed()),
+    adjacency = {
         "num_nodes": int(graph.number_of_nodes()),
         "num_edges": int(graph.number_of_edges()),
         "node_ids": [str(node) for node in nodes],
         "node_types": [str(graph.nodes[node].get("type", "<unknown>")) for node in nodes],
-        "node_labels": [str(graph.nodes[node].get("label", "")) for node in nodes],
         "row": rows,
         "col": cols,
     }
+    if include_node_labels:
+        adjacency["node_labels"] = [str(graph.nodes[node].get("label", "")) for node in nodes]
+    return adjacency
 
 
 def write_clean_codes(output_dir: Path, codes: dict[int, str]) -> None:
@@ -144,33 +145,77 @@ def validate_clean_data_files(output_dir: Path) -> None:
         raise RuntimeError(f"Clean-data export is missing required files: {missing}")
 
 
-def write_clean_pairs(output_dir: Path, splits: dict[str, list[tuple[int, int, int]]]) -> dict[str, int]:
-    """Write labelled pairs using the same columns for every clean dataset."""
+def _pair_metadata_value(value: object) -> object:
+    """Convert structured provenance to a stable CSV value."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+
+
+def write_clean_pairs(
+    output_dir: Path,
+    splits: dict[str, list[tuple[int, int, int]]],
+    pair_metadata: dict[str, list[dict[str, object]]] | None = None,
+) -> dict[str, int]:
+    """Write labelled pairs and optional aligned construction provenance.
+
+    The four core columns remain identical for every dataset. Optional source
+    fields are retained so targeted evaluations (for example, mutation or
+    injection negatives) do not have to infer pair construction from code.
+    """
     counts = {split: len(rows) for split, rows in splits.items()}
+    pair_metadata = pair_metadata or {}
+    for split, metadata_rows in pair_metadata.items():
+        expected = len(splits.get(split, []))
+        if len(metadata_rows) != expected:
+            raise ValueError(
+                f"Pair metadata for {split} has {len(metadata_rows):,} rows; expected {expected:,}."
+            )
+    core_fields = ["split", "left_id", "right_id", "label", "label_name"]
+    metadata_fields = sorted(
+        {
+            str(field)
+            for rows in pair_metadata.values()
+            for record in rows
+            for field in record
+            if str(field) not in core_fields
+        }
+    )
     with gzip.open(output_dir / "pairs.csv.gz", "wt", encoding="utf-8", newline="") as dst:
-        writer = csv.DictWriter(dst, fieldnames=["split", "left_id", "right_id", "label", "label_name"])
+        writer = csv.DictWriter(dst, fieldnames=core_fields + metadata_fields)
         writer.writeheader()
         for split in SPLITS:
-            for left, right, label in splits.get(split, []):
-                writer.writerow(
+            metadata_rows = pair_metadata.get(split, [{} for _ in splits.get(split, [])])
+            for (left, right, label), metadata in zip(splits.get(split, []), metadata_rows):
+                row = {
+                    "split": split,
+                    "left_id": left,
+                    "right_id": right,
+                    "label": label,
+                    "label_name": "clone" if label else "non_clone",
+                }
+                row.update(
                     {
-                        "split": split,
-                        "left_id": left,
-                        "right_id": right,
-                        "label": label,
-                        "label_name": "clone" if label else "non_clone",
+                        str(field): _pair_metadata_value(value)
+                        for field, value in metadata.items()
+                        if str(field) in metadata_fields
                     }
                 )
+                writer.writerow(row)
     return counts
 
 
 def create_clean_data_zip(output_dir: Path, zip_path: Path) -> Path:
     """Create the Kaggle-uploadable archive while preserving the clean_data directory."""
     validate_clean_data_files(output_dir)
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
+    # The large corpus payloads are already gzip-compressed.  Deflating them a
+    # second time costs many minutes for negligible savings and can make a
+    # Kaggle-ready CodeNet release time out before its ZIP is finalized.
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6, allowZip64=True) as archive:
         for path in output_dir.rglob("*"):
             if path.is_file():
-                archive.write(path, path.relative_to(output_dir.parent))
+                compression = zipfile.ZIP_STORED if path.suffix.lower() == ".gz" else zipfile.ZIP_DEFLATED
+                archive.write(path, path.relative_to(output_dir.parent), compress_type=compression)
     return zip_path
 
 
@@ -233,9 +278,10 @@ def _export_graph_spectra(
                         missing_features += 1
                     graph = graph_layers.get(graph_type) if isinstance(graph_layers, dict) else None
                     exported[graph_type] = {
-                        "adjacency": _graph_to_sparse_adjacency(graph),
+                        "adjacency": _graph_to_sparse_adjacency(
+                            graph, include_node_labels=graph_type == "ast"
+                        ),
                         "eigenvalues": eigenvalues,
-                        "eigenvalue_count": len(eigenvalues),
                         "spectral_status": feature.get("status", "missing"),
                     }
                     layers += 1
@@ -290,9 +336,10 @@ def export_graph_spectra_from_sources(
                             missing_features += 1
                         graph = layers.get(graph_type) if isinstance(layers, dict) else None
                         exported[graph_type] = {
-                            "adjacency": _graph_to_sparse_adjacency(graph),
+                            "adjacency": _graph_to_sparse_adjacency(
+                                graph, include_node_labels=graph_type == "ast"
+                            ),
                             "eigenvalues": eigenvalues,
-                            "eigenvalue_count": len(eigenvalues),
                             "spectral_status": feature.get("status", "missing"),
                         }
                         graph_layers += 1

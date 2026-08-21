@@ -1,4 +1,7 @@
 import os
+from collections import defaultdict
+from collections.abc import Sequence
+
 import numpy as np
 from .base import BaseSimilarity
 
@@ -73,3 +76,62 @@ class PSSSimilarity(BaseSimilarity):
         similarity = np.exp(-((distance / self.gamma) ** self.distance_power))
         
         return float(np.clip(similarity, 0.0, 1.0))
+
+    @staticmethod
+    def _resample_rows(matrix: np.ndarray, target_length: int) -> np.ndarray:
+        """Linearly resample equally sized spectra without a Python row loop."""
+        source_length = matrix.shape[1]
+        if source_length == target_length:
+            return matrix
+        positions = np.linspace(0.0, source_length - 1.0, target_length)
+        lower = np.floor(positions).astype(np.int64)
+        upper = np.minimum(lower + 1, source_length - 1)
+        weight = positions - lower
+        return matrix[:, lower] * (1.0 - weight) + matrix[:, upper] * weight
+
+    def compute_many(
+        self,
+        left_spectra: Sequence[np.ndarray],
+        right_spectra: Sequence[np.ndarray],
+        *,
+        batch_size: int = 8192,
+    ) -> np.ndarray:
+        """Vectorized equivalent of :meth:`compute` for large pair tables.
+
+        Pairs are grouped by their two true spectrum lengths, so every group
+        uses exactly the same interpolation grid as the scalar PSS algorithm.
+        This avoids millions of small NumPy allocations in full RQ1 runs.
+        """
+        if len(left_spectra) != len(right_spectra):
+            raise ValueError("left_spectra and right_spectra must have equal length")
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+        left = [self._strip_padding(np.asarray(values, dtype=np.float64)) for values in left_spectra]
+        right = [self._strip_padding(np.asarray(values, dtype=np.float64)) for values in right_spectra]
+        result = np.zeros(len(left), dtype=np.float64)
+        groups: dict[tuple[int, int], list[int]] = defaultdict(list)
+        for index, (left_values, right_values) in enumerate(zip(left, right)):
+            if len(left_values) and len(right_values):
+                groups[(len(left_values), len(right_values))].append(index)
+
+        for (left_length, right_length), indices in groups.items():
+            target_length = max(left_length, right_length)
+            for start in range(0, len(indices), batch_size):
+                batch_indices = indices[start:start + batch_size]
+                left_matrix = np.stack([left[index] for index in batch_indices])
+                right_matrix = np.stack([right[index] for index in batch_indices])
+                left_matrix = self._resample_rows(left_matrix, target_length)
+                right_matrix = self._resample_rows(right_matrix, target_length)
+                left_norm = np.linalg.norm(left_matrix, axis=1, keepdims=True)
+                right_norm = np.linalg.norm(right_matrix, axis=1, keepdims=True)
+                left_matrix = np.divide(
+                    left_matrix, left_norm, out=np.zeros_like(left_matrix), where=left_norm != 0
+                )
+                right_matrix = np.divide(
+                    right_matrix, right_norm, out=np.zeros_like(right_matrix), where=right_norm != 0
+                )
+                distance = np.linalg.norm(left_matrix - right_matrix, axis=1)
+                result[np.asarray(batch_indices)] = np.clip(
+                    np.exp(-((distance / self.gamma) ** self.distance_power)), 0.0, 1.0
+                )
+        return result

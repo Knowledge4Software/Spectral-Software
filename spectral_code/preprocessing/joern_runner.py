@@ -3,8 +3,14 @@ import os
 import shutil
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from tqdm import tqdm
+
+from spectral_code.preprocessing.language_support import (
+    canonical_language_from_joern,
+    joern_language,
+)
 
 try:
     import psutil
@@ -162,58 +168,67 @@ def _run_with_seconds_progress(
         last_log_activity = time.monotonic()
         last_stats = None
         last_stats_at = time.monotonic()
-        with tqdm(desc=desc, unit="s", dynamic_ncols=True) as pbar:
-            while process.poll() is None:
-                time.sleep(1)
-                pbar.update(1)
-                try:
-                    log_size = Path(log_path).stat().st_size
-                except OSError:
-                    log_size = last_log_size
-                if log_size != last_log_size:
-                    last_log_size = log_size
-                    last_log_activity = time.monotonic()
-                postfix = {
-                    "log": _format_bytes(max(log_size, 0)),
-                    "idle": f"{int(time.monotonic() - last_log_activity)}s",
-                }
-                output_size = _file_size(output_path)
-                if output_size:
-                    postfix["out"] = _format_bytes(output_size)
-                stats = _process_tree_stats(process)
-                if stats is not None:
-                    now = time.monotonic()
-                    cpu_seconds = float(stats["cpu_seconds"])
-                    cpu_rate = 0.0
-                    if last_stats is not None:
-                        elapsed = max(now - last_stats_at, 1e-9)
-                        cpu_delta = max(cpu_seconds - float(last_stats["cpu_seconds"]), 0.0)
-                        cpu_rate = cpu_delta / elapsed
-                    last_stats = stats
-                    last_stats_at = now
-                    postfix["cpu"] = f"{cpu_seconds:.0f}s"
-                    postfix["cpu/s"] = f"{cpu_rate:.1f}"
-                    postfix["mem"] = _format_bytes(int(stats["memory_bytes"]))
-                    postfix["procs"] = str(stats["processes"])
-                pbar.set_postfix(postfix, refresh=False)
-                if timeout_seconds is not None and pbar.n >= timeout_seconds:
-                    _terminate_process_tree(process)
-                    log_tail = _tail(log_path)
-                    if log_tail:
-                        print(f"\n[-] {desc} timed out after {timeout_seconds}s. Last log lines:\n{log_tail}\n")
-                    raise subprocess.TimeoutExpired(cmd, timeout_seconds)
-                if (
-                    inactivity_timeout_seconds is not None
-                    and time.monotonic() - last_log_activity >= inactivity_timeout_seconds
-                ):
-                    _terminate_process_tree(process)
-                    log_tail = _tail(log_path)
-                    if log_tail:
-                        print(
-                            f"\n[-] {desc} had no log activity for {inactivity_timeout_seconds}s. "
-                            f"Last log lines:\n{log_tail}\n"
-                        )
-                    raise subprocess.TimeoutExpired(cmd, inactivity_timeout_seconds)
+        try:
+            with tqdm(desc=desc, unit="s", dynamic_ncols=True) as pbar:
+                while process.poll() is None:
+                    time.sleep(1)
+                    pbar.update(1)
+                    try:
+                        log_size = Path(log_path).stat().st_size
+                    except OSError:
+                        log_size = last_log_size
+                    if log_size != last_log_size:
+                        last_log_size = log_size
+                        last_log_activity = time.monotonic()
+                    postfix = {
+                        "log": _format_bytes(max(log_size, 0)),
+                        "idle": f"{int(time.monotonic() - last_log_activity)}s",
+                    }
+                    output_size = _file_size(output_path)
+                    if output_size:
+                        postfix["out"] = _format_bytes(output_size)
+                    stats = _process_tree_stats(process)
+                    if stats is not None:
+                        now = time.monotonic()
+                        cpu_seconds = float(stats["cpu_seconds"])
+                        cpu_rate = 0.0
+                        if last_stats is not None:
+                            elapsed = max(now - last_stats_at, 1e-9)
+                            cpu_delta = max(cpu_seconds - float(last_stats["cpu_seconds"]), 0.0)
+                            cpu_rate = cpu_delta / elapsed
+                        last_stats = stats
+                        last_stats_at = now
+                        postfix["cpu"] = f"{cpu_seconds:.0f}s"
+                        postfix["cpu/s"] = f"{cpu_rate:.1f}"
+                        postfix["mem"] = _format_bytes(int(stats["memory_bytes"]))
+                        postfix["procs"] = str(stats["processes"])
+                    pbar.set_postfix(postfix, refresh=False)
+                    if timeout_seconds is not None and pbar.n >= timeout_seconds:
+                        _terminate_process_tree(process)
+                        log_tail = _tail(log_path)
+                        if log_tail:
+                            print(f"\n[-] {desc} timed out after {timeout_seconds}s. Last log lines:\n{log_tail}\n")
+                        raise subprocess.TimeoutExpired(cmd, timeout_seconds)
+                    if (
+                        inactivity_timeout_seconds is not None
+                        and time.monotonic() - last_log_activity >= inactivity_timeout_seconds
+                    ):
+                        _terminate_process_tree(process)
+                        log_tail = _tail(log_path)
+                        if log_tail:
+                            print(
+                                f"\n[-] {desc} had no log activity for {inactivity_timeout_seconds}s. "
+                                f"Last log lines:\n{log_tail}\n"
+                            )
+                        raise subprocess.TimeoutExpired(cmd, inactivity_timeout_seconds)
+        except KeyboardInterrupt:
+            _terminate_process_tree(process)
+            try:
+                process.wait(timeout=10)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+            print(f"\n[!] {desc} interrupted; the Joern child process tree was stopped.")
+            raise
 
     if process.returncode != 0:
         log_tail = _tail(log_path)
@@ -235,8 +250,9 @@ def _dot_count(path: str) -> int:
 
 
 def _joern_parse_cmd(joern_parse_bat: str, src_dir: str, cpg_path: str) -> list[str]:
-    language = os.getenv("JOERN_LANGUAGE", "javasrc").strip()
-    if language == "javasrc" and _truthy_env("JOERN_USE_DIRECT_FRONTEND", "0"):
+    source_language = canonical_language_from_joern(os.getenv("JOERN_LANGUAGE", "javasrc"))
+    frontend = joern_language(source_language)
+    if frontend == "javasrc" and _truthy_env("JOERN_USE_DIRECT_FRONTEND", "0"):
         javasrc2cpg = _resolve_joern_cmd(
             os.getenv("JAVASRC2CPG_BAT"),
             "JAVASRC2CPG_BAT",
@@ -244,14 +260,17 @@ def _joern_parse_cmd(joern_parse_bat: str, src_dir: str, cpg_path: str) -> list[
             "javasrc2cpg",
         )
         return [javasrc2cpg, src_dir, "--output", cpg_path]
-    return [joern_parse_bat, src_dir, "--language", language, "--output", cpg_path]
+    return [joern_parse_bat, src_dir, "--language", frontend, "--output", cpg_path]
 
 
 def _joern_parse_mode() -> str:
-    language = os.getenv("JOERN_LANGUAGE", "javasrc").strip()
-    if language == "javasrc" and _truthy_env("JOERN_USE_DIRECT_FRONTEND", "0"):
+    source_language = canonical_language_from_joern(os.getenv("JOERN_LANGUAGE", "javasrc"))
+    frontend = joern_language(source_language)
+    if frontend == "javasrc" and _truthy_env("JOERN_USE_DIRECT_FRONTEND", "0"):
         return "direct javasrc2cpg frontend"
-    return "joern-parse wrapper"
+    if source_language == "cpp":
+        return "joern-parse wrapper (C++ via c2cpg)"
+    return f"joern-parse wrapper ({frontend})"
 
 
 def _link_or_copy(src: Path, dest: Path) -> None:
@@ -639,55 +658,79 @@ def run_joern_export(joern_export_bat: str, batch_cpg_path: str, base_out_dir: s
         "[*] Joern export inactivity timeout: "
         + (str(export_inactivity_timeout_seconds) + "s" if export_inactivity_timeout_seconds else "disabled")
     )
-    for gtype in tqdm(graph_types, desc="Exporting graph layers", unit="layer"):
-        start_export = time.perf_counter()
+    tasks = [(gtype, cpg_info) for gtype in graph_types for cpg_info in cpg_inputs]
+    workers = min(
+        max(1, int(os.getenv("JOERN_EXPORT_WORKERS", "2"))),
+        max(1, len(tasks)),
+    )
+    print(f"[*] Joern export workers: {workers}")
 
-        for cpg_info in cpg_inputs:
-            chunk_idx = int(cpg_info.get("index", 0))
-            cpg_path = os.path.abspath(cpg_info["cpg_path"])
-            if len(cpg_inputs) == 1:
-                layer_out = os.path.abspath(os.path.join(base_out_dir, gtype))
-                log_name = f"export_{gtype}.log"
+    def export_one(task: tuple[str, dict]) -> tuple[str, float]:
+        gtype, cpg_info = task
+        started = time.perf_counter()
+        chunk_idx = int(cpg_info.get("index", 0))
+        cpg_path = os.path.abspath(cpg_info["cpg_path"])
+        if len(cpg_inputs) == 1:
+            layer_out = os.path.abspath(os.path.join(base_out_dir, gtype))
+            log_name = f"export_{gtype}.log"
+        else:
+            layer_out = os.path.abspath(os.path.join(base_out_dir, gtype, f"chunk_{chunk_idx:04d}"))
+            log_name = f"export_{gtype}_{chunk_idx:04d}.log"
+
+        layer_out_path = Path(layer_out)
+        if layer_out_path.exists():
+            shutil.rmtree(layer_out_path)
+        layer_out_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            desc = (
+                f"Export {gtype.upper()} chunk {chunk_idx + 1}/{len(cpg_inputs)}"
+                if len(cpg_inputs) > 1
+                else f"Export {gtype.upper()}"
+            )
+            _run_with_seconds_progress(
+                [joern_export_bat, cpg_path, f"--repr={gtype}", "--out", layer_out],
+                desc=desc,
+                log_path=str(logs_dir / log_name),
+                timeout_seconds=export_timeout_seconds,
+                inactivity_timeout_seconds=export_inactivity_timeout_seconds,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            produced = _dot_count(layer_out)
+            if produced > 0:
+                print(
+                    f"[!] Export {gtype.upper()} chunk {chunk_idx + 1}/{len(cpg_inputs)} returned non-zero, "
+                    f"but produced {produced:,} DOT files. Continuing with partial output."
+                )
             else:
-                layer_out = os.path.abspath(os.path.join(base_out_dir, gtype, f"chunk_{chunk_idx:04d}"))
-                log_name = f"export_{gtype}_{chunk_idx:04d}.log"
-
-            layer_out_path = Path(layer_out)
-            if layer_out_path.exists():
-                shutil.rmtree(layer_out_path)
-            layer_out_path.parent.mkdir(parents=True, exist_ok=True)
-
-            try:
-                desc = (
-                    f"Export {gtype.upper()} chunk {chunk_idx + 1}/{len(cpg_inputs)}"
-                    if len(cpg_inputs) > 1
-                    else f"Export {gtype.upper()}"
+                print(
+                    f"[!] Export {gtype.upper()} chunk {chunk_idx + 1}/{len(cpg_inputs)} failed and produced no DOT files. "
+                    f"This layer will remain empty."
                 )
-                _run_with_seconds_progress(
-                    [joern_export_bat, cpg_path, f"--repr={gtype}", "--out", layer_out],
-                    desc=desc,
-                    log_path=str(logs_dir / log_name),
-                    timeout_seconds=export_timeout_seconds,
-                    inactivity_timeout_seconds=export_inactivity_timeout_seconds,
-                )
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-                produced = _dot_count(layer_out)
-                if produced > 0:
-                    print(
-                        f"[!] Export {gtype.upper()} chunk {chunk_idx + 1}/{len(cpg_inputs)} returned non-zero, "
-                        f"but produced {produced:,} DOT files. Continuing with partial output."
-                    )
-                else:
-                    print(
-                        f"[!] Export {gtype.upper()} chunk {chunk_idx + 1}/{len(cpg_inputs)} failed and produced no DOT files. "
-                        f"This layer will remain empty."
-                    )
-                    layer_out_path.mkdir(parents=True, exist_ok=True)
+                layer_out_path.mkdir(parents=True, exist_ok=True)
+        return gtype, time.perf_counter() - started
 
-        end_export = time.perf_counter()
+    if workers == 1:
+        results = map(export_one, tasks)
+        executor = None
+    else:
+        executor = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="joern-export")
+        results = executor.map(export_one, tasks)
+    try:
+        for gtype, duration in tqdm(
+            results,
+            total=len(tasks),
+            desc="Exporting graph chunks",
+            unit="chunk-layer",
+        ):
+            layer_total_times[f"raw_{gtype}_export_time"] = (
+                layer_total_times.get(f"raw_{gtype}_export_time", 0.0) + duration
+            )
+    finally:
+        if executor is not None:
+            executor.shutdown(wait=True, cancel_futures=True)
 
-        duration = end_export - start_export
-        layer_total_times[f"raw_{gtype}_export_time"] = duration
+    for gtype in graph_types:
+        duration = layer_total_times.get(f"raw_{gtype}_export_time", 0.0)
         per_layer_export_time[gtype] = duration / total_methods if total_methods > 0 else 0
 
     return per_layer_export_time, layer_total_times

@@ -71,6 +71,7 @@ GRAPH_PARSE_SKIPPED_FILE = OUTPUT_ROOT / "skipped_graph_parse_pipeline01.jsonl"
 
 GRAPH_TYPES = [g.strip().lower() for g in os.getenv("PIPELINE_GRAPH_TYPES", "ast,cfg,ddg,pdg").split(",") if g.strip()]
 USE_LEGACY_DOT_MAPPING = os.getenv("JOERN_LEGACY_DOT_MAPPING", "0").strip().lower() in {"1", "true", "yes"}
+SOURCE_FALLBACK_ONLY = os.getenv("PIPELINE_SOURCE_FALLBACK_ONLY", "0").strip().lower() in {"1", "true", "yes"}
 
 
 def _parse_nonnegative_int_env(name: str, default: int = 0) -> int:
@@ -163,43 +164,61 @@ def main():
         if skipped_methods:
             print(f"[*] Skipped {skipped_methods:,} oversized methods before Joern parse.")
 
-        # 1. Joern Parse
-        per_method_cpg_time, total_cpg_time = run_joern_parse(
-            JOERN_PARSE_BAT, str(BATCH_TEMP_DIR), str(BATCH_CPG_BIN), total_methods
-        )
-        pipeline_bar.update(1)
-
-        # 2. Joern Export
-        per_layer_export_time, layer_total_times = run_joern_export(
-            JOERN_EXPORT_BAT, str(BATCH_CPG_BIN), str(JOERN_BASE_OUT), GRAPH_TYPES, total_methods
-        )
-        pipeline_bar.update(1)
-
-        # 3. Build Global Index of DOT files for robust mapping.
-        #
-        # A DOT names its method, never its file, so the legacy index guessed the
-        # owner from an ``m_<id>`` marker or from export order. That silently
-        # mismapped every C submission and reduced each multi-function file to one
-        # arbitrary function. The CPG's own method table removes the guesswork.
-        print("[*] Building DOT mapping index...")
-        if USE_LEGACY_DOT_MAPPING:
-            print("[!] JOERN_LEGACY_DOT_MAPPING=1: using marker/ordinal DOT mapping. "
-                  "This is unsafe for C and for files defining several functions.")
-            dot_index = build_dot_index(
-                str(JOERN_BASE_OUT),
-                GRAPH_TYPES,
-                method_ids=method_ids,
-                chunk_manifest_path=str(BATCH_CPG_MANIFEST),
-            )
+        joern_language = os.getenv("JOERN_LANGUAGE", "").strip().lower()
+        if SOURCE_FALLBACK_ONLY:
+            if joern_language not in {"pythonsrc", "csharpsrc", "csharp", "c#", "cs"}:
+                raise RuntimeError(
+                    "PIPELINE_SOURCE_FALLBACK_ONLY is supported only for Python and C#, "
+                    f"not JOERN_LANGUAGE={joern_language!r}."
+                )
+            # The normal preferred-fallback policy replaces Joern AST/CFG/DDG
+            # with these same source parsers for Python and C#. Avoid spending
+            # most of Stage 01 parsing/exporting DOTs that will be discarded.
+            print(f"[*] Fast source-graph path enabled for {joern_language}: skipping Joern parse/export/map.")
+            per_method_cpg_time = 0.0
+            total_cpg_time = 0.0
+            per_layer_export_time = {gtype: 0.0 for gtype in GRAPH_TYPES}
+            layer_total_times = {f"raw_{gtype}_export_time": 0.0 for gtype in GRAPH_TYPES}
+            dot_index = {gtype: {} for gtype in GRAPH_TYPES}
+            pipeline_bar.update(3)
         else:
-            method_map = run_joern_method_map(str(BATCH_CPG_BIN))
-            dot_index = build_dot_index_with_method_map(
-                str(JOERN_BASE_OUT),
-                GRAPH_TYPES,
-                method_map,
-                method_ids=method_ids,
+            # 1. Joern Parse
+            per_method_cpg_time, total_cpg_time = run_joern_parse(
+                JOERN_PARSE_BAT, str(BATCH_TEMP_DIR), str(BATCH_CPG_BIN), total_methods
             )
-        pipeline_bar.update(1)
+            pipeline_bar.update(1)
+
+            # 2. Joern Export
+            per_layer_export_time, layer_total_times = run_joern_export(
+                JOERN_EXPORT_BAT, str(BATCH_CPG_BIN), str(JOERN_BASE_OUT), GRAPH_TYPES, total_methods
+            )
+            pipeline_bar.update(1)
+
+            # 3. Build Global Index of DOT files for robust mapping.
+            #
+            # A DOT names its method, never its file, so the legacy index guessed the
+            # owner from an ``m_<id>`` marker or from export order. That silently
+            # mismapped every C submission and reduced each multi-function file to one
+            # arbitrary function. The CPG's own method table removes the guesswork.
+            print("[*] Building DOT mapping index...")
+            if USE_LEGACY_DOT_MAPPING:
+                print("[!] JOERN_LEGACY_DOT_MAPPING=1: using marker/ordinal DOT mapping. "
+                      "This is unsafe for C and for files defining several functions.")
+                dot_index = build_dot_index(
+                    str(JOERN_BASE_OUT),
+                    GRAPH_TYPES,
+                    method_ids=method_ids,
+                    chunk_manifest_path=str(BATCH_CPG_MANIFEST),
+                )
+            else:
+                method_map = run_joern_method_map(str(BATCH_CPG_BIN))
+                dot_index = build_dot_index_with_method_map(
+                    str(JOERN_BASE_OUT),
+                    GRAPH_TYPES,
+                    method_map,
+                    method_ids=method_ids,
+                )
+            pipeline_bar.update(1)
 
         missing_dot_mappings = {
             gtype: total_methods - len(dot_index.get(gtype, {}))
@@ -271,6 +290,7 @@ def main():
         "skipped_graph_layers_pipeline01": len(skipped_graph_layers),
         "skipped_graph_layers_file": str(GRAPH_PARSE_SKIPPED_FILE) if skipped_graph_layers else None,
         "fallback_graph_layers_pipeline01": len(fallback_graph_layers),
+        "source_fallback_only_pipeline01": SOURCE_FALLBACK_ONLY,
         "python_ast_fallback_layers_pipeline01": sum(
             1
             for fallback in fallback_graph_layers
@@ -285,6 +305,18 @@ def main():
             1
             for fallback in fallback_graph_layers
             if fallback.get("source") == "python_ddg_fallback"
+        ),
+        "csharp_ast_fallback_layers_pipeline01": sum(
+            1 for fallback in fallback_graph_layers
+            if fallback.get("source") == "csharp_tree_sitter_ast_fallback"
+        ),
+        "csharp_cfg_fallback_layers_pipeline01": sum(
+            1 for fallback in fallback_graph_layers
+            if fallback.get("source") == "csharp_tree_sitter_cfg_fallback"
+        ),
+        "csharp_ddg_fallback_layers_pipeline01": sum(
+            1 for fallback in fallback_graph_layers
+            if fallback.get("source") == "csharp_tree_sitter_ddg_fallback"
         ),
         "max_method_lines_filter": max_method_lines,
         "max_method_chars_filter": max_method_chars,
@@ -306,4 +338,16 @@ def main():
     print(f"[+] Total time: {total_duration:.2f}s.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        for temporary_path in (
+            BATCH_TEMP_DIR,
+            JOERN_BASE_OUT,
+            BATCH_CPG_BIN,
+            BATCH_CPG_CHUNKS,
+            BATCH_CPG_MANIFEST,
+        ):
+            _cleanup_temp_path(temporary_path)
+        print("\n[!] Pipeline 01 interrupted; temporary Joern files were cleaned. Rerun the same command to restart safely.")
+        raise SystemExit(130)

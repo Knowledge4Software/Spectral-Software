@@ -21,7 +21,7 @@ from spectral_code.preprocessing.cleaner import clean_and_compose_graphs_sharded
 from spectral_code.utils.artifact_cleanup import cleanup_intermediate_artifacts, env_flag, print_cleanup_summary
 
 BASE_LAYERS = [g.strip().lower() for g in os.getenv("PIPELINE_BASE_LAYERS", "ast,cfg,ddg,pdg").split(",") if g.strip()]
-SHARD_SIZE = int(os.getenv("GRAPH_SHARD_SIZE", "1000"))
+SHARD_SIZE = int(os.getenv("GRAPH_SHARD_SIZE", "500"))
 
 def main():
     preprocessing_start_time = time.perf_counter()

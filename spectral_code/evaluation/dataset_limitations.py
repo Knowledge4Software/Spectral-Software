@@ -16,17 +16,12 @@ from __future__ import annotations
 CSHARP_OVERLAY_FAILURE = (
     "Joern's csharpsrc2cpg builds the CPG (its method table is complete) but crashes while "
     "applying the CFG/DDG overlays with 'AssertionError: ... trying to resolve astParent ... "
-    "malformed cpg'. The AST is recovered from tree-sitter and is healthy; CFG is empty and "
-    "DDG degenerates to 3-node stubs."
+    "malformed cpg'. The graph pipeline now replaces affected AST/CFG/DDG layers with "
+    "deterministic tree-sitter syntax/control-flow/def-use fallbacks."
 )
 
 # (dataset, language, layer) -> why it cannot be produced.
-KNOWN_LIMITATIONS: dict[tuple[str, str, str], str] = {
-    ("gptclonebench_v3", "csharp", "cfg"): CSHARP_OVERLAY_FAILURE,
-    ("gptclonebench_v3", "csharp", "ddg"): CSHARP_OVERLAY_FAILURE,
-    ("semanticclonebench_v3", "csharp", "cfg"): CSHARP_OVERLAY_FAILURE,
-    ("semanticclonebench_v3", "csharp", "ddg"): CSHARP_OVERLAY_FAILURE,
-}
+KNOWN_LIMITATIONS: dict[tuple[str, str, str], str] = {}
 
 
 def limitation_for(dataset: str, language: str, layer: str) -> str | None:

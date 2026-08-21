@@ -49,7 +49,11 @@ def main():
     print(f"[*] Starting Spectral Feature Extraction (Eigenvalues)...")
     print(f"[*] Graph DB: {GRAPH_DB_PATH}")
     print(f"[*] Max graph nodes per layer: {os.getenv('SPECTRAL_MAX_NODES', '2000')}")
-    print(f"[*] Approx top-K for oversized graphs: {os.getenv('SPECTRAL_APPROX_TOPK', '300')}")
+    print(f"[*] Approx top-K for oversized graphs: {os.getenv('SPECTRAL_APPROX_TOPK', '128')}")
+    print(f"[*] Spectral method workers: {os.getenv('SPECTRAL_WORKERS', '1')}")
+    print(f"[*] Sparse eigensolver: {os.getenv('SPECTRAL_SPARSE_SOLVER', 'shift_invert')}")
+    print(f"[*] Spectral shard processes: {os.getenv('SPECTRAL_SHARD_WORKERS', '4')}")
+    print(f"[*] BLAS threads per worker: {os.getenv('SPECTRAL_BLAS_THREADS', '1')}")
     print(f"[*] Force rebuild spectral outputs: {force_rebuild}")
     
     output_path = run_spectral_feature_extraction(

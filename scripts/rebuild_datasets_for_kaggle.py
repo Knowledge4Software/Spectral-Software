@@ -122,8 +122,10 @@ BACKUP_DIR = OUTPUTS_ROOT / "_previous_archives"
 
 
 def _backup_existing_zip(dataset: str) -> Path | None:
-    """Park the current archive outside the tree the rebuild is about to wipe."""
-    zip_path = OUTPUTS_ROOT / dataset / f"{dataset}_clean_data.zip"
+    """Park the canonical archive outside the tree the rebuild is about to wipe."""
+    zip_path = PUBLISH_DIR / f"{dataset}_clean_data.zip"
+    if not zip_path.is_file():
+        zip_path = OUTPUTS_ROOT / dataset / f"{dataset}_clean_data.zip"
     if not zip_path.is_file():
         return None
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
@@ -135,7 +137,7 @@ def _backup_existing_zip(dataset: str) -> Path | None:
 
 def _restore_backup(dataset: str, backup: Path | None) -> None:
     if backup and backup.is_file():
-        restored = OUTPUTS_ROOT / dataset / f"{dataset}_clean_data.zip"
+        restored = PUBLISH_DIR / f"{dataset}_clean_data.zip"
         restored.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(backup), str(restored))
         print(f"[restore] put the previous archive back: {restored}")
@@ -168,10 +170,12 @@ def rebuild_dataset(dataset: str, archive: Path, resume: bool) -> tuple[bool, st
         return False, "build reported success but produced no ZIP"
 
     PUBLISH_DIR.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(zip_path, PUBLISH_DIR / zip_path.name)
-    size_mb = zip_path.stat().st_size / 1e6
-    print(f"[+] {zip_path} ({size_mb:.1f} MB)")
-    print(f"[+] copied to {PUBLISH_DIR / zip_path.name}")
+    target = PUBLISH_DIR / zip_path.name
+    if target.exists():
+        target.unlink()
+    shutil.move(str(zip_path), str(target))
+    size_mb = target.stat().st_size / 1e6
+    print(f"[+] centralized at {target} ({size_mb:.1f} MB)")
 
     if backup and backup.is_file():
         backup.unlink()

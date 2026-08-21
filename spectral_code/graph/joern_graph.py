@@ -1,12 +1,21 @@
+from __future__ import annotations
+
 import os
-import tempfile
-import subprocess
+import re
 import shutil
+import subprocess
+import tempfile
 import uuid
 from pathlib import Path
+
 import networkx as nx
 
 from spectral_code.graph.base import GraphBuilder
+from spectral_code.preprocessing.language_support import (
+    joern_language,
+    normalize_source_language,
+    source_extension,
+)
 
 
 def _joern_executable(env_name: str, windows_name: str, posix_name: str) -> str:
@@ -40,145 +49,157 @@ def _joern_executable(env_name: str, windows_name: str, posix_name: str) -> str:
     return next(str(candidate) for candidate in candidates if candidate)
 
 
+def _bat_safe_cmd(command: list[str]) -> list[str]:
+    if os.name == "nt" and command and str(command[0]).lower().endswith((".bat", ".cmd")):
+        return ["cmd.exe", "/d", "/c", *command]
+    return command
+
+
 JOERN_PARSE_BAT = _joern_executable("JOERN_PARSE_BAT", "joern-parse.bat", "joern-parse")
 JOERN_EXPORT_BAT = _joern_executable("JOERN_EXPORT_BAT", "joern-export.bat", "joern-export")
 
+JAVA_UNIT_RE = re.compile(
+    r"(?m)^\s*(?:package\s+[\w.]+\s*;|import\s+[\w.*]+\s*;|"
+    r"(?:public\s+)?(?:abstract\s+|final\s+)?(?:class|interface|enum|record)\s+\w+)"
+)
+CSHARP_UNIT_RE = re.compile(
+    r"(?m)^\s*(?:using\s+[\w.]+\s*;|namespace\s+[\w.]+|"
+    r"(?:public\s+)?(?:abstract\s+|sealed\s+|static\s+)?(?:class|interface|struct|enum|record)\s+\w+)"
+)
+
+
 class JoernGraphBuilder(GraphBuilder):
+    """Build one or more Joern graph representations for a source record.
+
+    ``lang`` accepts dataset labels and common aliases including ``C++``,
+    ``cpp``, ``C#``, ``cs``, ``py`` and Joern's own frontend names.  C++ files
+    retain a ``.cpp`` suffix and are routed to Joern's ``c2cpg`` frontend via
+    ``--language c``.
+    """
+
+    REPRESENTATIONS = ("ast", "cfg", "ddg", "pdg", "cpg")
+    BUILD_ALL_REPRESENTATIONS = ("ast", "cfg", "ddg", "pdg")
+
     def __init__(self, repr_type: str = "cfg", **kwargs):
-        self.repr_type = repr_type
-        # Mapping graph types to Joern internal representations
-        self.joern_repr_map = {
-            "cfg": "cfg",
-            "ast": "ast",
-            "ddg": "ddg",
-            "pdg": "pdg",
-        }
-        if self.repr_type not in self.joern_repr_map:
-            raise ValueError(f"Unsupported Joern representation type: {self.repr_type}")
-        
-    def _get_cpg(self, code: str, lang: str = "java"):
-        """INTERNAL: Generates CPG and returns temp_dir and cpg_path."""
-        if lang.lower() == "java":
+        del kwargs
+        self.repr_type = repr_type.strip().lower()
+        if self.repr_type not in self.REPRESENTATIONS:
+            supported = ", ".join(self.REPRESENTATIONS)
+            raise ValueError(f"Unsupported Joern representation type: {repr_type!r}; expected {supported}")
+
+    @staticmethod
+    def _prepare_source(code: str, lang: str, source_mode: str | None = None) -> tuple[str, str, str]:
+        language = normalize_source_language(lang)
+        mode = (source_mode or "auto").strip().lower()
+        is_unit = mode in {"compilation_unit", "program", "file", "full"}
+        if mode == "auto":
+            is_unit = (
+                language == "java" and bool(JAVA_UNIT_RE.search(code))
+            ) or (
+                language == "csharp" and bool(CSHARP_UNIT_RE.search(code))
+            )
+
+        if language == "java" and not is_unit:
             class_name = f"Wrapper_{uuid.uuid4().hex[:8]}"
-            code = f"public class {class_name} {{\n{code}\n}}"
-        
+            code = f"public class {class_name} {{\n{code}\n}}\n"
+        elif language == "csharp" and not is_unit:
+            class_name = f"Wrapper_{uuid.uuid4().hex[:8]}"
+            code = f"public class {class_name} {{\n{code}\n}}\n"
+        else:
+            code = code.rstrip() + "\n"
+        return code, source_extension(language), joern_language(language)
+
+    @staticmethod
+    def _run(command: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            _bat_safe_cmd(command),
+            capture_output=True,
+            text=True,
+            check=check,
+        )
+
+    def _get_cpg(self, code: str, lang: str = "java", source_mode: str | None = None):
+        """Generate a CPG and return its temporary directory and path."""
+        source, extension, frontend = self._prepare_source(code, lang, source_mode)
         temp_dir = tempfile.mkdtemp(prefix="joern_bulk_")
         cpg_bin = os.path.join(temp_dir, "cpg.bin")
-        
-        ext = ".java" if lang.lower() == "java" else ".py"
-        src_file = os.path.join(temp_dir, f"source{ext}")
-        with open(src_file, "w", encoding="utf-8") as f:
-            f.write(code)
-            
-        parse_cmd = [JOERN_PARSE_BAT, src_file, "--output", cpg_bin]
-        subprocess.run(parse_cmd, capture_output=True, text=True, shell=True, check=True)
+        src_file = os.path.join(temp_dir, f"source{extension}")
+        Path(src_file).write_text(source, encoding="utf-8")
+        try:
+            self._run([JOERN_PARSE_BAT, src_file, "--language", frontend, "--output", cpg_bin])
+        except Exception:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            raise
         return temp_dir, cpg_bin
 
-    def _export_from_cpg(self, cpg_bin: str, gtype: str, temp_dir: str) -> nx.Graph:
-        """INTERNAL: Exports a specific graph type from an existing CPG."""
+    def _export_from_cpg(self, cpg_bin: str, gtype: str, temp_dir: str) -> nx.DiGraph:
         out_dir = os.path.join(temp_dir, gtype)
-        export_cmd = [JOERN_EXPORT_BAT, cpg_bin, f"--repr={gtype}", "--out", out_dir]
-        subprocess.run(export_cmd, capture_output=True, text=True, shell=True)
+        self._run([JOERN_EXPORT_BAT, cpg_bin, f"--repr={gtype}", "--out", out_dir])
         return self._read_dot_from_dir(out_dir)
 
-    def build_all(self, code: str, lang: str = "java") -> dict:
-        """
-        Optimized method to generate ALL graph types (AST, CFG, DDG, PDG) 
-        using only ONE joern-parse call.
-        """
-        if lang.lower() == "java":
-            class_name = f"Wrapper_{uuid.uuid4().hex[:8]}"
-            code = f"public class {class_name} {{\n{code}\n}}"
-        
-        temp_dir = tempfile.mkdtemp(prefix="joern_bulk_")
-        cpg_bin = os.path.join(temp_dir, "cpg.bin")
-        
-        graphs = {}
-        
+    def build_all(
+        self,
+        code: str,
+        lang: str = "java",
+        source_mode: str | None = None,
+    ) -> dict[str, nx.DiGraph]:
+        """Generate AST/CFG/DDG/PDG from one parse call."""
+        temp_dir = None
         try:
-            # 1. Write source
-            ext = ".java" if lang.lower() == "java" else ".py"
-            src_file = os.path.join(temp_dir, f"source{ext}")
-            with open(src_file, "w", encoding="utf-8") as f:
-                f.write(code)
-                
-            # 2. Generate CPG (The slow part - only do this ONCE)
-            parse_cmd = [JOERN_PARSE_BAT, src_file, "--output", cpg_bin]
-            subprocess.run(parse_cmd, capture_output=True, text=True, shell=True, check=True)
-
-            # 3. Export each type (Faster because CPG is already there)
-            for gtype in ["ast", "cfg", "ddg", "pdg"]:
-                out_dir = os.path.join(temp_dir, gtype)
-                export_cmd = [JOERN_EXPORT_BAT, cpg_bin, f"--repr={gtype}", "--out", out_dir]
-                subprocess.run(export_cmd, capture_output=True, text=True, shell=True)
-                
-                graphs[gtype] = self._read_dot_from_dir(out_dir)
-
+            temp_dir, cpg_bin = self._get_cpg(code, lang, source_mode)
+            graphs = {}
+            for gtype in self.BUILD_ALL_REPRESENTATIONS:
+                try:
+                    graphs[gtype] = self._export_from_cpg(cpg_bin, gtype, temp_dir)
+                except (OSError, subprocess.SubprocessError) as exc:
+                    graph = nx.DiGraph()
+                    graph.graph["parse_error"] = f"{type(exc).__name__}: {exc}"
+                    graphs[gtype] = graph
             return graphs
-            
-        except Exception as e:
-            # Return empty graphs on failure
-            return {gt: nx.DiGraph() for gt in ["ast", "cfg", "ddg", "pdg"]}
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            return {
+                gtype: self._error_graph(exc)
+                for gtype in self.BUILD_ALL_REPRESENTATIONS
+            }
         finally:
-            shutil.rmtree(temp_dir, ignore_errors=True)
+            if temp_dir:
+                shutil.rmtree(temp_dir, ignore_errors=True)
 
-    def _read_dot_from_dir(self, out_dir) -> nx.Graph:
-        """Helper to find and read the largest dot file in a directory."""
-        if not os.path.exists(out_dir):
+    @staticmethod
+    def _error_graph(exc: Exception) -> nx.DiGraph:
+        graph = nx.DiGraph()
+        graph.graph["parse_error"] = f"{type(exc).__name__}: {exc}"
+        return graph
+
+    @staticmethod
+    def _read_dot_from_dir(out_dir: str) -> nx.DiGraph:
+        root = Path(out_dir)
+        if not root.exists():
             return nx.DiGraph()
-            
-        dot_files = [f for f in os.listdir(out_dir) if f.endswith(".dot")]
-        valid_files = [os.path.join(out_dir, f) for f in dot_files if os.path.getsize(os.path.join(out_dir, f)) > 0]
-        
+        valid_files = [path for path in root.rglob("*.dot") if path.stat().st_size > 0]
         if not valid_files:
             return nx.DiGraph()
-            
-        selected_file = max(valid_files, key=os.path.getsize)
-        try:
-            G = nx.drawing.nx_pydot.read_dot(selected_file)
-            if len(G.nodes) == 0:
-                for f in sorted(valid_files, key=os.path.getsize, reverse=True):
-                    alt_G = nx.drawing.nx_pydot.read_dot(f)
-                    if len(alt_G.nodes) > 0: return alt_G
-            return G
-        except:
-            return nx.DiGraph()
+        for selected_file in sorted(valid_files, key=lambda path: path.stat().st_size, reverse=True):
+            try:
+                graph = nx.drawing.nx_pydot.read_dot(str(selected_file))
+            except Exception:
+                continue
+            if graph.number_of_nodes() > 0:
+                return nx.DiGraph(graph)
+        return nx.DiGraph()
 
-    def build(self, code: str, lang: str = "java") -> nx.Graph:
-        """
-        Builds the graph by invoking Joern via subprocess and extracting
-        the corresponding .dot files.
-        """
-        if lang.lower() == "java":
-            class_name = f"Wrapper_{uuid.uuid4().hex[:8]}"
-            code = f"public class {class_name} {{\n{code}\n}}"
-        
-        temp_dir = tempfile.mkdtemp(prefix="joern_temp_")
-        cpg_bin = os.path.join(temp_dir, "cpg.bin")
-        out_dir = os.path.join(temp_dir, "out")
-        
+    def build(
+        self,
+        code: str,
+        lang: str = "java",
+        source_mode: str | None = None,
+    ) -> nx.DiGraph:
+        temp_dir = None
         try:
-            # write source
-            ext = ".java" if lang.lower() == "java" else ".py"
-            src_file = os.path.join(temp_dir, f"source{ext}")
-            with open(src_file, "w", encoding="utf-8") as f:
-                f.write(code)
-                
-            # Generate CPG
-            parse_cmd = [JOERN_PARSE_BAT, src_file, "--output", cpg_bin]
-            res_parse = subprocess.run(parse_cmd, capture_output=True, text=True, shell=True)
-            if res_parse.returncode != 0:
-                return nx.DiGraph()
-
-            # Export to specific representation
-            joern_rep = self.joern_repr_map[self.repr_type]
-            export_cmd = [JOERN_EXPORT_BAT, cpg_bin, f"--repr={joern_rep}", "--out", out_dir]
-            res_export = subprocess.run(export_cmd, capture_output=True, text=True, shell=True)
-            
-            return self._read_dot_from_dir(out_dir)
-            
-        except Exception as e:
-            print(f"Exception during Joern generation: {e}")
-            return nx.DiGraph()
+            temp_dir, cpg_bin = self._get_cpg(code, lang, source_mode)
+            return self._export_from_cpg(cpg_bin, self.repr_type, temp_dir)
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            return self._error_graph(exc)
         finally:
-            shutil.rmtree(temp_dir, ignore_errors=True)
+            if temp_dir:
+                shutil.rmtree(temp_dir, ignore_errors=True)

@@ -133,11 +133,10 @@ def _quick_analyze_dot(fpath):
     except Exception:
         return None
 
-# Joern emits a METHOD node for constructs that are not user code: one
-# ``<global>`` pseudo-method per file, a stub per referenced external
-# ``<operator>``/library call, and class initialisers.  Including them would
-# bolt a fixed synthetic subtree onto every graph.
-SYNTHETIC_METHOD_TOKENS = ("<operator>", "<global>", "<init>", "<clinit>", "<module>", "<fakeNew>")
+# Joern emits METHOD nodes for constructs that are not user code: one
+# ``<global>``/``<module>`` pseudo-method per file, referenced operators, and
+# class initialisers. Including them would bolt a fixed synthetic subtree onto
+# every graph; ``is_user_method`` below filters them by terminal method name.
 NON_SOURCE_FILENAMES = frozenset({"<empty>", "<includes>", "<unknown>", "", "N/A"})
 
 FIRST_NODE_ID_RE = re.compile(rb'^\s*"?(\d+)"?\s*\[')
@@ -226,7 +225,22 @@ def method_id_from_source_filename(filename: str) -> str | None:
 
 
 def is_user_method(full_name: str) -> bool:
-    return not any(token in full_name for token in SYNTHETIC_METHOD_TOKENS)
+    """Return whether a Joern method row represents source-authored code.
+
+    Python qualifies real functions as ``<module>.function``.  The previous
+    substring check therefore discarded every Python function merely because
+    its namespace contained ``<module>``.  Only the method's own terminal name
+    (or an explicit operator namespace) is synthetic.
+    """
+    qualified = full_name.split(":", 1)[0].strip()
+    short_name = qualified.rsplit(".", 1)[-1]
+    if short_name in {"<global>", "<init>", "<clinit>", "<module>", "<fakeNew>"}:
+        return False
+    return not (
+        qualified.startswith("<operator>")
+        or ".<operator>." in qualified
+        or short_name.startswith("<operator>")
+    )
 
 
 DUPLICATE_SUFFIX_RE = re.compile(r"<duplicate>\d+$")
@@ -532,6 +546,37 @@ def _csharp_source_path(source_dir: str | None, idx: str | int) -> Path | None:
     return path if path.exists() else None
 
 
+def _parse_csharp_source(source_path: Path):
+    try:
+        from tree_sitter import Language, Parser
+        import tree_sitter_c_sharp
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "C# graph fallbacks require tree-sitter and tree-sitter-c-sharp"
+        ) from exc
+    code = source_path.read_bytes()
+    root = Parser(Language(tree_sitter_c_sharp.language())).parse(code).root_node
+    return code, root
+
+
+def _syntax_node_text(code: bytes, node, limit: int = 120) -> str:
+    return code[node.start_byte:node.end_byte].decode(
+        "utf-8", errors="replace"
+    ).replace("\n", " ").strip()[:limit]
+
+
+def _walk_named_syntax(node):
+    if node is None:
+        return
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if current is None:
+            continue
+        yield current
+        stack.extend(reversed(current.named_children))
+
+
 def build_csharp_ast_graph(source_path: Path) -> nx.DiGraph:
     """Build a real C# syntax tree when Joern's C# AST export is incomplete.
 
@@ -542,16 +587,7 @@ def build_csharp_ast_graph(source_path: Path) -> nx.DiGraph:
     """
     graph = nx.DiGraph()
     try:
-        from tree_sitter import Language, Parser
-        import tree_sitter_c_sharp
-    except ModuleNotFoundError:
-        graph.graph["parse_error"] = "C# AST fallback requires tree-sitter and tree-sitter-c-sharp"
-        graph.graph["source_path"] = str(source_path)
-        return graph
-    try:
-        code = source_path.read_bytes()
-        parser = Parser(Language(tree_sitter_c_sharp.language()))
-        root = parser.parse(code).root_node
+        code, root = _parse_csharp_source(source_path)
         counter = 0
         stack: list[tuple[object, str | None]] = [(root, None)]
         while stack:
@@ -560,7 +596,7 @@ def build_csharp_ast_graph(source_path: Path) -> nx.DiGraph:
                 continue
             node_id = str(counter)
             counter += 1
-            raw_text = code[node.start_byte:node.end_byte].decode("utf-8", errors="replace").replace("\n", " ").strip()
+            raw_text = _syntax_node_text(code, node, 96)
             graph.add_node(node_id, type=node.type, label=f"{node.type},{raw_text[:96]}" if raw_text else node.type)
             if parent_id is not None:
                 graph.add_edge(parent_id, node_id, type="child")
@@ -573,6 +609,297 @@ def build_csharp_ast_graph(source_path: Path) -> nx.DiGraph:
     except Exception as exc:
         graph.graph["parse_error"] = f"C# Tree-sitter fallback failed: {type(exc).__name__}: {exc}"
         graph.graph["source_path"] = str(source_path)
+    return graph
+
+
+CSHARP_METHOD_NODES = {
+    "method_declaration",
+    "constructor_declaration",
+    "destructor_declaration",
+    "local_function_statement",
+    "accessor_declaration",
+    "operator_declaration",
+    "conversion_operator_declaration",
+}
+CSHARP_LOOP_NODES = {
+    "for_statement",
+    "for_each_statement",
+    "while_statement",
+    "do_statement",
+}
+CSHARP_TERMINAL_NODES = {
+    "return_statement",
+    "throw_statement",
+    "break_statement",
+    "continue_statement",
+    "goto_statement",
+}
+
+
+def _is_csharp_statement(node) -> bool:
+    return (
+        node is not None
+        and node.type.endswith("_statement")
+        and node.type != "global_statement"
+    )
+
+
+def _csharp_method_nodes(root) -> list:
+    return [node for node in _walk_named_syntax(root) if node.type in CSHARP_METHOD_NODES]
+
+
+def _csharp_statement_label(code: bytes, node) -> str:
+    text = _syntax_node_text(code, node, 100)
+    return f"{node.type},{text}" if text else node.type
+
+
+def build_csharp_cfg_graph(source_path: Path) -> nx.DiGraph:
+    """Build a conservative statement-level CFG when C# overlays fail.
+
+    Joern's C# frontend can leave CFG/DDG exports empty after producing a valid
+    CPG.  This fallback retains branches, loop back-edges and terminal
+    statements, providing a real control-flow graph instead of an empty layer.
+    """
+    graph = nx.DiGraph()
+    try:
+        code, root = _parse_csharp_source(source_path)
+    except Exception as exc:
+        graph.graph["parse_error"] = f"C# CFG fallback failed: {type(exc).__name__}: {exc}"
+        graph.graph["source_path"] = str(source_path)
+        return graph
+
+    counter = 0
+
+    def add_statement(node) -> str:
+        nonlocal counter
+        node_id = f"s{counter}"
+        counter += 1
+        graph.add_node(node_id, type=node.type, label=_csharp_statement_label(code, node))
+        return node_id
+
+    def connect(predecessors: list[str], target: str, edge_type: str = "next") -> None:
+        for predecessor in predecessors:
+            graph.add_edge(predecessor, target, type=edge_type)
+
+    def statement_children(container) -> list:
+        if container is None:
+            return []
+        if _is_csharp_statement(container):
+            return [container]
+        return [child for child in container.named_children if _is_csharp_statement(child)]
+
+    def build_container(container, predecessors: list[str]) -> list[str]:
+        exits = predecessors
+        for statement in statement_children(container):
+            exits = build_statement(statement, exits)
+        return exits
+
+    def build_statement(statement, predecessors: list[str]) -> list[str]:
+        current = add_statement(statement)
+        connect(predecessors, current)
+
+        if statement.type == "if_statement":
+            consequence = statement.child_by_field_name("consequence")
+            alternative = statement.child_by_field_name("alternative")
+            true_exits = build_container(consequence, [current]) if consequence else [current]
+            false_exits = build_container(alternative, [current]) if alternative else [current]
+            return list(dict.fromkeys([*true_exits, *false_exits]))
+
+        if statement.type in CSHARP_LOOP_NODES:
+            body = statement.child_by_field_name("body")
+            body_exits = build_container(body, [current]) if body else [current]
+            connect(body_exits, current, "loop")
+            return [current]
+
+        if statement.type == "switch_statement":
+            body = statement.child_by_field_name("body")
+            sections = [
+                node for node in _walk_named_syntax(body)
+                if node.type == "switch_section"
+            ] if body else []
+            exits = []
+            for section in sections:
+                exits.extend(build_container(section, [current]))
+            return exits or [current]
+
+        if statement.type in {"try_statement", "using_statement", "lock_statement", "fixed_statement"}:
+            bodies = [
+                child for child in statement.named_children
+                if child.type in {"block", "catch_clause", "finally_clause"}
+            ]
+            exits = []
+            for body in bodies:
+                block = body.child_by_field_name("body") or body
+                exits.extend(build_container(block, [current]))
+            return exits or [current]
+
+        if statement.type in CSHARP_TERMINAL_NODES:
+            return []
+        return [current]
+
+    methods = _csharp_method_nodes(root)
+    if methods:
+        for method_index, method in enumerate(methods):
+            body = method.child_by_field_name("body")
+            if body is None:
+                continue
+            entry = f"entry:{method_index}"
+            method_name = method.child_by_field_name("name")
+            name = _syntax_node_text(code, method_name) if method_name else method.type
+            graph.add_node(entry, type="Entry", label=f"Entry,{name}")
+            build_container(body, [entry])
+    else:
+        entry = "entry:0"
+        graph.add_node(entry, type="Entry", label="Entry,<top-level>")
+        top_level = [
+            node for node in _walk_named_syntax(root)
+            if _is_csharp_statement(node)
+        ]
+        exits = [entry]
+        for statement in sorted(top_level, key=lambda node: node.start_byte):
+            exits = build_statement(statement, exits)
+
+    graph.graph["source_path"] = str(source_path)
+    graph.graph["source"] = "csharp_tree_sitter_cfg_fallback"
+    return graph
+
+
+def _csharp_local_syntax_nodes(statement):
+    """Yield syntax under one statement without entering nested statements."""
+    stack = [statement]
+    first = True
+    while stack:
+        node = stack.pop()
+        if not first and _is_csharp_statement(node):
+            continue
+        first = False
+        yield node
+        stack.extend(reversed(node.named_children))
+
+
+def _identifier_texts(code: bytes, node) -> set[str]:
+    if node is None:
+        return set()
+    return {
+        _syntax_node_text(code, child)
+        for child in _walk_named_syntax(node)
+        if child.type == "identifier" and _syntax_node_text(code, child)
+    }
+
+
+def _identifier_nodes(node) -> list:
+    if node is None:
+        return []
+    return [child for child in _walk_named_syntax(node) if child.type == "identifier"]
+
+
+def _csharp_defs_and_uses(code: bytes, statement) -> tuple[set[str], set[str]]:
+    local_nodes = list(_csharp_local_syntax_nodes(statement))
+    identifier_nodes = [node for node in local_nodes if node.type == "identifier"]
+    definitions: set[str] = set()
+    definition_positions: set[tuple[int, int]] = set()
+    compound_assignment_uses: set[str] = set()
+
+    for node in local_nodes:
+        if node.type == "variable_declarator":
+            name_node = node.child_by_field_name("name")
+            if name_node is None:
+                name_node = next((child for child in node.named_children if child.type == "identifier"), None)
+            definitions.update(_identifier_texts(code, name_node))
+            definition_positions.update(
+                (identifier.start_byte, identifier.end_byte)
+                for identifier in _identifier_nodes(name_node)
+            )
+        elif node.type == "assignment_expression":
+            left = node.child_by_field_name("left")
+            left_names = _identifier_texts(code, left)
+            definitions.update(left_names)
+            definition_positions.update(
+                (identifier.start_byte, identifier.end_byte)
+                for identifier in _identifier_nodes(left)
+            )
+            right = node.child_by_field_name("right")
+            operator_text = code[left.end_byte:right.start_byte].decode("utf-8", errors="ignore").strip() if left and right else ""
+            if operator_text and operator_text != "=":
+                compound_assignment_uses.update(left_names)
+        elif node.type in {"postfix_unary_expression", "prefix_unary_expression"}:
+            text = _syntax_node_text(code, node)
+            if "++" in text or "--" in text:
+                names = _identifier_texts(code, node)
+                definitions.update(names)
+                definition_positions.update(
+                    (identifier.start_byte, identifier.end_byte)
+                    for identifier in _identifier_nodes(node)
+                )
+                compound_assignment_uses.update(names)
+
+    uses = {
+        _syntax_node_text(code, identifier)
+        for identifier in identifier_nodes
+        if (identifier.start_byte, identifier.end_byte) not in definition_positions
+        and _syntax_node_text(code, identifier)
+    } | compound_assignment_uses
+    return definitions, uses
+
+
+def build_csharp_ddg_graph(source_path: Path) -> nx.DiGraph:
+    """Build a deterministic def-use graph for C# as an overlay fallback."""
+    graph = nx.DiGraph()
+    try:
+        code, root = _parse_csharp_source(source_path)
+    except Exception as exc:
+        graph.graph["parse_error"] = f"C# DDG fallback failed: {type(exc).__name__}: {exc}"
+        graph.graph["source_path"] = str(source_path)
+        return graph
+
+    methods = _csharp_method_nodes(root) or [root]
+    statement_index = 0
+    for method_index, method in enumerate(methods):
+        last_definition: dict[str, str] = {}
+        external_nodes: dict[str, str] = {}
+        entry = f"entry:{method_index}"
+        method_name_node = method.child_by_field_name("name") if method is not root else None
+        method_name = _syntax_node_text(code, method_name_node) if method_name_node else "<top-level>"
+        graph.add_node(entry, type="Entry", label=f"Entry,{method_name}")
+
+        parameters = method.child_by_field_name("parameters") if method is not root else None
+        for parameter in _walk_named_syntax(parameters) if parameters else []:
+            if parameter.type != "parameter":
+                continue
+            identifiers = [
+                child for child in parameter.named_children if child.type == "identifier"
+            ]
+            if identifiers:
+                last_definition[_syntax_node_text(code, identifiers[-1])] = entry
+
+        body = method.child_by_field_name("body") if method is not root else root
+        # Error recovery on malformed snippets (for example a spaced ``= >``
+        # lambda arrow) can expose a synthetic method node without a body.
+        # CFG already skips these nodes; DDG must do the same.
+        if body is None:
+            continue
+        statements = sorted(
+            (node for node in _walk_named_syntax(body) if _is_csharp_statement(node)),
+            key=lambda node: (node.start_byte, node.end_byte),
+        )
+        for statement in statements:
+            node_id = f"s{statement_index}"
+            statement_index += 1
+            graph.add_node(node_id, type=statement.type, label=_csharp_statement_label(code, statement))
+            definitions, uses = _csharp_defs_and_uses(code, statement)
+            for name in sorted(uses):
+                if name not in last_definition:
+                    external_id = external_nodes.setdefault(name, f"input:{method_index}:{name}")
+                    graph.add_node(external_id, type="External", label=f"External,{name}")
+                    source_id = external_id
+                else:
+                    source_id = last_definition[name]
+                graph.add_edge(source_id, node_id, type=f"use:{name}")
+            for name in sorted(definitions):
+                last_definition[name] = node_id
+
+    graph.graph["source_path"] = str(source_path)
+    graph.graph["source"] = "csharp_tree_sitter_ddg_fallback"
     return graph
 
 
@@ -874,18 +1201,40 @@ def _fallback_python_graph(gtype: str, idx: str | int, source_dir: str | None) -
 
 
 def _csharp_fallback_enabled(gtype: str, source_dir: str | None) -> bool:
-    return gtype == "ast" and os.getenv("JOERN_LANGUAGE", "").strip().lower() == "csharpsrc" and bool(source_dir)
+    language = os.getenv("JOERN_LANGUAGE", "").strip().lower()
+    return gtype in {"ast", "cfg", "ddg"} and language in {"csharpsrc", "csharp", "c#", "cs"} and bool(source_dir)
 
 
 def _fallback_csharp_graph(gtype: str, idx: str | int, source_dir: str | None) -> nx.DiGraph | None:
     source_path = _csharp_source_path(source_dir, idx)
-    return build_csharp_ast_graph(source_path) if gtype == "ast" and source_path is not None else None
+    if source_path is None:
+        return None
+    try:
+        if gtype == "ast":
+            return build_csharp_ast_graph(source_path)
+        if gtype == "cfg":
+            return build_csharp_cfg_graph(source_path)
+        if gtype == "ddg":
+            return build_csharp_ddg_graph(source_path)
+    except Exception as exc:
+        # One malformed source must become a reported missing layer, not abort
+        # the entire concurrent dataset conversion.
+        graph = nx.DiGraph()
+        graph.graph["parse_error"] = (
+            f"C# {gtype.upper()} fallback failed: {type(exc).__name__}: {exc}"
+        )
+        graph.graph["source_path"] = str(source_path)
+        return graph
+    return None
 
 
 def _should_replace_with_csharp_fallback(gtype: str, graph: nx.DiGraph, idx: str | int, source_dir: str | None) -> bool:
     if not _csharp_fallback_enabled(gtype, source_dir):
         return False
-    mode = os.getenv("CSHARP_AST_FALLBACK_MODE", "prefer").strip().lower()
+    mode = os.getenv(
+        "CSHARP_GRAPH_FALLBACK_MODE",
+        os.getenv("CSHARP_AST_FALLBACK_MODE", "prefer"),
+    ).strip().lower()
     return mode in {"prefer", "always", "source"} or graph.number_of_nodes() == 0
 
 
