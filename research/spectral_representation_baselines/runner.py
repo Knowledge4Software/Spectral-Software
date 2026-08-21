@@ -36,6 +36,7 @@ from spectral_code.evaluation.dataset_limitations import (
     limitation_for,
     unsupported_layers,
 )
+from spectral_code.similarity.pss import PSSSimilarity
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -78,7 +79,7 @@ def parse_args(default_dataset: str | None = None, default_method: str | None = 
     parser.add_argument("--clean-data-dir", type=Path, default=None)
     parser.add_argument("--output-root", type=Path, default=DEFAULT_RESULTS_ROOT)
     parser.add_argument("--graph-types", default="auto", help="auto or comma-separated AST/CFG/DDG/CPG/PDG")
-    parser.add_argument("--k-eigen", type=int, default=64)
+    parser.add_argument("--k-eigen", type=int, default=128)
     parser.add_argument("--include-graph-stats", action="store_true", help="Append node/edge/density statistics to spectral vectors.")
     parser.add_argument("--include-unsupported-layers", action="store_true",
                         help="Score layers a language in this dataset cannot produce (auditing only).")
@@ -242,11 +243,16 @@ def pair_features(matrix: np.ndarray, left: np.ndarray, right: np.ndarray, *, ch
     return result
 
 
-def no_train_scores(matrix: np.ndarray, left: np.ndarray, right: np.ndarray, *, chunk: int = 100_000) -> np.ndarray:
+def no_train_scores(matrix: np.ndarray, left: np.ndarray, right: np.ndarray, *, spectrum_dim: int, chunk: int = 100_000) -> np.ndarray:
+    """PSS, the declared non-trained spectral comparator used in the paper."""
     scores = np.empty(len(left), dtype=np.float32)
     for start in range(0, len(left), chunk):
         end = min(len(left), start + chunk)
-        scores[start:end] = 1.0 / (1.0 + np.linalg.norm(matrix[left[start:end]] - matrix[right[start:end]], axis=1))
+        # The first eight dimensions are descriptive statistics for learned
+        # classifiers; PSS must receive only the ordered eigenvalue window.
+        lhs = matrix[left[start:end], 8:8 + spectrum_dim]
+        rhs = matrix[right[start:end], 8:8 + spectrum_dim]
+        scores[start:end] = PSSSimilarity().compute_many(lhs, rhs)
     return scores
 
 
@@ -272,9 +278,29 @@ def best_threshold(labels: np.ndarray, scores: np.ndarray) -> float:
     best: tuple[float, Metrics] | None = None
     for threshold in candidates:
         current = metrics(labels, scores, float(threshold))
-        if best is None or (current.f1, current.balanced_accuracy) > (best[1].f1, best[1].balanced_accuracy):
+        if best is None or selection_key(current, labels) > selection_key(best[1], labels):
             best = (float(threshold), current)
     return best[0] if best else .5
+
+
+def validation_selection(labels: np.ndarray) -> dict[str, int | bool | str]:
+    labels = np.asarray(labels, dtype=np.int8)
+    positives = int((labels == 1).sum())
+    negatives = int((labels == 0).sum())
+    balanced = positives > 0 and positives == negatives
+    return {
+        "balanced": balanced,
+        "metric": "Accuracy" if balanced else "F1",
+        "positives": positives,
+        "negatives": negatives,
+    }
+
+
+def selection_key(value: Metrics, labels: np.ndarray) -> tuple[float, float]:
+    context = validation_selection(labels)
+    if context["balanced"]:
+        return value.accuracy, value.f1
+    return value.f1, value.balanced_accuracy
 
 
 def code_languages(root: Path) -> dict[str, str]:
@@ -369,7 +395,8 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
         arrays = {name: pair_indices(frame, index) for name, frame in splits.items()}
         print(f"{graph_type.upper()}: vectors={len(vectors):,}; train/valid/test={[len(arrays[name][2]) for name in ('train','valid','test')]}")
         if args.method == "no_train":
-            valid_scores = no_train_scores(matrix, arrays["valid"][0], arrays["valid"][1]); test_scores = no_train_scores(matrix, arrays["test"][0], arrays["test"][1])
+            valid_scores = no_train_scores(matrix, arrays["valid"][0], arrays["valid"][1], spectrum_dim=args.k_eigen)
+            test_scores = no_train_scores(matrix, arrays["test"][0], arrays["test"][1], spectrum_dim=args.k_eigen)
             threshold = best_threshold(arrays["valid"][2], valid_scores); valid = metrics(arrays["valid"][2], valid_scores, threshold); test = metrics(arrays["test"][2], test_scores, threshold)
             extra = {"TrainableParameters": 0, "Device": "cpu"}
         elif args.method in {"rf", "lr"}:
@@ -391,6 +418,14 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
             extra = {"TrainableParameters": np.nan, "Device": "cpu"}
             del train_x, valid_x, test_x
         item = row_from_metrics(args.dataset, graph_type, method_name, test, valid, train_pairs=len(arrays["train"][2]), valid_pairs=len(arrays["valid"][2]), test_pairs=len(arrays["test"][2]), seconds=time.perf_counter()-graph_started)
+        selection = validation_selection(arrays["valid"][2])
+        item.update({
+            "BestValidAcc": valid.accuracy,
+            "ValidationSelectionMetric": selection["metric"],
+            "ValidationBalanced": selection["balanced"],
+            "ValidationPositives": selection["positives"],
+            "ValidationNegatives": selection["negatives"],
+        })
         item.update(extra); rows.append(item)
         print(f"{item['Method']}: F1={item['F1']:.4f}, Acc={item['Acc']:.4f}, minutes={item['RuntimeMinutes']:.2f}")
         language_rows.extend(language_breakdown(
