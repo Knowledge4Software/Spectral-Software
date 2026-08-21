@@ -22,6 +22,12 @@ REPRESENTATIVES = (
     ("Hybrid", "DeepSim"),
     ("Raw code", "RtvNN"),
 )
+OUR_METHOD_VARIANTS = (
+    ("proposed_eigen_only", "Proposed eigenvalue-only"),
+    ("topology_only", "Topology only"),
+    ("canonical", "Canonical graph"),
+    ("lexical", "Canonical + source lexical"),
+)
 
 
 def metric(value: object) -> str:
@@ -29,7 +35,7 @@ def metric(value: object) -> str:
 
 
 def family(method: str) -> str:
-    if method == "SPECTRA-Siam":
+    if method == "SPECTRA-Siam" or method in {name for _, name in OUR_METHOD_VARIANTS}:
         return "Our method"
     if method == "DeepSim":
         return "Hybrid graph + code"
@@ -130,12 +136,30 @@ def save_table(rows, headers, title, path, widths, spans, best_cells=(), groups=
     figure.savefig(path, dpi=260, bbox_inches="tight"); plt.close(figure)
 
 
-def make_general(raw: pd.DataFrame) -> None:
+def merge_feature_ablation_into_general(raw: pd.DataFrame, ablation: pd.DataFrame) -> pd.DataFrame:
+    """Replace the single canonical row with the four full-data controlled variants."""
+    base = raw[~raw.Method.eq("SPECTRA-Siam")].copy()
+    variants = []
+    for variant, display in OUR_METHOD_VARIANTS:
+        selected = ablation[ablation.Variant.eq(variant)].copy()
+        if selected.empty:
+            continue
+        selected["Method"] = display
+        variants.append(selected)
+    if not variants:
+        return raw
+    return pd.concat([base, *variants], ignore_index=True, sort=False)
+
+
+def make_general(raw: pd.DataFrame, ablation: pd.DataFrame) -> None:
     order = ["Graph-based", "Spectral representations", "Hybrid graph + code", "Raw code", "Our method"]
-    raw = raw.assign(Family=raw.Method.map(family))
+    raw = merge_feature_ablation_into_general(raw, ablation).assign(Family=lambda frame: frame.Method.map(family))
     rows, group_ids, best = [], [], set()
     for current_family in order:
-        methods = sorted(raw[raw.Family.eq(current_family)].Method.unique())
+        if current_family == "Our method":
+            methods = [name for _, name in OUR_METHOD_VARIANTS if name in set(raw.Method)]
+        else:
+            methods = sorted(raw[raw.Family.eq(current_family)].Method.unique())
         for index, method_name in enumerate(methods):
             row = [current_family if index == 0 else "", method_name]
             for benchmark in BENCHMARKS:
@@ -153,7 +177,7 @@ def make_general(raw: pd.DataFrame) -> None:
     save_table(rows, ["Method family", "Method"] + list(METRICS) * 4,
                "General benchmark comparison — official test sets", OUT / "01_general_benchmark_table.png", widths,
                [(name, 2 + i * 4, 5 + i * 4) for i, name in enumerate(BENCHMARKS)], best, group_ids,
-               "Families: spectral-representation baselines use graph spectra with No Train/RF/LR/SNN; graph-based methods learn directly from graph structure; DeepSim combines graph and source-code features; RtvNN/CDLH/Deckard use raw code.",
+                "Our method is expanded into the four full-data Experiment-4 readout/input variants. Spectral-representation baselines use graph spectra with No Train/RF/LR/SNN; DeepSim combines graph and source-code features; RtvNN/CDLH/Deckard use raw code.",
                merge_columns=(0,))
 
 
@@ -188,7 +212,7 @@ def make_language(language: pd.DataFrame) -> None:
     spans = [(f"{label}\n{method}", 3 + index * 4, 6 + index * 4) for index, (label, method) in enumerate(REPRESENTATIVES)]
     save_table(rows, ["Setting", "Language pair", "Dataset"] + list(METRICS) * 4,
                "Language-wise evaluation — selected representative of each method family",
-               OUT / "02_language_breakdown_table.png", widths, spans, best, groups,
+               OUT / "03_language_breakdown_table.png", widths, spans, best, groups,
                "Representatives selected from the general table: SPECTRA-Siam (ours), ASTNN (graph-based), DeepSim (hybrid), and RtvNN (raw code).",
                merge_columns=(0,))
 
@@ -216,7 +240,7 @@ def make_parameter_table(raw: pd.DataFrame) -> None:
             rows.append(row); groups.append(current_family)
     center_group_label(rows, groups, 0)
     save_table(rows, ["Method family", "Method", *BENCHMARKS],
-               "Trainable parameter count by method", OUT / "05_trainable_parameter_counts.png",
+               "Trainable parameter count by method", OUT / "02_trainable_parameter_counts.png",
                [.22, .28] + [.125] * 4,
                [("Trainable parameters", 2, 5)], groups=groups,
                note="N/A = non-neural classical model (RF/LR), for which trainable neural-network parameter count is not defined.",
@@ -224,6 +248,12 @@ def make_parameter_table(raw: pd.DataFrame) -> None:
 
 
 def make_experiment(frame: pd.DataFrame, row_key: str, values, labels, title: str, filename: str) -> None:
+    # Experiment 4 is intentionally represented by the four Our-method rows
+    # in the general table, rather than repeated as a standalone figure.
+    if row_key == "Variant":
+        return
+    if row_key == "LatentNodes":
+        filename = "04_experiment_1_latent_capacity.png"
     rows, best = [], set()
     for row_index, value in enumerate(values, start=1):
         row = [labels[value]]
@@ -242,6 +272,74 @@ def make_experiment(frame: pd.DataFrame, row_key: str, values, labels, title: st
                [(name, 1 + i * 4, 4 + i * 4) for i, name in enumerate(BENCHMARKS)], best)
 
 
+def transfer_methods(frame: pd.DataFrame) -> list[str]:
+    preferred = ("ASTNN", "RtvNN", "DeepSim", "SPECTRA-Siam")
+    return [method for method in preferred if method in set(frame.Method)]
+
+
+def make_cross_dataset_transfer(frame: pd.DataFrame) -> None:
+    targets = ("ATCoder", "GPTCloneBench", "SemanticCloneBench")
+    methods = transfer_methods(frame)
+    rows, best = [], set()
+    for row_index, method in enumerate(methods, start=1):
+        row = [method]
+        for target in targets:
+            candidate = frame[(frame.Method.eq(method)) & (frame.Benchmark.eq(target))]
+            item = candidate.iloc[0] if not candidate.empty else None
+            row.extend(metric(item[name]) if item is not None else "-" for name in METRICS)
+        rows.append(row)
+    for target_index, target in enumerate(targets):
+        top = pd.to_numeric(frame[frame.Benchmark.eq(target)].F1, errors="coerce").max()
+        for row_index, method in enumerate(methods, start=1):
+            score = frame[(frame.Method.eq(method)) & (frame.Benchmark.eq(target))].F1
+            if not score.empty and np.isclose(float(score.iloc[0]), top):
+                best.add((row_index, 1 + target_index * 4 + 2))
+    save_table(
+        rows, ["Method"] + list(METRICS) * len(targets),
+        "Experiment 2 — zero-shot transfer trained on BigCloneBench",
+        OUT / "05_experiment_2_cross_dataset_transfer.png", [.16] + [.84 / 12] * 12,
+        [(target, 1 + i * 4, 4 + i * 4) for i, target in enumerate(targets)], best,
+        note="Every method trains once on the same 250k BigCloneBench pairs; the source-validation threshold is frozen on the three target test sets.",
+    )
+
+
+def make_cross_language_transfer(frame: pd.DataFrame) -> None:
+    language_order = {"java": 0, "python": 1, "c": 2, "csharp": 3}
+    conditions = sorted(
+        frame[["TrainedOnLanguage", "TestLanguage"]].drop_duplicates().itertuples(index=False, name=None),
+        key=lambda item: (language_order.get(item[0], 99), language_order.get(item[1], 99)),
+    )
+    methods = transfer_methods(frame)
+    rows, groups, best = [], [], set()
+    for row_index, (source, target) in enumerate(conditions, start=1):
+        groups.append(source)
+        row = [source, target]
+        available = frame[(frame.TrainedOnLanguage.eq(source)) & (frame.TestLanguage.eq(target))]
+        for method in methods:
+            candidate = available[available.Method.eq(method)]
+            item = candidate.iloc[0] if not candidate.empty else None
+            row.extend(metric(item[name]) if item is not None else "-" for name in METRICS)
+        top = pd.to_numeric(available.F1, errors="coerce").max()
+        for method_index, method in enumerate(methods):
+            score = available[available.Method.eq(method)].F1
+            if not score.empty and np.isclose(float(score.iloc[0]), top):
+                best.add((row_index, 2 + method_index * 4 + 2))
+        rows.append(row)
+    names = {"java": "Java", "python": "Python", "c": "C", "csharp": "C#"}
+    for row in rows:
+        row[0] = names.get(row[0], row[0]); row[1] = names.get(row[1], row[1])
+    groups = [names.get(value, value) for value in groups]
+    center_group_label(rows, groups, 0)
+    save_table(
+        rows, ["Train language", "Test language"] + list(METRICS) * len(methods),
+        "Experiment 3 — cross-language transfer on SemanticCloneBench",
+        OUT / "06_experiment_3_cross_language_transfer.png", [.09, .09] + [.82 / (4 * len(methods))] * (4 * len(methods)),
+        [(method, 2 + i * 4, 5 + i * 4) for i, method in enumerate(methods)], best, groups,
+        note="For each row, the model trains on the source language, chooses a threshold on source validation, and evaluates that frozen model on the target language.",
+        merge_columns=(0,),
+    )
+
+
 def main() -> None:
     if OUT.exists(): shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
@@ -249,10 +347,14 @@ def main() -> None:
     language = pd.read_csv(ARTIFACTS / "language_breakdown_long.csv")
     latent = pd.read_csv(ARTIFACTS / "latent_capacity_long.csv")
     ablation = pd.read_csv(ARTIFACTS / "feature_ablation_long.csv")
-    make_general(raw); make_language(language)
+    cross_dataset = pd.read_csv(ARTIFACTS / "cross_dataset_transfer_long.csv")
+    cross_language = pd.read_csv(ARTIFACTS / "cross_language_transfer_long.csv")
+    make_general(raw, ablation); make_language(language)
     make_experiment(latent, "LatentNodes", [16, 24, 32, 48], {16: "16 latent nodes", 24: "24 latent nodes", 32: "32 latent nodes", 48: "48 latent nodes"}, "Experiment 1 — latent graph capacity", "03_experiment_1_latent_capacity.png")
-    make_experiment(ablation, "Variant", ["topology_only", "typed_topology", "source_lexical"], {"topology_only": "Topology only", "typed_topology": "Typed topology + labels", "source_lexical": "Typed topology + source lexical"}, "Experiment 4 — SPECTRA-Siam feature ablation", "04_experiment_4_feature_ablation.png")
+    make_experiment(ablation, "Variant", ["proposed_eigen_only", "topology_only", "canonical", "lexical"], {"proposed_eigen_only": "Proposed: eigenvalue-only", "topology_only": "Topology only", "canonical": "Canonical graph", "lexical": "Canonical + source lexical"}, "Experiment 4 — SPECTRA-Siam readout and feature ablation", "04_experiment_4_feature_ablation.png")
     make_parameter_table(raw)
+    make_cross_dataset_transfer(cross_dataset)
+    make_cross_language_transfer(cross_language)
     (OUT / "README.txt").write_text("Current-paper tables. Green cells mark the best F1 in each comparison column.\n", encoding="utf-8")
     print("Created", OUT)
 

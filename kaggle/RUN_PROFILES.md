@@ -1,64 +1,30 @@
 # Kaggle run profiles
 
-Every notebook in the four dataset folders now has the same selector at the
-top of its configuration cell:
-
-```python
-RUN_PROFILE = "quick_1h"
-```
-
-Use `quick_1h` for the initial comparable results.  It is deliberately
-conservative: all runs are capped below roughly an hour on a Kaggle T4/P100,
-with the expensive pair-graph baselines receiving smaller caps.
-
-For a directly comparable method table, set every notebook to:
-
-```python
-RUN_PROFILE = "comparison_50k"
-```
-
-This profile uses the same **50k train / 10k validation / 10k test** cap in
-every method wherever the dataset contains that many pairs.  Each baseline
-keeps its own justified epoch and early-stopping schedule; its output CSV now
-records `TrainableParameters`, `RuntimeSeconds`, and `RuntimeMinutes`, so the
-paper can report both capacity and measured end-to-end runtime rather than
-claiming that different architectures have exactly equal parameter counts.
-Deckard is explicitly recorded as zero-parameter.  SPECTRA-Siam writes the
-same fields in its final JSON output.
-
-SPECTRA-Siam uses six epochs in this profile: `50k × 6` preserves the same
-number of pair presentations/optimizer updates as its former `75k × 4`
-quick run.  This avoids unintentionally under-training SPECTRA while making
-the sampled data cap comparable to the baselines.
-
-## Final baseline protocol
-
-All baseline notebooks now default to:
+The established notebooks expose the same profile selector near the top of the
+configuration cell.
 
 ```python
 RUN_PROFILE = "final_full"
 ```
 
-`final_full` sets `max_train_pairs`, `max_valid_pairs`, and `max_test_pairs`
-to `None`. Thus it uses every graph-evaluable pair in the official split; a
-small difference from the original pair count is reported in the final CSV
-when a code record has no valid graph. SPECTRA-Siam now also defaults to this
-profile and writes a flat `*_spectra_siam_results.csv` with the same core
-columns as baseline result files. Its parameter/ablation experiments can be
-run by manually selecting `comparison_50k` or `diagnostic_10k`.
+Use `final_full` for the final in-domain benchmark. It uses every
+graph-evaluable pair in the official split. Pair counts can be slightly lower
+than the source release when a referenced program has no valid graph; the
+notebook records those counts rather than hiding them.
 
-For the follow-up run, change **only** that value to:
+Use `comparison_50k` for a controlled 50,000 train / 10,000 validation /
+10,000 test comparison. SPECTRA-Siam uses six epochs, so 50,000 x 6 preserves
+the number of pair presentations in the former 75,000 x 4 quick run.
 
-```python
-RUN_PROFILE = "extended_6_7h"
-```
+Use `diagnostic_10k` only for pipeline checks and representation diagnostics.
+Use `extended_6_7h` only for a separately labelled large-budget follow-up.
 
-`extended_6_7h` restores the 100k/20k/20k baseline protocol.  For
-SPECTRA-Siam it uses 650k/80k/80k and eight epochs, targeting the 6--7 hour
-budget on the large CodeXGLUE and AtCoder datasets.  GPTCloneBench and
-SemanticCloneBench contain fewer pairs, so they finish sooner even with this
-profile; they are run on all available pairs rather than padded or duplicated.
+The forward-ready CodeNet 4L notebook defaults to `comparison_50k` because the
+final graph-evaluable pair count and graph-size distribution are not yet known.
+Select `final_full` only after the incoming clean-data release is audited for
+memory and wall-time requirements.
 
-The wall-time labels are upper-bound targets rather than guarantees: Kaggle
-GPU availability and the number/size of graphs selected by a random subset
-both affect the final runtime.
+The three notebooks under `experiments/06_codenet_nonclone_scopes/` use the
+fixed 8,000-pair protocols described in their README. Pair caps are disabled
+there, and `final_full` controls the training schedule without altering the
+selected 5,600/1,200/1,200 train/validation/test counts.

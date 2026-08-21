@@ -1,3 +1,3 @@
 # Latent graph learning
 
-`notebooks/spectra_siam_kaggle_template.ipynb` is the single maintained source template for the canonical SPECTRA-Siam experiment. Dataset-specific runnable copies are in `kaggle/<dataset>/method/`. Historical result figures remain in `reports/`.
+`kaggle/rq2/xglue/method/spectra_siam_lex.ipynb` is the maintained main-method source. Each `kaggle/<dataset>/method/` folder contains exactly three input-only runs: `topo`, `label`, and `lex` (the main method). Historical result figures remain in `reports/`.

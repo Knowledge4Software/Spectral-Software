@@ -47,7 +47,7 @@ BENCHMARK_SLUGS = {
 }
 METRICS = ("P", "R", "F1", "Acc")
 LATENT_ORDER = (16, 24, 32, 48)
-ABLATION_ORDER = ("topology_only", "typed_topology", "source_lexical")
+ABLATION_ORDER = ("proposed_eigen_only", "topology_only", "canonical", "lexical")
 
 
 def slug(value: object) -> str:
@@ -497,6 +497,76 @@ def read_experiment_results(folder: str, suffix: str, warnings: list[str]) -> pd
     return pd.concat(records, ignore_index=True) if records else pd.DataFrame()
 
 
+def benchmark_from_value(value: object) -> str | None:
+    value_slug = slug(value)
+    return next((name for name, aliases in BENCHMARK_SLUGS.items() if value_slug in aliases), None)
+
+
+def transfer_method(archive: Path, frame: pd.DataFrame) -> str | None:
+    if "Method" in frame and frame["Method"].notna().any():
+        return str(frame["Method"].dropna().iloc[0])
+    archive_slug = slug(archive.stem)
+    if "spectra" in archive_slug or "specrta" in archive_slug:
+        return "SPECTRA-Siam"
+    return None
+
+
+def read_cross_dataset_transfer(warnings: list[str]) -> pd.DataFrame:
+    """Read the four Experiment-2 archives despite their two result schemas."""
+    records: list[pd.DataFrame] = []
+    folder = KAGGLE_ROOT / "02_cross_dataset"
+    for archive in sorted(folder.glob("*.zip")):
+        with zipfile.ZipFile(archive) as bundle:
+            found = archive_csv(bundle, lambda name: name.endswith("_all_targets_results.csv") or (
+                name.startswith("transfer_from_") and name.endswith("_results.csv")
+            ))
+            if found is None:
+                warnings.append(f"Skipped {archive.name}: no unique cross-dataset result CSV.")
+                continue
+            _, frame = found
+        method = transfer_method(archive, frame)
+        target_column = "TestedOn" if "TestedOn" in frame else "EvaluatedOn"
+        if method is None or target_column not in frame or "TrainedOn" not in frame:
+            warnings.append(f"Skipped {archive.name}: unsupported cross-dataset result schema.")
+            continue
+        converted = frame.copy()
+        converted["Method"] = method
+        converted["Benchmark"] = converted[target_column].map(benchmark_from_value)
+        converted = converted[converted["Benchmark"].notna()].copy()
+        # The in-domain CodeXGLUE row is useful for diagnostics but is not a
+        # zero-shot target in Experiment 2.
+        converted = converted[converted["Benchmark"].ne("BigCloneBench")].copy()
+        converted["Source"] = str(archive)
+        records.append(converted)
+    return pd.concat(records, ignore_index=True) if records else pd.DataFrame()
+
+
+def read_cross_language_transfer(warnings: list[str]) -> pd.DataFrame:
+    """Read Experiment-3 language-transfer results into one common schema."""
+    records: list[pd.DataFrame] = []
+    folder = KAGGLE_ROOT / "03_cross_langauge"  # Existing output folder spelling.
+    for archive in sorted(folder.glob("*.zip")):
+        with zipfile.ZipFile(archive) as bundle:
+            found = archive_csv(bundle, lambda name: name.endswith("_cross_language_results.csv"))
+            if found is None:
+                warnings.append(f"Skipped {archive.name}: no unique cross-language result CSV.")
+                continue
+            _, frame = found
+        method = transfer_method(archive, frame)
+        train_column = "TrainedOnLanguage" if "TrainedOnLanguage" in frame else "TrainedOn"
+        test_column = "TestLanguage" if "TestLanguage" in frame else "EvaluatedOn"
+        if method is None or train_column not in frame or test_column not in frame:
+            warnings.append(f"Skipped {archive.name}: unsupported cross-language result schema.")
+            continue
+        converted = frame.copy()
+        converted["Method"] = method
+        converted["TrainedOnLanguage"] = converted[train_column].astype(str).str.lower()
+        converted["TestLanguage"] = converted[test_column].astype(str).str.lower()
+        converted["Source"] = str(archive)
+        records.append(converted)
+    return pd.concat(records, ignore_index=True) if records else pd.DataFrame()
+
+
 def make_experiment_tables(frame: pd.DataFrame, kind: str) -> list[Path]:
     if frame.empty:
         return []
@@ -506,9 +576,10 @@ def make_experiment_tables(frame: pd.DataFrame, kind: str) -> list[Path]:
     else:
         row_key, values, title = "Variant", list(ABLATION_ORDER), "SPECTRA-Siam feature ablation"
         labels = {
+            "proposed_eigen_only": "Proposed: eigenvalue-only readout",
             "topology_only": "Topology only",
-            "typed_topology": "Typed topology + lexical sketch",
-            "source_lexical": "Typed topology + source lexical",
+            "canonical": "Canonical typed graph",
+            "lexical": "Canonical + source lexical",
         }
     metric_rows: list[list[str]] = []
     metric_best: set[tuple[int, int]] = set()
@@ -546,11 +617,94 @@ def make_experiment_tables(frame: pd.DataFrame, kind: str) -> list[Path]:
     ]
 
 
-def write_csv_artifacts(raw: pd.DataFrame, language: pd.DataFrame, latent: pd.DataFrame, ablation: pd.DataFrame) -> None:
+def transfer_method_order(observed: Iterable[str]) -> list[str]:
+    preferred = ("ASTNN", "RtvNN", "DeepSim", "SPECTRA-Siam")
+    return [method for method in preferred if method in set(observed)]
+
+
+def make_cross_dataset_table(frame: pd.DataFrame) -> list[Path]:
+    if frame.empty:
+        return []
+    targets = ("ATCoder", "GPTCloneBench", "SemanticCloneBench")
+    methods = transfer_method_order(frame.Method)
+    rows, best_cells = [], set()
+    for row_index, method in enumerate(methods, start=1):
+        row = [method]
+        for benchmark in targets:
+            item = frame[(frame.Method.eq(method)) & (frame.Benchmark.eq(benchmark))]
+            item = item.iloc[0] if not item.empty else None
+            row.extend(fmt_metric(item[metric]) if item is not None else "-" for metric in METRICS)
+        rows.append(row)
+    for benchmark_index, benchmark in enumerate(targets):
+        best = number(frame[frame.Benchmark.eq(benchmark)], "F1").max()
+        for row_index, method in enumerate(methods, start=1):
+            score = frame[(frame.Method.eq(method)) & (frame.Benchmark.eq(benchmark))]
+            if not score.empty and np.isclose(number(score, "F1").iloc[0], best):
+                best_cells.add((row_index, 1 + benchmark_index * 4 + 2))
+    widths = [0.16] + [0.84 / 12] * 12
+    spans = [(benchmark, 1 + index * 4, 4 + index * 4) for index, benchmark in enumerate(targets)]
+    return [save_table(
+        rows, ["Method"] + list(METRICS) * len(targets),
+        "Experiment 2: zero-shot transfer trained on BigCloneBench", "cross_dataset_transfer_test_metrics.png",
+        widths, None, best_cells, spans,
+        "All methods train once on the same 250k BigCloneBench pairs; threshold is selected on source validation and frozen for every target test set.",
+    )]
+
+
+def make_cross_language_table(frame: pd.DataFrame) -> list[Path]:
+    if frame.empty:
+        return []
+    language_order = {"java": 0, "python": 1, "c": 2, "csharp": 3}
+    conditions = sorted(
+        frame[["TrainedOnLanguage", "TestLanguage"]].drop_duplicates().itertuples(index=False, name=None),
+        key=lambda item: (language_order.get(item[0], 99), language_order.get(item[1], 99)),
+    )
+    methods = transfer_method_order(frame.Method)
+    rows, groups, best_cells = [], [], set()
+    for row_index, (train_language, test_language) in enumerate(conditions, start=1):
+        groups.append(train_language)
+        row = [train_language, test_language]
+        for method in methods:
+            item = frame[
+                (frame.Method.eq(method))
+                & (frame.TrainedOnLanguage.eq(train_language))
+                & (frame.TestLanguage.eq(test_language))
+            ]
+            item = item.iloc[0] if not item.empty else None
+            row.extend(fmt_metric(item[metric]) if item is not None else "-" for metric in METRICS)
+        rows.append(row)
+        available = frame[(frame.TrainedOnLanguage.eq(train_language)) & (frame.TestLanguage.eq(test_language))]
+        best = number(available, "F1").max()
+        for method_index, method in enumerate(methods):
+            item = available[available.Method.eq(method)]
+            if not item.empty and np.isclose(number(item, "F1").iloc[0], best):
+                best_cells.add((row_index, 2 + method_index * 4 + 2))
+    display_name = {"java": "Java", "python": "Python", "c": "C", "csharp": "C#"}
+    for row in rows:
+        row[0] = display_name.get(row[0], row[0])
+        row[1] = display_name.get(row[1], row[1])
+    groups = [display_name.get(group, group) for group in groups]
+    widths = [0.09, 0.09] + [0.82 / (4 * len(methods))] * (4 * len(methods))
+    spans = [(method, 2 + index * 4, 5 + index * 4) for index, method in enumerate(methods)]
+    return [save_table(
+        rows, ["Train language", "Test language"] + list(METRICS) * len(methods),
+        "Experiment 3: cross-language transfer on SemanticCloneBench", "cross_language_transfer_test_metrics.png",
+        widths, groups, best_cells, spans,
+        "Each row freezes a source-language validation threshold, then evaluates the trained model on the stated target language. Green cells mark the best F1 for that source-target pair.",
+    )]
+
+
+def write_csv_artifacts(
+    raw: pd.DataFrame, language: pd.DataFrame, latent: pd.DataFrame, ablation: pd.DataFrame,
+    cross_dataset: pd.DataFrame, cross_language: pd.DataFrame,
+) -> None:
     raw.to_csv(ARTIFACTS / "all_results_long.csv", index=False)
     language.to_csv(ARTIFACTS / "language_breakdown_long.csv", index=False)
     latent.to_csv(ARTIFACTS / "latent_capacity_long.csv", index=False)
     ablation.to_csv(ARTIFACTS / "feature_ablation_long.csv", index=False)
+    cross_dataset.to_csv(ARTIFACTS / "cross_dataset_transfer_long.csv", index=False)
+    cross_language.to_csv(ARTIFACTS / "cross_language_transfer_long.csv", index=False)
+
 
 
 def main() -> dict[str, object]:
@@ -560,10 +714,14 @@ def main() -> dict[str, object]:
         raise FileNotFoundError(f"No usable baseline result ZIPs found under {KAGGLE_ROOT}")
     latent = read_experiment_results("01_latent_capacity", "_capacity_results.csv", warnings)
     ablation = read_experiment_results("04_feature_ablation", "_ablation_results.csv", warnings)
-    write_csv_artifacts(raw, language, latent, ablation)
+    cross_dataset = read_cross_dataset_transfer(warnings)
+    cross_language = read_cross_language_transfer(warnings)
+    write_csv_artifacts(raw, language, latent, ablation, cross_dataset, cross_language)
     images = [*make_main_tables(raw), *make_language_tables(raw, language)]
     images.extend(make_experiment_tables(latent, "latent_capacity"))
     images.extend(make_experiment_tables(ablation, "feature_ablation"))
+    images.extend(make_cross_dataset_table(cross_dataset))
+    images.extend(make_cross_language_table(cross_language))
     warning_path = ARTIFACTS / "report_input_warnings.txt"
     warning_path.write_text("\n".join(warnings) + ("\n" if warnings else ""), encoding="utf-8")
     manifest = [
@@ -573,6 +731,8 @@ def main() -> dict[str, object]:
         f"- Language-breakdown rows: {len(language):,}",
         f"- Latent-capacity rows: {len(latent):,}",
         f"- Feature-ablation rows: {len(ablation):,}",
+        f"- Cross-dataset transfer rows: {len(cross_dataset):,}",
+        f"- Cross-language transfer rows: {len(cross_language):,}",
         "- Generated figures:",
         *[f"  - `{path.name}`" for path in images],
     ]

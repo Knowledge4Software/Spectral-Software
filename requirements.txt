@@ -1,20 +1,38 @@
+# Core numerics and data handling
 numpy
 scipy
-matplotlib
-networkx
 pandas
-tqdm
+pyarrow
+networkx
+scikit-learn
+threadpoolctl
+
+# Model training and the timing instrumentation. Kaggle provides a CUDA build;
+# locally this installs the CPU wheel, which is enough for the inference-only
+# runners under research/discussions/.
+torch
+
+# Plotting for the paper's figures
+matplotlib
+seaborn
+
+# Notebooks
 jupyter
 ipykernel
 ipywidgets
-seaborn
-scikit-learn
-python-dotenv
-pygments
-pillow
-pydot
+
+# Parsers used by graph extraction
 javalang
-pgdumplib
-pyarrow
 tree-sitter
 tree-sitter-c-sharp
+
+# BigCloneBench ships as a PostgreSQL dump
+pgdumplib
+
+# Progress reporting, environment, and process introspection
+tqdm
+python-dotenv
+psutil
+
+# Tests
+pytest

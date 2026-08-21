@@ -21,6 +21,13 @@ from spectral_code.utils.dataset_paths import output_root_for
 GRAPH_TYPES = ("ast", "cfg", "ddg", "cpg")
 
 
+def _eigenvalue_count(layer: dict) -> int:
+    """Support legacy exports and compact exports without a derived count."""
+    if "eigenvalue_count" in layer:
+        return int(layer.get("eigenvalue_count", 0) or 0)
+    return len(layer.get("eigenvalues", []) or [])
+
+
 def clean_data_dir(root: str | Path | None = None) -> Path:
     return Path(root or output_root_for("atcoder") / "clean_data").resolve()
 
@@ -58,7 +65,7 @@ def graph_coverage(root: str | Path | None = None) -> tuple[pd.DataFrame, dict[s
             for graph_type, value in row["graphs"].items():
                 key = (languages[code_id], graph_type, value.get("spectral_status", "missing"))
                 counts[key] += 1
-                if not value.get("eigenvalue_count", 0):
+                if not _eigenvalue_count(value):
                     empty_eigenvalues[key] += 1
     pairs = load_pairs(root)
     endpoint_ids = set(pairs["left_id"].astype(str)) | set(pairs["right_id"].astype(str))
@@ -103,7 +110,7 @@ def _read_eigenvalues(root: Path, code_ids: set[str]) -> dict[str, dict[str, np.
             values[code_id] = {
                 graph_type: np.asarray(graph["eigenvalues"], dtype=float)
                 for graph_type, graph in row["graphs"].items()
-                if graph.get("eigenvalue_count", 0)
+                if _eigenvalue_count(graph)
             }
     return values
 
@@ -142,7 +149,7 @@ def select_pair_examples(
         for pair in sampled[sampled["label"] == label].itertuples(index=False):
             left = graphs.get(str(pair.left_id), {}).get("graphs", {}).get(graph_type, {})
             right = graphs.get(str(pair.right_id), {}).get("graphs", {}).get(graph_type, {})
-            if left.get("eigenvalue_count", 0) and right.get("eigenvalue_count", 0):
+            if _eigenvalue_count(left) and _eigenvalue_count(right):
                 selected.append({"pair": pair._asdict(), "left_graph": left, "right_graph": right})
                 count += 1
                 if count == per_label:

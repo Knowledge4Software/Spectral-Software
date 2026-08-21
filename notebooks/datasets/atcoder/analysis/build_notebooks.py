@@ -46,7 +46,7 @@ ROOT"""
 
 
 NOTEBOOKS = {
-    "00_temp_small_graph_inspection.ipynb": [
+    "00_small_graph_inspection.ipynb": [
         markdown("# ATCoder — Small Graph Inspection\n\nFinal-export sanity checks, equivalent to the XGLUE graph-inspection stage."),
         code(SETUP),
         markdown("## Artifact readiness"),

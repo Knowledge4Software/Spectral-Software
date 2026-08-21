@@ -4,14 +4,15 @@ from tqdm import tqdm
 import re
 import javalang
 
+from spectral_code.preprocessing.language_support import (
+    LANGUAGE_SUPPORT,
+    normalize_source_language,
+    source_extension,
+)
+
 
 LANGUAGE_EXTENSIONS = {
-    "java": ".java",
-    "c": ".c",
-    "csharp": ".cs",
-    "cs": ".cs",
-    "python": ".py",
-    "py": ".py",
+    name: support.extension for name, support in LANGUAGE_SUPPORT.items()
 }
 
 
@@ -131,16 +132,7 @@ def rename_java_method(code_str: str, idx: str) -> str:
 
 
 def _normalize_language(raw: str | None) -> str:
-    if raw is None:
-        return "java"
-    key = raw.strip().lower()
-    if key.startswith("semantic_"):
-        key = key.split("_", 1)[1]
-    return {
-        "cs": "csharp",
-        "c#": "csharp",
-        "py": "python",
-    }.get(key, key or "java")
+    return normalize_source_language(raw, default="java")
 
 
 def _wrap_java(code: str, idx: str) -> str:
@@ -161,9 +153,7 @@ def _render_source_record(
     source_mode: str | None = None,
 ) -> tuple[str, str]:
     language = _normalize_language(language)
-    ext = LANGUAGE_EXTENSIONS.get(language)
-    if ext is None:
-        raise ValueError(f"Unsupported source language in data.jsonl: {language}")
+    ext = source_extension(language)
 
     if language == "java" and source_mode != "compilation_unit":
         content = _wrap_java(code, idx)

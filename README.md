@@ -7,12 +7,24 @@ spectral similarity baselines, and prepares portable datasets for experiments.
 
 | Path | Purpose |
 | --- | --- |
+| `kaggle/` | Notebooks run on Kaggle, organised by paper section (`rq1`–`rq3`, `d1`–`d5`). |
+| `kaggle/latex/` | The tables and figures the paper includes, one folder per section. |
+| `research/` | Builders that turn Kaggle result archives into `kaggle/latex/`, plus the shared baseline runtime. |
 | `spectral_code/` | Reusable implementation: parsing, graphs, spectra, evaluation, and exports. |
-| `pipelines/` | Shared implementation of graph and spectral extraction stages. Do not customize these per dataset. |
-| `notebooks/datasets/` | Dataset-specific entry points, analysis notebooks, and experiment helpers. |
-| `kaggle/` | Notebooks intended to be copied to Kaggle for GPU experiments. |
-| `data/` | Local prepared/source data. Ignored by Git. |
-| `outputs/` | Generated graphs, spectra, reports, models, and clean exports. Ignored by Git. |
+| `pipelines/` | Shared graph and spectral extraction stages. Not customised per dataset. |
+| `notebooks/datasets/` | Dataset preparation entry points and analysis notebooks. |
+| `scripts/` | Dataset build, publication, and notebook-synchronisation commands. |
+| `tests/` | Regression tests for preprocessing, graph support, and the notebook contracts. |
+| `paper/` | Manuscript drafts, bibliography, figures, and compiled PDFs. |
+| `data/`, `bench_data/`, `output/` | Local data and artifacts. Ignored by Git. |
+
+The paper's own sections drive the layout: `kaggle/<section>/` holds the
+notebooks, `research/` holds the code that reads their results, and
+`kaggle/latex/<section>/` holds what the paper includes. See `kaggle/README.md`
+and `research/README.md` for the per-section detail.
+
+Kaggle result archives are written outside the repository, under
+`outputs/kaggle/`.
 
 ## Dataset entry points
 
@@ -20,7 +32,8 @@ spectral similarity baselines, and prepares portable datasets for experiments.
 | --- | --- |
 | XGLUE | `notebooks/datasets/xglue/README.md` |
 | BigCloneBench | `notebooks/datasets/bigclonebench/README.md` |
-| Semantic Benchmark | `notebooks/datasets/semantic_benchmark/languages/<language>/run_pipeline/` |
+| Semantic Benchmark | `notebooks/datasets/semantic_benchmark/run_pipeline/` |
+| Kaggle V3 benchmarks | `kaggle/README.md` |
 
 ## Output policy
 
@@ -28,7 +41,7 @@ The extraction pipeline keeps only durable research artifacts:
 
 - cleaned graph shards;
 - spectral feature shards;
-- models, reports, and tuning results;
+- models, reports, publication PDFs, and tuning results;
 - small diagnostics such as manifests and timing metadata.
 
 Temporary Joern artifacts (`dataset_features`, `java_files`, `cpg`, `dot`,
