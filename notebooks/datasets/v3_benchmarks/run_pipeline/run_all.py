@@ -23,9 +23,13 @@ from spectral_code.evaluation.v3_benchmark_preparation import (
     export_v3_clean_dataset, prepare_atcoder_v3_repair_subset, prepare_v3_benchmark,
 )
 from spectral_code.utils.dataset_paths import output_root_for
+from spectral_code.preprocessing.language_support import joern_language
 
 
-JOERN_LANGUAGES = {"java": "javasrc", "python": "pythonsrc", "c": "c", "csharp": "csharpsrc"}
+JOERN_LANGUAGES = {
+    language: joern_language(language)
+    for language in ("java", "python", "c", "cpp", "csharp")
+}
 STAGES = ("01", "02", "03", "05")
 
 
