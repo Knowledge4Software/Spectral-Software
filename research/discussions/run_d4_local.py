@@ -5,7 +5,7 @@ inference-only: it loads the finished CodeNet lexical checkpoint and runs a
 forward pass over the validation fragments. Nothing is retrained, so it runs on
 a CPU laptop given the two inputs it needs, both of which live outside the repo:
 
-  * clean data   data/clean_data/codenet_4l_clone50k_diff50k_clean_data.zip
+  * clean data   data/benchmarks/codenet.zip
   * checkpoint   outputs/kaggle/RQ2/codenet/CodeNet_spectra_siam_Lexical.zip
 
 This script executes the notebook's own cells in order, so the model, the data
@@ -30,8 +30,7 @@ NOTEBOOK = _ROOT / "kaggle/d4/01_latent_graph_analysis.ipynb"
 # (69,779 / 14,959 / 14,955 graph-evaluable pairs) come from here, and the
 # rest of the paper uses this same export. The smaller nonclone_12k subset
 # is a different dataset and must not be used with this checkpoint.
-CLEAN_DATA = (_ROOT.parent
-              / "data/clean_data/codenet_4l_clone50k_diff50k_clean_data.zip")
+CLEAN_DATA = _ROOT.parent / "data/benchmarks/codenet.zip"
 CHECKPOINT_ZIP = (_ROOT.parent
                   / "outputs/kaggle/RQ2/codenet/CodeNet_spectra_siam_Lexical.zip")
 CHECKPOINT_MEMBER = "spectra_siam_codenet-4l_input_only_lex_final.pt"
