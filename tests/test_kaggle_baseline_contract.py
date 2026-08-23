@@ -6,8 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # One folder per benchmark under the RQ2 comparison.
-KAGGLE = ROOT / "kaggle" / "rq2"
-DATASETS = ("atcoder", "xglue", "codenet", "gptclonebench", "semanticclonebench")
+KAGGLE = ROOT / "experiments" / "kaggle" / "rq2"
+DATASETS = ("atcoder", "xglue", "codenet")
 BASELINES = (
     "astnn_baseline.ipynb",
     "cdlh_baseline.ipynb",

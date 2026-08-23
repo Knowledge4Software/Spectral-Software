@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-_ROOT = Path(__file__).resolve().parents[1] / "research" / "faithful_graph_baselines"
+_ROOT = Path(__file__).resolve().parents[1] / "spectral_code" / "faithful_graph_baselines"
 MAX_NODES, MAX_EDGES, MAX_STATEMENTS = 128, 256, 32
 TREE_NAMES = (
     "node_types", "edge_parents", "edge_children", "depths",

@@ -5,8 +5,8 @@ import numpy as np
 import pytest
 import torch
 
-from research.faithful_graph_baselines.core import CDLHModel
-from research.faithful_graph_baselines.notebook_runtime import (
+from spectral_code.faithful_graph_baselines.core import CDLHModel
+from spectral_code.faithful_graph_baselines.notebook_runtime import (
     MAX_EDGES,
     MAX_NODES,
     MAX_STATEMENTS,

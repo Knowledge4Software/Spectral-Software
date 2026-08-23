@@ -7,7 +7,7 @@ are checked there instead of in generated notebook text.
 """
 from __future__ import annotations
 
-from research.rq3.matrix import (
+from experiments.kaggle.rq3.matrix import (
     LANGUAGES,
     SYMBOLS,
     all_configurations,

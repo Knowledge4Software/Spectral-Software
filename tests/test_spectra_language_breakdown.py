@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def spectra_notebooks() -> list[Path]:
     paths = []
-    for path in (ROOT / "kaggle").rglob("*.ipynb"):
+    for path in (ROOT / "experiments").rglob("*.ipynb"):
         notebook = json.loads(path.read_text(encoding="utf-8"))
         source = "\n".join("".join(cell.get("source", [])) for cell in notebook["cells"])
         # RQ3 reuses the model/helper cells but deliberately has a separate
@@ -85,7 +85,7 @@ def test_language_helper_groups_same_and_cross_language_pairs(tmp_path: Path):
 
 
 def test_all_codenet_method_variants_have_language_output():
-    directory = ROOT / "kaggle/rq2/codenet/method"
+    directory = ROOT / "experiments/kaggle/rq2/codenet/method"
     assert {path.name for path in directory.glob("spectra_siam_*.ipynb")} == {
         "spectra_siam_topo.ipynb", "spectra_siam_label.ipynb", "spectra_siam_lex.ipynb",
     }

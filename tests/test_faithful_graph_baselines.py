@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import torch
 
-from research.faithful_graph_baselines.core import (
+from spectral_code.faithful_graph_baselines.core import (
     ASTNNEncoder,
     CDLHModel,
     DeepSimEncoder,
@@ -44,7 +44,7 @@ def test_deckard_vectorized_subtree_reduction_matches_a_direct_reference():
 
     # Reference is the former scalar reduction, retained here to lock the
     # accelerated implementation to exactly the same characteristic vectors.
-    from research.faithful_graph_baselines.core import postorder_depths
+    from spectral_code.faithful_graph_baselines.core import postorder_depths
     levels = postorder_depths(children)
     counts = np.zeros((len(node_types), vocab_size + 1), dtype=np.float32)
     reference_sizes = np.ones(len(node_types), dtype=np.int32)

@@ -729,7 +729,7 @@ def run_bcb_metric_tuning(
         if not non_clone_manifest.exists():
             raise FileNotFoundError(
                 f"Shared BCB non-clone spectral features are missing in {non_clone_manifest}. "
-                "Run notebooks/datasets/bigclonebench/build_once.py "
+                "Run create_datasets_graphs/bigclonebench/build_once.py "
                 "--variant non_clone --start-at graphs first."
             )
         os.environ["TUNING_EXTRA_FEATURE_MANIFESTS"] = str(non_clone_manifest)

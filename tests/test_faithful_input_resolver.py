@@ -4,7 +4,7 @@ import gzip
 import zipfile
 from pathlib import Path
 
-from research.faithful_graph_baselines import notebook_runtime as runtime
+from spectral_code.faithful_graph_baselines import notebook_runtime as runtime
 
 
 def test_faithful_baselines_read_clean_data_from_a_kaggle_zip(tmp_path, monkeypatch):

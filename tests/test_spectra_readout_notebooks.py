@@ -5,14 +5,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-KAGGLE = ROOT / "kaggle"
+KAGGLE = ROOT / "experiments" / "kaggle"
 # The RQ2 comparison keeps one folder per benchmark.
 RQ2 = KAGGLE / "rq2"
 REFERENCE = KAGGLE / "exploratory/06_codenet_nonclone_scopes/02_clone_vs_diff_problem.ipynb"
-TEMPLATE = ROOT / "research/latent_graph_learning/notebooks/spectra_siam_kaggle_template.ipynb"
+TEMPLATE = ROOT / "spectral_code/templates/spectra_siam_kaggle_template.ipynb"
 RQ1_NOTEBOOKS = (
-    ROOT / "kaggle/rq1/01_atcoder_export_latent_graphs.ipynb",
-    ROOT / "kaggle/rq1/02_xglue_export_latent_graphs.ipynb",
+    ROOT / "experiments/kaggle/rq1/01_atcoder_export_latent_graphs.ipynb",
+    ROOT / "experiments/kaggle/rq1/02_xglue_export_latent_graphs.ipynb",
 )
 # Same model as the reference, plus detached latent tensors returned only under
 # ``if not self.training`` so RQ1 can dump latent graphs. The extra tensors
@@ -35,7 +35,7 @@ FEATURE_ABLATION_NOTEBOOKS = tuple(
         "semanticclonebench_v3.ipynb",
     )
 )
-DATASETS = ("atcoder", "xglue", "codenet", "gptclonebench", "semanticclonebench")
+DATASETS = ("atcoder", "xglue", "codenet")
 VARIANTS = {
     "topo": (True, False, False, False),
     "label": (False, False, False, False),

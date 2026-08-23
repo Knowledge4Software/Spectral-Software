@@ -153,7 +153,7 @@ def patch_notebook(path: Path) -> bool:
 
 
 def main() -> None:
-    candidates = sorted((ROOT / "kaggle").rglob("*.ipynb"))
+    candidates = sorted((ROOT / "experiments").rglob("*.ipynb"))
     changed = [path for path in candidates if patch_notebook(path)]
     print(f"Synchronized SPECTRA language breakdown in {len(changed)} notebook(s).")
     for path in changed:

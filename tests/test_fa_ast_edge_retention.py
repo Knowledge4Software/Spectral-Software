@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-_RUNTIME = Path(__file__).resolve().parents[1] / "research" / "faithful_graph_baselines" / "notebook_runtime.py"
+_RUNTIME = Path(__file__).resolve().parents[1] / "spectral_code" / "faithful_graph_baselines" / "notebook_runtime.py"
 _WANTED = {"_map_relation", "_flow_arrays", "_flow_universe"}
 
 # notebook_runtime imports torch at module scope, but FA-AST packing is pure

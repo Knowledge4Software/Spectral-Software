@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from research.faithful_graph_baselines.notebook_runtime import _selection_key, _validation_selection
-from research.spectral_representation_baselines.runner import Metrics, selection_key, validation_selection
+from spectral_code.faithful_graph_baselines.notebook_runtime import _selection_key, _validation_selection
+from spectral_code.spectral_representation_baselines.runner import Metrics, selection_key, validation_selection
 
 
 def _metrics(*, f1: float, accuracy: float, balanced_accuracy: float = 0.0) -> Metrics:

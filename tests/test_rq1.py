@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from research.rq1.evaluate_pss import ALL_GRAPH_TYPES, common_support, evaluate, load_latent_export
-from research.rq1.run_table import (
+from experiments.kaggle.rq1.evaluate_pss import ALL_GRAPH_TYPES, common_support, evaluate, load_latent_export
+from experiments.kaggle.rq1.run_table import (
     METHOD_ORDER,
     add_predict_all_clone,
     require_current_main_method_export,
@@ -23,12 +23,10 @@ from spectral_code.similarity.pss import PSSSimilarity
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RQ1 = ROOT / "research" / "rq1"
-# The export notebooks run on Kaggle, so they live with the other Kaggle
-# notebooks under kaggle/rq1 rather than beside this analysis code.
+RQ1 = ROOT / "experiments" / "kaggle" / "rq1"
 NOTEBOOKS = (
-    ROOT / "kaggle" / "rq1" / "01_atcoder_export_latent_graphs.ipynb",
-    ROOT / "kaggle" / "rq1" / "02_xglue_export_latent_graphs.ipynb",
+    RQ1 / "01_atcoder_export_latent_graphs.ipynb",
+    RQ1 / "02_xglue_export_latent_graphs.ipynb",
 )
 
 

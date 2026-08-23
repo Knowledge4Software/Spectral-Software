@@ -9,7 +9,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "kaggle/exploratory/06_codenet_nonclone_scopes"
-BASE = ROOT / "kaggle/rq2/codenet/method/spectra_siam_lex.ipynb"
+BASE = ROOT / "experiments/kaggle/rq2/codenet/method/spectra_siam_lex.ipynb"
 NOTEBOOKS = {
     "01_clone_vs_aw.ipynb": {
         "clone": 4_000,
@@ -240,7 +240,7 @@ def test_astnn_deepsim_and_rtvnn_notebooks_use_the_identical_fixed_pair_protocol
 
 
 def test_fixed_pipeline_runner_excludes_mutations_and_targets_12k():
-    runner = (ROOT / "notebooks/datasets/codenet_4l/nonclone_scope_study/run_pipeline.py").read_text(
+    runner = (ROOT / "create_datasets_graphs/codenet_4l/nonclone_scope_study/run_pipeline.py").read_text(
         encoding="utf-8"
     )
     assert 'PAIR_KINDS = "clone,hard_nonclone,nonclone_diff_problem"' in runner
