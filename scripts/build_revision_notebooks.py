@@ -245,7 +245,8 @@ else:
     raise ValueError("PHASE must be encode or probe")
 print(json.dumps(status, indent=2))
 '''
-    baseline["cells"][3] = cell("code", baseline_run)
+    from scripts.revision_hf_setup import notebook_setup
+    baseline["cells"][3] = cell("code", notebook_setup() + baseline_run)
     baseline["metadata"]["kaggle"]["isInternetEnabled"] = True
     path = output / notebook_path("04_modern_baseline/qwen3_frozen_encoder_and_probe.ipynb")
     path.parent.mkdir(parents=True, exist_ok=True)

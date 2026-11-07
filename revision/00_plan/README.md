@@ -12,6 +12,8 @@ as planning history, while the protocol and current guide describe execution.
   notebook settings, progress and checkpoint continuation.
 - [T4 numerical checkpoint recovery](NUMERICAL_RECOVERY.md):
   AMP retry/FP32 fallback and explicit source-version upgrade with lineage.
+- [Hugging Face setup recovery](HF_SETUP_RECOVERY.md): supported dependency
+  versions and fresh-session instructions for the missing `_commit_hash` error.
 - [Frozen experiment protocol](EXPERIMENT_PROTOCOL.md).
 - [Seed-42 run queue](../queues/stage1_run_queue.csv).
 - [Reviewer coverage and remaining limitations](REVIEWER_COVERAGE.md).

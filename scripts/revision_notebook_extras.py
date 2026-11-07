@@ -116,22 +116,8 @@ summary = run_external(method=METHOD, dataset=DATASET, seed=SEED, started=SESSIO
 print(json.dumps(summary, indent=2))
 '''
                     if is_text:
-                        setup = '''# Kaggle already supplies CUDA PyTorch. Do not replace that installation.
-import importlib.util
-import subprocess
-import sys
-from packaging.version import Version
-import importlib.metadata
-_needs = []
-if importlib.util.find_spec("transformers") is None or Version(importlib.metadata.version("transformers")) < Version("4.51"):
-    _needs.append("transformers>=4.51,<5")
-if METHOD == "qwen3_lora" and importlib.util.find_spec("peft") is None:
-    _needs.extend(["peft>=0.15,<1", "accelerate>=1,<2"])
-if _needs:
-    if "transformers>=4.51,<5" not in _needs:
-        _needs.append("transformers>=4.51,<5")
-    subprocess.run([sys.executable, "-m", "pip", "install", *_needs], check=True)
-'''
+                        from scripts.revision_hf_setup import notebook_setup
+                        setup = notebook_setup(require_lora=method == "qwen3_lora")
                         run = setup + run
                     notebook["cells"][3] = cell("code", run)
                     notebook["metadata"]["kaggle"]["isInternetEnabled"] = is_text

@@ -6,6 +6,11 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
+If a text job fails with `RobertaConfig has no attribute '_commit_hash'`, use
+the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETUP_RECOVERY.md).
+Its dependency installer now enforces the supported versions, without changing
+the training implementation or restarting successful graph jobs.
+
 | Folder | Use |
 | --- | --- |
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |

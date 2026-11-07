@@ -25,7 +25,9 @@ foreach ($revisionSource in @('create_datasets_graphs', 'experiments', 'revision
 
 $revisionPytest = Join-Path $revisionWorkspace '.pytest_cache'
 if (Test-Path -LiteralPath $revisionPytest) { $revisionTargets.Add($revisionPytest) }
-foreach ($revisionCheckScratch in @('output/revision/validation/generator_check', 'output/revision/validation/pytest_layout')) {
+foreach ($revisionCheckScratch in @('output/revision/validation/generator_check', 'output/revision/validation/pytest_layout',
+        'output/revision/validation/hf_setup_generated', 'output/revision/validation/hf_setup_pytest',
+        'output/revision/validation/hf_setup_dependencies', 'output/revision/validation/hf_real_smoke')) {
     $revisionCheckPath = Join-Path $revisionWorkspace $revisionCheckScratch
     if (Test-Path -LiteralPath $revisionCheckPath) { $revisionTargets.Add($revisionCheckPath) }
 }
