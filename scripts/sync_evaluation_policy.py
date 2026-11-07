@@ -1,7 +1,7 @@
 """Synchronize explicit benchmark selection and checkpoint ordering in legacy notebooks.
 
 These notebooks retain their original four-epoch schedules. New converged,
-resumable experiments live under experiments/kaggle/revision instead.
+resumable experiments live under revision/ instead.
 """
 from __future__ import annotations
 

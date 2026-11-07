@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from scripts.revision_notebook_extras import EXTERNAL_METHODS
+from scripts.revision_layout import REVISION_ROOT, notebook_path
 from spectral_code.revision.model import RevisionModelConfig
 from spectral_code.revision.protocol import RunConfig
 from spectral_code.revision.training import LOSS_WEIGHTS
@@ -29,8 +30,9 @@ DATASETS = {
 
 
 def prepare(root=None):
-    root = Path(root) if root else ROOT / "experiments/kaggle/revision"
-    with (root / "notebook_manifest.csv").open(encoding="utf-8", newline="") as stream:
+    root = Path(root) if root else REVISION_ROOT
+    queue_root = root / "queues"
+    with (queue_root / "notebook_manifest.csv").open(encoding="utf-8", newline="") as stream:
         manifest = {row["notebook"]: row for row in csv.DictReader(stream)}
     jobs = []
     settings = {}
@@ -50,6 +52,7 @@ def prepare(root=None):
             else:
                 relative = (f"07_cross_benchmark/{dataset}/full_seed42.ipynb" if is_full else
                             f"07_cross_benchmark/{dataset}/baselines/{dataset}_{method}_seed42.ipynb")
+            relative = notebook_path(relative).as_posix()
             if relative not in manifest:
                 raise FileNotFoundError(relative)
             text = method in {"codebert", "c4_adapted", "qwen3_lora"}
@@ -66,12 +69,12 @@ def prepare(root=None):
                          "dataset_sha256": digest, "gpu": True, "internet": text,
                          "final_test": False})
             settings[job_id] = asdict(config)
-    with (root / "stage1_run_queue.csv").open("w", encoding="utf-8", newline="") as stream:
+    with (queue_root / "stage1_run_queue.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(jobs[0]))
         writer.writeheader(); writer.writerows(jobs)
     selected = [manifest[job["notebook"]] for job in jobs]
-    selected.append(manifest["08_analysis/validation_screening.ipynb"])
-    with (root / "stage1_notebook_manifest.csv").open("w", encoding="utf-8", newline="") as stream:
+    selected.append(manifest["05_analysis/validation_screening.ipynb"])
+    with (queue_root / "stage1_notebook_manifest.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(selected[0]))
         writer.writeheader(); writer.writerows(selected)
     release = {"protocol": "spectra_revision_stage1_v1", "date": "2026-11-06",
@@ -90,9 +93,9 @@ def prepare(root=None):
                "dataset_releases": {d: {"zip": b + ".zip", "sha256": h, "pair_counts": dict(zip(("train", "valid", "test"), c))}
                                     for d, (b, h, c) in DATASETS.items()},
                "pretrained_revisions": "Resolve at first download; copy tokens/tokens.json commit into MODEL_REVISION for continuation and later seeds",
-               "remaining_hardware_gate": "No CUDA run validated locally; run CodeNet full seed42 first"}
-    (root / "stage1_protocol.json").write_text(json.dumps(release, indent=2) + "\n", encoding="utf-8")
-    print(f"Prepared {len(jobs)} seed-42 research jobs; start only {jobs[0]['notebook']}")
+               "remaining_hardware_gate": "Check GPU behavior for each method; consult results/run_progress.csv for reported completions"}
+    (queue_root / "stage1_protocol.json").write_text(json.dumps(release, indent=2) + "\n", encoding="utf-8")
+    print(f"Prepared {len(jobs)} independent seed-42 jobs; see revision/START_HERE_FA.md for the parallel launch plan")
     return release
 
 

@@ -1,0 +1,50 @@
+{
+  "note": "Dataset bytes unchanged by the 2026-11-07 layout cleanup. ZIP and notebook release numbers are independent.",
+  "datasets": {
+    "codenet": {
+      "zip": "codenet_revision_common_support.zip",
+      "sha256": "ec86d556b37b32180c44be50b3d79336fabae97432fe004a0baaebc7b9e4b46f",
+      "pair_counts": {
+        "train": 69538,
+        "valid": 14896,
+        "test": 14906
+      },
+      "bytes": 1473994602,
+      "project_relative_archive": "../data/benchmarks/codenet_revision_common_support.zip",
+      "metadata_protocol": "revision_problem_disjoint_v1",
+      "metadata_dataset_key": "codenet",
+      "metadata_pair_table_sha256": "35948d0646813c0e606eb312b746b6525bed729ac4763307d2269fe7a3a3fd6e",
+      "ddg_alignment_sha256": "3d63cfb1ddc0250f10b7ea766f8a7d64197644ca9e9654bc2863d7759b1da2a9"
+    },
+    "atcoder": {
+      "zip": "atcoder_revision_common_support_v2.zip",
+      "sha256": "3525d3a750d395fd912da6879f96986dc4d9fa639fd78293c4c542c7d62d7318",
+      "pair_counts": {
+        "train": 70000,
+        "valid": 15000,
+        "test": 15000
+      },
+      "bytes": 194769404,
+      "project_relative_archive": "../data/benchmarks/atcoder_revision_common_support_v2.zip",
+      "metadata_protocol": "revision_reference_audited_v1",
+      "metadata_dataset_key": "atcoder",
+      "metadata_pair_table_sha256": "c72c309118191c80d16b139616c5685c2efb4dbb8a8912450a20459aac3b8c6f",
+      "ddg_alignment_sha256": "b63d212f0b8db2071882b0a14b49059ac4b1808429370b70b02923c70b80a8cf"
+    },
+    "bigclonebench": {
+      "zip": "bigclonebench_revision_common_support_v2.zip",
+      "sha256": "b6bc759554b73379f61d1c2e3f0de63addfd28d68f2dae91a9d494c342ce9bd5",
+      "pair_counts": {
+        "train": 70000,
+        "valid": 7129,
+        "test": 7566
+      },
+      "bytes": 45257983,
+      "project_relative_archive": "../data/benchmarks/bigclonebench_revision_common_support_v2.zip",
+      "metadata_protocol": "revision_reference_audited_v1",
+      "metadata_dataset_key": "bigclonebench",
+      "metadata_pair_table_sha256": "73bf8d97a90d1966206ffa95f8c16934db7dccf3b803ccd493098e82863e5a11",
+      "ddg_alignment_sha256": null
+    }
+  }
+}

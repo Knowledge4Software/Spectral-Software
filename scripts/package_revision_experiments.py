@@ -6,18 +6,21 @@ import ast
 import csv
 import hashlib
 import json
+import sys
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 
 def package(output, stage_one=False):
-    root = ROOT / "experiments/kaggle/revision"
+    from scripts.revision_layout import REVISION_ROOT
+    root = REVISION_ROOT
     expected = {p.name: p.read_text(encoding="utf-8") for p in (ROOT / "spectral_code/revision").glob("*.py")}
     support = {p.name: p.read_text(encoding="utf-8") for p in (ROOT / "spectral_code/faithful_graph_baselines").glob("*.py")}
     manifest_name = "stage1_notebook_manifest.csv" if stage_one else "notebook_manifest.csv"
-    with (root / manifest_name).open(encoding="utf-8", newline="") as stream:
+    with (root / "queues" / manifest_name).open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     for row in rows:
         path = root / row["notebook"]
@@ -34,13 +37,19 @@ def package(output, stage_one=False):
             raise ValueError(f"Stale embedded revision runtime: {path}")
         if "_legacy_sources" in assignments and ast.literal_eval(assignments["_legacy_sources"]) != support:
             raise ValueError(f"Stale baseline encoder support: {path}")
-    extras = ["README.md", "RUN_ORDER.md", "REVIEWER_COVERAGE.md", "MANUSCRIPT_CORRECTIONS.md",
-              "requirements-transformers.txt", manifest_name, "transfer_plan.csv", "focused_transfer_plan.csv",
-              "EXPERIMENT_PROTOCOL.md", "FIRST_RUN.md", "NUMERICAL_RECOVERY.md", "stage1_run_queue.csv", "stage1_protocol.json"]
+    extras = ["README.md", "START_HERE_FA.md", "requirements-transformers.txt",
+              *(p.relative_to(root).as_posix() for p in sorted((root / "00_plan").glob("*.md"))),
+              *(p.relative_to(root).as_posix() for p in sorted((root / "datasets").glob("*")) if p.is_file()),
+              "queues/" + manifest_name, "queues/transfer_plan.csv", "queues/focused_transfer_plan.csv",
+              "queues/stage1_run_queue.csv", "queues/stage1_protocol.json",
+              "queues/README.md", "queues/LAUNCH_24.md", "queues/launch_24.csv", "queues/launch_next.csv",
+              "queues/path_migration.csv", "results/README.md", "results/run_progress.csv",
+              *(p.relative_to(root).as_posix() for p in sorted(root.glob("0*/README.md"))),
+              "optional/README.md"]
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, "x", compression=zipfile.ZIP_DEFLATED) as archive:
-        for name in [row["notebook"] for row in rows] + extras:
+        for name in dict.fromkeys([row["notebook"] for row in rows] + extras):
             archive.write(root / name, "revision/" + name)
     result = {"notebook_archive": str(output.resolve()), "notebooks": len(rows),
               "bytes": output.stat().st_size, "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),

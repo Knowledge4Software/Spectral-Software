@@ -52,7 +52,7 @@ def update_notebook(path):
         except ValueError:
             relative = None
         if relative is not None:
-            backup = ROOT / "output/review/notebook_output_backups" / relative
+            backup = ROOT / "output/revision/notebook_output_backups" / relative
             if not backup.exists():
                 backup.parent.mkdir(parents=True, exist_ok=True)
                 backup.write_bytes(path.read_bytes())
@@ -99,7 +99,7 @@ def update_notebook(path):
 
 
 def project_notebooks(root=ROOT):
-    for directory in ("create_datasets_graphs", "experiments", "spectral_code/templates"):
+    for directory in ("create_datasets_graphs", "experiments", "revision", "spectral_code/templates"):
         yield from (Path(root) / directory).rglob("*.ipynb")
 
 

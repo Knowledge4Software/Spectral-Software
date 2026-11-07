@@ -13,9 +13,10 @@ REFERENCE_METHODS = EXTERNAL_METHODS
 
 def extend(output, template, transfer_keys):
     from scripts.build_revision_notebooks import cell
+    from scripts.revision_layout import notebook_path
     written = []
     def write(relative, notebook):
-        path = output / relative
+        path = output / notebook_path(relative)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(notebook, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
         written.append(path)

@@ -1,0 +1,16 @@
+# Stage 2: architecture and loss screening, seed 42
+
+After the baseline stage, run the 20 CodeNet controls in
+[codenet/architecture](codenet/architecture) and [codenet/losses](codenet/losses).
+Together with the already completed full model, they form the 21-arm study.
+Do not rerun CodeNet/full/42 for this stage.
+
+These comparisons address reviewer 6's request to distinguish spectral readout
+from the shared encoder and auxiliary objectives. Classification-only siblings,
+projected graphs, descriptor components and loss/weight controls separate those
+questions. See [the protocol](../00_plan/EXPERIMENT_PROTOCOL.md).
+
+The four files under `optional_cross_benchmark/` are candidate mean/max and
+attention controls on AtCoder/BigCloneBench. Select the planned sibling before
+running its cross-benchmark confirmation; these four are not additional baseline
+rows and are not all mandatory runs.

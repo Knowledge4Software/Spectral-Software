@@ -1,0 +1,30 @@
+job_id,status,evidence,completed_epochs,test_evaluated,updated,notes
+codenet_full_seed42,complete_reported,User-provided Kaggle completion excerpt; status.json not imported,43,False,2026-11-07,Keep saved output; best validation fields pending
+codenet_astnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_codebert_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_rtvnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_cdlh_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_deepsim_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_fa_ast_ggnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_fa_ast_gmn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_c4_adapted_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_qwen3_lora_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_full_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_astnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_codebert_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_rtvnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_cdlh_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_deepsim_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_fa_ast_ggnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_fa_ast_gmn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_c4_adapted_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+atcoder_qwen3_lora_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_full_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_astnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_codebert_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_rtvnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_cdlh_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_deepsim_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_fa_ast_ggnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_fa_ast_gmn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+bigclonebench_qwen3_lora_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy

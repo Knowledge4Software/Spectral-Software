@@ -27,12 +27,12 @@ def test_one_arm_and_seed_per_notebook_with_reserved_session_time(tmp_path):
         for i, notebook_cell in enumerate(notebook["cells"]):
             if notebook_cell["cell_type"] == "code":
                 compile("".join(notebook_cell["source"]), f"{path}#{i}", "exec")
-        if "08_analysis" in path.parts:
+        if "05_analysis" in path.parts:
             if path.stem == "validation_screening":
                 assert notebook["metadata"]["kaggle"]["accelerator"] == "none"
                 assert "collect_validation" in "".join(notebook["cells"][3]["source"])
             continue
-        if "04_modern_baseline" in path.parts:
+        if "frozen_qwen" in path.parts:
             assert assignments["PHASE"] == "encode"
             continue
         if "METHOD" in assignments:
@@ -49,7 +49,7 @@ def test_one_arm_and_seed_per_notebook_with_reserved_session_time(tmp_path):
         assert assignments["SEED"] in (42, 123, 231)
         assert assignments["SESSION_HOURS"] == 10.0
         assert assignments["FINAL_TEST"] is False
-        if "03_transfer" in path.parts:
+        if "04_transfer" in path.parts:
             assert (assignments["MAX_EPOCHS"], assignments["MIN_EPOCHS"], assignments["PATIENCE"]) == (30, 30, 1000)
         else:
             assert (assignments["MAX_EPOCHS"], assignments["MIN_EPOCHS"], assignments["PATIENCE"]) == (100, 10, 10)

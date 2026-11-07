@@ -27,9 +27,12 @@ Detection.”** The paper is available as an
 
 ## Reviewer-response experiments
 
-Start with the [first Kaggle run](experiments/kaggle/revision/FIRST_RUN.md), then
-follow the [seed-42 run queue](experiments/kaggle/revision/stage1_run_queue.csv).
-The [frozen experiment protocol](experiments/kaggle/revision/EXPERIMENT_PROTOCOL.md)
+Start with the [Persian execution guide](revision/START_HERE_FA.md) and
+the [24-job parallel launch list](revision/queues/LAUNCH_24.md).
+The actual notebooks are organized by stage and dataset in [revision/](revision/README.md);
+ZIP packets are optional transport copies. The complete
+[seed-42 run queue](revision/queues/stage1_run_queue.csv) has 29 jobs.
+The [frozen experiment protocol](revision/00_plan/EXPERIMENT_PROTOCOL.md)
 explains which reviewer concerns each comparison addresses.
 It covers problem/submission/source-disjoint CodeNet preparation, matched
 readout and loss controls, explicit validation selection, and Kaggle training
@@ -44,10 +47,10 @@ submission results. No new empirical superiority is claimed before rerunning.
 
 | Folder | Purpose |
 | --- | --- |
-| `experiments/kaggle/revision/` | Current reviewer-response notebooks, protocols and run manifests |
+| `revision/` | Current notebooks grouped by execution stage, run queues, dataset versions and results tracker |
 | `spectral_code/revision/` | Maintained data/model/training/evaluation implementation |
 | `scripts/` | Notebook generation, progress synchronization and release packaging |
-| `docs/revision/` | Revision roadmap and Persian planning guide |
+| `revision/00_plan/` | Revision roadmap, Persian planning guide, protocol and reviewer coverage |
 | `experiments/kaggle/rq1`, `rq2`, `rq3`, `d1`–`d5` | Historical paper experiments; keep separate from new revision scores |
 | `create_datasets_graphs/`, `pipelines/` | Dataset construction and graph extraction |
 | `tests/` | Numerical, protocol, resume and notebook checks |
@@ -56,7 +59,7 @@ Dataset archives live outside the Git repository under `../data/benchmarks/`.
 Generated release ZIPs, figures, checkpoints and local audit output stay under
 ignored output directories. Notebook sources are committed without execution
 outputs. Previously embedded outputs are backed up locally under
-`output/review/notebook_output_backups/` when progress is synchronized.
+`output/revision/notebook_output_backups/` when progress is synchronized.
 
 All notebooks have a tqdm cell counter. Current revision jobs additionally show
 large-file loading, training/evaluation batches, tokenization and embedding
@@ -67,7 +70,7 @@ on Windows and Linux.
 
 The T4 AMP-overflow fix replays the same effective batch with a lower loss scale
 and bounded FP32 fallback, without skipping training pairs. Follow
-[numerical checkpoint recovery](experiments/kaggle/revision/NUMERICAL_RECOVERY.md)
+[numerical checkpoint recovery](revision/00_plan/NUMERICAL_RECOVERY.md)
 to continue a pre-fix checkpoint through the explicit, allowlisted upgrade.
 
 Rebuild current notebooks and manifests with:
@@ -75,6 +78,7 @@ Rebuild current notebooks and manifests with:
 ```powershell
 python scripts/build_revision_notebooks.py
 python scripts/prepare_revision_stage1.py
+python scripts/prepare_revision_launch.py
 ```
 
 After regenerating historical/analysis notebooks, run

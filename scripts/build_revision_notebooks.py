@@ -18,7 +18,8 @@ def cell(kind, source):
 
 
 def build(output: Path | None = None, transfer_keys: tuple[str, ...] = ("table8|J->P",)) -> list[Path]:
-    output = output or ROOT / "experiments/kaggle/revision"
+    from scripts.revision_layout import REVISION_ROOT, notebook_path
+    output = output or REVISION_ROOT
     sources = {p.name: p.read_text(encoding="utf-8") for p in sorted((ROOT / "spectral_code/revision").glob("*.py"))}
     # Import only after fixing sys.path when this builder runs directly.
     from spectral_code.revision.training import ARMS
@@ -26,7 +27,7 @@ def build(output: Path | None = None, transfer_keys: tuple[str, ...] = ("table8|
     for arm in ARMS:
         group = "01_readout_controls" if arm in {"full", "mean_max", "attention", "projected", "projected_ast", "projected_ddg", "density_heat", "energy_only", "mean_max_classification_only", "attention_classification_only"} else "02_loss_controls"
         for seed in (42, 123, 231):
-            path = output / group / f"codenet_{arm}_seed{seed}.ipynb"
+            path = output / notebook_path(Path(group) / f"codenet_{arm}_seed{seed}.ipynb")
             config = f'''# One arm and one seed per Kaggle Save & Run. Attach the audited bundle.
 from pathlib import Path
 import time
@@ -144,8 +145,9 @@ classification readout does not receive eigenspectrum or filtered-signal feature
     # Generate any desired key, or all 166 configurations, via the CLI.
     from spectral_code.revision.transfer import FOCUSED_QUOTAS, write_focused_plan, write_plan
     from spectral_code.revision.transfer_matrix import all_configurations
-    write_plan(output / "transfer_plan.csv")
-    write_focused_plan(output / "focused_transfer_plan.csv")
+    (output / "queues").mkdir(parents=True, exist_ok=True)
+    write_plan(output / "queues/transfer_plan.csv")
+    write_focused_plan(output / "queues/focused_transfer_plan.csv")
     allowed = {c.key for c in all_configurations()} | set(FOCUSED_QUOTAS)
     for key in transfer_keys:
         if key not in allowed:
@@ -179,7 +181,7 @@ data_hash = fingerprint({"bundle": data_hash, "transfer": transfer_metadata})
                           'work_dir = Path("/kaggle/working") / ("transfer_" + ARM + "_" + TRANSFER_KEY.replace("|", "_").replace("->", "_") + f"_seed{SEED}")\nwork_dir.mkdir(parents=True, exist_ok=True)\n(work_dir / "transfer_metadata.json").write_text(json.dumps(transfer_metadata, indent=2))')
             s = s.replace("experiment_label=ARM", 'experiment_label=f"transfer/{ARM}/{TRANSFER_KEY}"')
             notebook["cells"][3] = cell("code", s)
-            path = output / "03_transfer" / f"{key.replace('|', '_').replace('->', '_')}_seed{seed}.ipynb"
+            path = output / notebook_path(Path("03_transfer") / f"{key.replace('|', '_').replace('->', '_')}_seed{seed}.ipynb")
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(notebook, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
             written.append(path)
@@ -245,7 +247,7 @@ print(json.dumps(status, indent=2))
 '''
     baseline["cells"][3] = cell("code", baseline_run)
     baseline["metadata"]["kaggle"]["isInternetEnabled"] = True
-    path = output / "04_modern_baseline" / "qwen3_frozen_encoder_and_probe.ipynb"
+    path = output / notebook_path("04_modern_baseline/qwen3_frozen_encoder_and_probe.ipynb")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(baseline, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     written.append(path)
@@ -253,18 +255,18 @@ print(json.dumps(status, indent=2))
     template = json.loads(written[0].read_text(encoding="utf-8"))
     written.extend(extend(output, template, transfer_keys))
     from scripts.sync_notebook_progress import update_notebook
-    for notebook_path in written:
-        update_notebook(notebook_path)
-    with (output / "notebook_manifest.csv").open("w", encoding="utf-8", newline="") as stream:
+    for written_path in written:
+        update_notebook(written_path)
+    with (output / "queues/notebook_manifest.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=("notebook", "sha256", "group", "seed", "final_test_default"))
         writer.writeheader()
-        for notebook_path in written:
-            stem = notebook_path.stem
-            writer.writerow({"notebook": notebook_path.relative_to(output).as_posix(),
-                             "sha256": hashlib.sha256(notebook_path.read_bytes()).hexdigest(),
-                             "group": notebook_path.relative_to(output).parts[0],
+        for written_path in written:
+            stem = written_path.stem
+            writer.writerow({"notebook": written_path.relative_to(output).as_posix(),
+                             "sha256": hashlib.sha256(written_path.read_bytes()).hexdigest(),
+                             "group": written_path.relative_to(output).parts[0],
                              "seed": stem.rsplit("seed", 1)[1] if "seed" in stem else "configured in notebook",
-                             "final_test_default": "False" if "08_analysis" not in notebook_path.parts else "analysis only"})
+                             "final_test_default": "False" if "05_analysis" not in written_path.parts else "analysis only"})
     return written
 
 
