@@ -45,13 +45,14 @@ def load_pairs(clean_data: Path) -> pd.DataFrame:
 
 
 def split_frames(
-    pairs: pd.DataFrame, configuration: Configuration, *, max_train: int | None = None, seed: int = 42
+    pairs: pd.DataFrame, configuration: Configuration, *, max_train: int | None = None, seed: int = 42,
+    matched_budget: int | None = None,
 ) -> dict[str, pd.DataFrame]:
     """Select the train/valid/test rows this configuration is allowed to use.
 
     Train and validation come from the configuration's training buckets only.
-    Test comes from the target bucket, which training never sees, so a bridge
-    result cannot be inflated by direct supervision on the target.
+    Test comes from a held-out language-pair configuration. Bridge training
+    still contains target-language code and labeled cross-language pairs.
     """
     train_mask = pairs.configuration_id.isin(configuration.train_buckets)
     test_mask = pairs.configuration_id.eq(configuration.test_bucket)
@@ -60,7 +61,12 @@ def split_frames(
         "valid": pairs[train_mask & pairs.split.eq("valid")].reset_index(drop=True),
         "test": pairs[test_mask & pairs.split.eq("test")].reset_index(drop=True),
     }
-    if max_train is not None and len(frames["train"]) > max_train:
+    if matched_budget is not None:
+        if max_train is not None:
+            raise ValueError("Choose matched_budget or the legacy max_train cap, not both")
+        from spectral_code.revision.protocol import matched_training_pairs
+        frames["train"] = matched_training_pairs(frames["train"], configuration.train_buckets, matched_budget, seed)
+    elif max_train is not None and len(frames["train"]) > max_train:
         frames["train"] = frames["train"].sample(max_train, random_state=seed).reset_index(drop=True)
     for name, frame in frames.items():
         if frame.empty:

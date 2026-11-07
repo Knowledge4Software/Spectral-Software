@@ -213,14 +213,17 @@ def _choose_threshold(labels, scores) -> tuple[float, dict]:
 
 
 def _validation_selection(labels) -> dict[str, int | bool | str]:
-    """Select Accuracy only for a truly 50/50 usable validation split."""
+    """Use the declared metric; ``auto`` remains a legacy fallback only."""
     labels = np.asarray(labels, dtype=np.int64)
     positives = int((labels == 1).sum())
     negatives = int((labels == 0).sum())
     balanced = positives > 0 and positives == negatives
+    declared = globals().get("VALIDATION_SELECTION_METRIC", "auto")
+    if declared not in {"Accuracy", "F1", "auto"}:
+        raise ValueError("VALIDATION_SELECTION_METRIC must be Accuracy, F1, or auto")
     return {
         "balanced": balanced,
-        "metric": "Accuracy" if balanced else "F1",
+        "metric": ("Accuracy" if balanced else "F1") if declared == "auto" else declared,
         "positives": positives,
         "negatives": negatives,
     }
@@ -228,7 +231,7 @@ def _validation_selection(labels) -> dict[str, int | bool | str]:
 
 def _selection_key(metrics: dict, labels) -> tuple[float, float]:
     context = _validation_selection(labels)
-    if context["balanced"]:
+    if context["metric"] == "Accuracy":
         return float(metrics["Acc"]), float(metrics["F1"])
     return float(metrics["F1"]), float(metrics["BalancedAccuracy"])
 

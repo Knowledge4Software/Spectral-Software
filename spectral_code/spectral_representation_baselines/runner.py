@@ -89,6 +89,8 @@ def parse_args(default_dataset: str | None = None, default_method: str | None = 
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--rf-trees", type=int, default=200)
     parser.add_argument("--rf-max-depth", type=int, default=16)
+    parser.add_argument("--selection-metric", choices=("Accuracy", "F1"), default=None,
+                        help="Explicit benchmark policy; defaults to Accuracy for AtCoder, F1 otherwise.")
     return parser.parse_args()
 
 
@@ -288,9 +290,12 @@ def validation_selection(labels: np.ndarray) -> dict[str, int | bool | str]:
     positives = int((labels == 1).sum())
     negatives = int((labels == 0).sum())
     balanced = positives > 0 and positives == negatives
+    declared = globals().get("VALIDATION_SELECTION_METRIC", "auto")
+    if declared not in {"Accuracy", "F1", "auto"}:
+        raise ValueError("Invalid validation selection metric")
     return {
         "balanced": balanced,
-        "metric": "Accuracy" if balanced else "F1",
+        "metric": ("Accuracy" if balanced else "F1") if declared == "auto" else declared,
         "positives": positives,
         "negatives": negatives,
     }
@@ -298,7 +303,7 @@ def validation_selection(labels: np.ndarray) -> dict[str, int | bool | str]:
 
 def selection_key(value: Metrics, labels: np.ndarray) -> tuple[float, float]:
     context = validation_selection(labels)
-    if context["balanced"]:
+    if context["metric"] == "Accuracy":
         return value.accuracy, value.f1
     return value.f1, value.balanced_accuracy
 
@@ -360,6 +365,10 @@ def row_from_metrics(dataset: str, graph_type: str, method: str, test: Metrics, 
 
 
 def run(args: argparse.Namespace) -> pd.DataFrame:
+    global VALIDATION_SELECTION_METRIC
+    VALIDATION_SELECTION_METRIC = getattr(args, "selection_metric", None) or (
+        "Accuracy" if args.dataset == "atcoder" else "F1"
+    )
     root = (args.clean_data_dir or DATASET_DIRS[args.dataset]).resolve()
     if not root.exists(): raise FileNotFoundError(f"Clean dataset is not available: {root}")
     out_dir = (args.output_root / args.dataset / args.method).resolve(); out_dir.mkdir(parents=True, exist_ok=True)

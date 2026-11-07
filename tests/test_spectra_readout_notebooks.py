@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 KAGGLE = ROOT / "experiments" / "kaggle"
 # The RQ2 comparison keeps one folder per benchmark.
 RQ2 = KAGGLE / "rq2"
-REFERENCE = KAGGLE / "exploratory/06_codenet_nonclone_scopes/02_clone_vs_diff_problem.ipynb"
+REFERENCE = RQ2 / "codenet/method/spectra_siam_lex.ipynb"
 TEMPLATE = ROOT / "spectral_code/templates/spectra_siam_kaggle_template.ipynb"
 RQ1_NOTEBOOKS = (
     ROOT / "experiments/kaggle/rq1/01_atcoder_export_latent_graphs.ipynb",
@@ -24,17 +24,8 @@ LATENT_EXPORTS = {
     RQ2 / "xglue/method/spectra_siam_lex_export_latent_graphs.ipynb",
     *(KAGGLE / "rq1").glob("*_export_latent_graphs.ipynb"),
 }
-FEATURE_ABLATION_NOTEBOOKS = tuple(
-    KAGGLE / "exploratory" / "04_feature_ablation" / name
-    for name in (
-        "atcoder_v3.ipynb",
-        "codexglue_v3.ipynb",
-        "codexglue_v3_feature_ablation_canonical.ipynb",
-        "codexglue_v3_feature_ablation_lexical.ipynb",
-        "gptclonebench_v3.ipynb",
-        "semanticclonebench_v3.ipynb",
-    )
-)
+FEATURE_ABLATION_NOTEBOOKS = tuple(RQ2 / dataset / "method" / f"spectra_siam_{variant}.ipynb"
+    for dataset in ("atcoder", "xglue", "codenet") for variant in ("label", "lex"))
 DATASETS = ("atcoder", "xglue", "codenet")
 VARIANTS = {
     "topo": (True, False, False, False),
@@ -170,23 +161,11 @@ def test_input_ablation_descriptions_define_a_cumulative_hierarchy():
 
 
 def test_feature_ablation_canonical_and_lexical_arms_are_cumulative():
-    canonical = (
-        '("canonical", dict(strip_node_types=False, use_node_lexical=False, '
-        'use_source_lexical=False, readout_mode="graph_signal_spectral"))'
-    )
-    lexical = (
-        '("lexical", dict(strip_node_types=False, use_node_lexical=True, '
-        'use_source_lexical=False, readout_mode="graph_signal_spectral"))'
-    )
     for path in FEATURE_ABLATION_NOTEBOOKS:
         text = _source(_load(path))
-        if "canonical" in path.stem:
-            assert canonical in text, path
-        elif "lexical" in path.stem:
-            assert lexical in text, path
-        else:
-            assert canonical in text, path
-            assert lexical in text, path
+        assert "STRIP_NODE_TYPES = False" in text, path
+        assert "USE_SOURCE_LEXICAL = False" in text, path
+        assert ('USE_NODE_LEXICAL = True' if path.stem.endswith('_lex') else 'USE_NODE_LEXICAL = False') in text, path
 
 
 def test_ablation_runs_are_final_and_write_variant_scoped_artifacts():

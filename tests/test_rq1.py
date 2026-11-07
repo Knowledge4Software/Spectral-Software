@@ -45,7 +45,7 @@ def test_rq1_notebooks_use_latest_method_and_export_every_latent_graph():
         assert "left_embedding * right_embedding" not in source, path
         assert "embedding_contrastive_weight must remain zero" in source, path
         assert "USE_SOURCE_LEXICAL = False" in source, path
-        assert 'validation_selection_metric = "Accuracy" if validation_is_balanced else "F1"' in source, path
+        assert 'validation_selection_metric = VALIDATION_SELECTION_METRIC' in source, path
         assert "choose_threshold(valid_labels, valid_probabilities, validation_selection_metric)" in source, path
         assert '"selection_metric": validation_selection_metric' in source, path
         assert 'encoder_auxiliary["latent_adjacency"] = adjacency.detach()' in source, path

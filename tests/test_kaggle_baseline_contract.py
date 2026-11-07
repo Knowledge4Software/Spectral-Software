@@ -127,5 +127,5 @@ def test_all_baselines_use_the_same_label_balance_selection_policy():
         for filename in BASELINES:
             path = KAGGLE / dataset / "baselines" / filename
             source = _source(path)
-            assert '"metric": "Accuracy" if balanced else "F1"' in source, path
+            assert 'VALIDATION_SELECTION_METRIC = ' in source, path
             assert "best_f1_threshold" not in source, path

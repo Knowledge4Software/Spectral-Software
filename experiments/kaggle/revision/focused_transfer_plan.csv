@@ -1,0 +1,7 @@
+key,train_quotas,valid_quotas,test_bucket,train_pairs,valid_pairs,target_containing_train_pairs,target_containing_valid_pairs,epochs,optimizer_steps,optional
+focused|source_only,{'J-J': 6000},{'J-J': 1200},P-P,6000,1200,0,0,30,1410,False
+focused|direct,"{'J-J': 4500, 'J-P': 1500}","{'J-J': 900, 'J-P': 300}",P-P,6000,1200,1500,300,30,1410,False
+focused|two_hop,"{'J-J': 2250, 'J-C': 2250, 'C-P': 1500}","{'J-J': 450, 'J-C': 450, 'C-P': 300}",P-P,6000,1200,1500,300,30,1410,False
+focused|three_hop,"{'J-J': 1500, 'J-C': 1500, 'C-S': 1500, 'S-P': 1500}","{'J-J': 300, 'J-C': 300, 'C-S': 300, 'S-P': 300}",P-P,6000,1200,1500,300,30,1410,False
+focused|target_reference,{'P-P': 6000},{'P-P': 1200},P-P,6000,1200,6000,1200,30,1410,False
+focused|two_hop_reinforced,"{'J-J': 1500, 'J-C': 1500, 'C-C': 1500, 'C-P': 1500}","{'J-J': 300, 'J-C': 300, 'C-C': 300, 'C-P': 300}",P-P,6000,1200,1500,300,30,1410,True

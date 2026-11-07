@@ -25,6 +25,61 @@ through Latent Graph Learning for Generalizable Cross-Language Code Clone
 Detection.”** The paper is available as an
 [arXiv preprint](https://arxiv.org/abs/2608.22383).
 
+## Reviewer-response experiments
+
+Start with the [first Kaggle run](experiments/kaggle/revision/FIRST_RUN.md), then
+follow the [seed-42 run queue](experiments/kaggle/revision/stage1_run_queue.csv).
+The [frozen experiment protocol](experiments/kaggle/revision/EXPERIMENT_PROTOCOL.md)
+explains which reviewer concerns each comparison addresses.
+It covers problem/submission/source-disjoint CodeNet preparation, matched
+readout and loss controls, explicit validation selection, and Kaggle training
+that checkpoints and resumes across sessions below the 12-hour limit.
+
+The new revision experiments are versioned separately from the submitted
+four-epoch experiments. The existing RQ1/RQ2/RQ3 notebooks now use explicit
+benchmark selection policies; regenerated scores may differ from archived
+submission results. No new empirical superiority is claimed before rerunning.
+
+## Project layout
+
+| Folder | Purpose |
+| --- | --- |
+| `experiments/kaggle/revision/` | Current reviewer-response notebooks, protocols and run manifests |
+| `spectral_code/revision/` | Maintained data/model/training/evaluation implementation |
+| `scripts/` | Notebook generation, progress synchronization and release packaging |
+| `docs/revision/` | Revision roadmap and Persian planning guide |
+| `experiments/kaggle/rq1`, `rq2`, `rq3`, `d1`–`d5` | Historical paper experiments; keep separate from new revision scores |
+| `create_datasets_graphs/`, `pipelines/` | Dataset construction and graph extraction |
+| `tests/` | Numerical, protocol, resume and notebook checks |
+
+Dataset archives live outside the Git repository under `../data/benchmarks/`.
+Generated release ZIPs, figures, checkpoints and local audit output stay under
+ignored output directories. Notebook sources are committed without execution
+outputs. Previously embedded outputs are backed up locally under
+`output/review/notebook_output_backups/` when progress is synchronized.
+
+All notebooks have a tqdm cell counter. Current revision jobs additionally show
+large-file loading, training/evaluation batches, tokenization and embedding
+progress. Progress adapters preserve the scientific training fingerprint and
+existing checkpoint compatibility; comparative timing uses the original loader.
+Notebook line endings are fixed to LF so Git checkouts preserve release hashes
+on Windows and Linux.
+
+Rebuild current notebooks and manifests with:
+
+```powershell
+python scripts/build_revision_notebooks.py
+python scripts/prepare_revision_stage1.py
+```
+
+After regenerating historical/analysis notebooks, run
+`python scripts/sync_notebook_progress.py` to restore their cell progress bars.
+Use `scripts/package_revision_experiments.py --stage-one --output <new-zip-path>`
+for a new immutable first-stage packet. Dataset ZIPs are reused across jobs.
+Run `powershell -File scripts/clean_workspace.ps1 -DryRun` to inspect disposable
+cache/test-scratch cleanup; omit `-DryRun` to apply it. The cleaner preserves
+tracked files, links, datasets, manuscript files, results and release archives.
+
 ## Overview
 
 Code clone detectors commonly compare fixed, language-specific structures such as
@@ -47,14 +102,19 @@ transfer to language pairs not observed during training.
 | **Representation** | Multi-scale spectra of the learned graph's normalized Laplacian |
 | **Evaluation resources** | CodeNet 4L, AtCoder, and BigCloneBench through CodeXGLUE |
 
-## Results at a glance
+## Historical submission results
+
+These values are reported by the submitted paper under its original protocol.
+They are not new revision results or proof of universal superiority. Bridge
+training includes target-language code and labels; it is held-out pair-configuration
+generalization. New comparisons use the separate audited revision protocol.
 
 | Evaluation | Comparison | Reported result |
 | --- | --- | ---: |
 | BigCloneBench | Fixed graphs → learned latent graphs, using the same classifier | F1: **0.37 → 0.67** |
 | AtCoder | Fixed graphs → learned latent graphs, using the same classifier | Accuracy: **0.60 → 0.71** |
 | CodeNet 4L | Full SPECTRA-Siam model | Accuracy: **0.69** at 4 epochs, **0.79** at 30 epochs |
-| Unseen language transfer | Performance degradation across 60 bridge-assisted paths | **0.058**, compared with **0.112–0.228** for the baselines |
+| Bridge-assisted transfer | Performance degradation across 60 bridge-assisted paths | **0.058**, compared with **0.112–0.228** for the baselines |
 
 ## Method overview
 

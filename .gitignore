@@ -102,6 +102,7 @@ build/
 
 # local configs
 local_config.py
+.claude/
 
 # notebook artifacts
 *.nbconvert.ipynb

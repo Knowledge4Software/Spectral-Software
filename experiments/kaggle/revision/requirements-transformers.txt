@@ -1,0 +1,5 @@
+# Kaggle provides CUDA PyTorch: do not replace it with the local CPU build.
+transformers>=4.51,<5
+peft>=0.15,<1
+accelerate>=1,<2
+safetensors

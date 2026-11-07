@@ -27,3 +27,15 @@ def test_balanced_validation_prioritizes_accuracy_and_imbalanced_prioritizes_f1(
     assert selection_key(higher_f1, balanced) < selection_key(higher_acc, balanced)
     assert _selection_key({"F1": higher_f1.f1, "Acc": higher_f1.accuracy, "BalancedAccuracy": higher_f1.balanced_accuracy}, imbalanced) > _selection_key({"F1": higher_acc.f1, "Acc": higher_acc.accuracy, "BalancedAccuracy": higher_acc.balanced_accuracy}, imbalanced)
     assert selection_key(higher_f1, imbalanced) > selection_key(higher_acc, imbalanced)
+
+
+def test_explicit_accuracy_policy_survives_graph_coverage_imbalance(monkeypatch):
+    from spectral_code.faithful_graph_baselines import notebook_runtime
+    from spectral_code.spectral_representation_baselines import runner
+    labels = np.array([1] * 101 + [0] * 100)
+    monkeypatch.setattr(notebook_runtime, "VALIDATION_SELECTION_METRIC", "Accuracy", raising=False)
+    monkeypatch.setattr(runner, "VALIDATION_SELECTION_METRIC", "Accuracy", raising=False)
+    assert _validation_selection(labels)["metric"] == "Accuracy"
+    assert validation_selection(labels)["metric"] == "Accuracy"
+    assert not _validation_selection(labels)["balanced"]
+    assert _selection_key({"Acc": .8, "F1": .7}, labels) == (.8, .7)

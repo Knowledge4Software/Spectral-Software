@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 BASE_RUNNER = PROJECT_ROOT / "create_datasets_graphs/codenet_4l/run_pipeline/run_all.py"
 DATA_ROOT = PROJECT_ROOT.parent / "data"
 OUTPUT_ROOT = PROJECT_ROOT.parent / "outputs"
