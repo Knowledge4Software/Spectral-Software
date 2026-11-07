@@ -99,6 +99,11 @@ reviewer request satisfied. No result is represented as an unimplemented method.
   and use its commit in `MODEL_REVISION` for continuation and later seeds.
   GPU memory, downloads and actual speed must be checked on Kaggle.
 - Training-source changes invalidate continuation; analysis-only changes do not.
+  The AMP numerical-fix release permits one explicit, allowlisted upgrade from
+  the known earlier implementation with identical data/model/loss/settings.
+  It records lineage and does not accept arbitrary source changes; see
+  `NUMERICAL_RECOVERY.md`. Overflow attempts replay the same effective batch
+  with restored RNG/buffers, bounded scale backoff and a final FP32 attempt.
   The explicit dependency list is in `revision/versioning.py`. Preserve the
   release notebooks and dataset hashes with every output. Never edit a generated
   embedded runtime by hand. A scientific configuration mismatch raises an error.

@@ -65,6 +65,11 @@ existing checkpoint compatibility; comparative timing uses the original loader.
 Notebook line endings are fixed to LF so Git checkouts preserve release hashes
 on Windows and Linux.
 
+The T4 AMP-overflow fix replays the same effective batch with a lower loss scale
+and bounded FP32 fallback, without skipping training pairs. Follow
+[numerical checkpoint recovery](experiments/kaggle/revision/NUMERICAL_RECOVERY.md)
+to continue a pre-fix checkpoint through the explicit, allowlisted upgrade.
+
 Rebuild current notebooks and manifests with:
 
 ```powershell

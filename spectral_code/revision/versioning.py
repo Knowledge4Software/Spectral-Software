@@ -12,7 +12,7 @@ from .protocol import fingerprint
 TRAINING_SOURCES = (
     "__init__.py", "versioning.py", "canonical_types.py", "data.py",
     "alignment.py", "batching.py", "model.py", "protocol.py", "training.py",
-    "io_utils.py", "legacy.py", "transformer.py", "jobs.py", "transfer.py",
+    "io_utils.py", "legacy.py", "transformer.py", "jobs.py", "transfer.py", "numerics.py",
     "transfer_matrix.py",
 )
 

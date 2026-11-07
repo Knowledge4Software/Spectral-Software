@@ -181,7 +181,8 @@ def prepare_data(clean_data: Path, config: RunConfig, *, require_disjoint: bool 
 def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: RevisionModelConfig,
                   losses: dict, work_dir: Path, *, data_hash: str, resume: Path | None = None,
                   clock=None, model_factory=RevisionPairModel, experiment_label: str = "unspecified",
-                  data_group_hash: str | None = None, loss_function=None) -> dict:
+                  data_group_hash: str | None = None, loss_function=None,
+                  allow_numerical_upgrade: bool = False) -> dict:
     """Train one arm/seed for one session. Reading test metrics is a separate step."""
     clock = clock or SessionClock(config)
     accounted_at = time.monotonic()
@@ -189,6 +190,8 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
     identity = run_identity(config, asdict(model_config), losses, data_hash)
     # Code changes invalidate optimizer continuation; never silently mix models.
     from .versioning import training_implementation_hash
+    from .numerics import (POLICY, NumericalStepFailure, can_upgrade, optimizer_group,
+                           validate_checkpoint_numerics)
     source_hash = training_implementation_hash()
     identity = fingerprint({"run": identity, "implementation": source_hash, "arm": experiment_label})
     progress = work_dir / "progress.pt"
@@ -210,6 +213,7 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
              "data_hash": data_hash, "implementation_hash": source_hash,
              "data_group_hash": data_group_hash or data_hash,
              "arm": experiment_label,
+             "numerical_policy": POLICY, "numerical_events": [], "lineage": [],
              "training_validation_wall_seconds": 0.0,
              "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
              "device": str(device), "torch_version": str(torch.__version__)}
@@ -217,8 +221,26 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
     if checkpoint_path is not None:
         loaded = _load_checkpoint(checkpoint_path, device)
         if loaded["identity"] != identity:
-            raise ValueError("Resume identity mismatch: data, seed, architecture, losses, protocol or implementation changed")
+            old_hash = loaded.get("implementation_hash")
+            old_identity = fingerprint({"run": run_identity(config, asdict(model_config), losses, data_hash),
+                                        "implementation": old_hash, "arm": experiment_label})
+            if not (allow_numerical_upgrade and can_upgrade(old_hash) and loaded["identity"] == old_identity):
+                raise ValueError("Resume identity mismatch: data, seed, architecture, losses, protocol or implementation changed. "
+                                 "Approved numerical-only continuation requires ALLOW_NUMERICAL_UPGRADE=True.")
+            validate_checkpoint_numerics(loaded)
+            loaded.setdefault("lineage", []).append({"from_identity": loaded["identity"],
+                "from_implementation_hash": old_hash, "to_identity": identity,
+                "to_implementation_hash": source_hash, "policy": POLICY,
+                "epoch": loaded["epoch"], "batch": loaded["batch"],
+                "reason": "Explicit approved AMP-overflow fix; architecture/data/hyperparameters unchanged"})
+            loaded.update(identity=identity, implementation_hash=source_hash)
+            print(json.dumps({"status": "approved_numerical_upgrade", "lineage": loaded["lineage"][-1]}), flush=True)
         state = loaded
+        state.setdefault("numerical_events", [])
+        state.setdefault("lineage", [])
+        state["numerical_policy"] = POLICY
+        if state.get("stop_reason") == "nonfinite_after_fp32":
+            state["stop_reason"] = None
         model.load_state_dict(state["model"])
         optimizer.load_state_dict(state["optimizer"])
         scaler.load_state_dict(state["scaler"])
@@ -243,6 +265,7 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
         summary.update({key: state.get(key) for key in ("best_epoch", "best_valid", "stop_reason", "arm", "training",
                                                         "model_config", "losses", "data_hash", "data_group_hash",
                                                         "implementation_hash", "gpu", "training_validation_wall_seconds")})
+        summary.update({key: state[key] for key in ("numerical_policy", "numerical_events", "lineage")})
         summary["session_setup_wall_seconds"] = state["session_setup_wall_seconds"]
         summary.update(status=status, checkpoint=str(progress), test_evaluated=False,
                        continuation="Attach this output as a Kaggle input and set RESUME_CHECKPOINT to its progress.pt")
@@ -260,6 +283,12 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
     positive_weight = min(10.0, (len(train) - positive) / max(1, positive))
     accumulation = config.effective_batch_size // config.batch_size
     total_batches = math.ceil(len(train) / config.batch_size)
+    def numerical_event(event):
+        record = {"epoch": state["epoch"], "batch": state["batch"],
+                  "optimizer_steps": state["optimizer_steps"], **event}
+        state["numerical_events"].append(record)
+        print(json.dumps({"status": "numerical_recovery", **record}), flush=True)
+
     try:
         while state["epoch"] <= config.max_epochs and not state["complete"]:
             clock.check()
@@ -269,27 +298,16 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
             while state["batch"] < total_batches:
                 clock.check()
                 group_size = min(accumulation, total_batches - state["batch"])
-                group_examples = min(config.effective_batch_size, len(train) - state["batch"] * config.batch_size)
-                for _ in range(group_size):
-                    left, right, labels = next(loader)
-                    labels = labels.to(device)
-                    with torch.autocast(device_type=device.type, enabled=config.amp and device.type == "cuda"):
-                        logits, auxiliary = model(left.to(device), right.to(device), None)
-                        loss, _ = loss_function(logits, auxiliary, labels,
-                                                       positive_class_weight=positive_weight, **losses)
-                    if not torch.isfinite(loss):
-                        raise FloatingPointError("Non-finite loss; this run cannot be reported as complete")
-                    scaler.scale(loss * len(labels) / group_examples).backward()
-                    state["loss_sum"] += float(loss.detach().cpu()) * len(labels)
-                    state["seen"] += len(labels)
+                group = [next(loader) for _ in range(group_size)]
+                contributions, recovery = optimizer_group(model, optimizer, scaler, group,
+                    config=config, device=device, losses=losses, loss_function=loss_function,
+                    positive_class_weight=positive_weight, clock=clock, on_event=numerical_event)
+                for weighted_loss, examples in contributions:
+                    state["loss_sum"] += weighted_loss
+                    state["seen"] += examples
                     state["batch"] += 1
-                scaler.unscale_(optimizer)
-                norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                if not torch.isfinite(norm):
-                    raise FloatingPointError("Non-finite gradient norm")
-                scaler.step(optimizer); scaler.update(); optimizer.zero_grad(set_to_none=True)
                 state["optimizer_steps"] += 1
-                if time.monotonic() - last_checkpoint >= config.checkpoint_minutes * 60:
+                if recovery or time.monotonic() - last_checkpoint >= config.checkpoint_minutes * 60:
                     save("training")
             # Persist the epoch before validation: validation can be retried on
             # resume without repeating updates if the session ends here.
@@ -312,6 +330,15 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
             save("complete" if state["complete"] else "training")
     except SessionBudgetReached:
         return save("incomplete_session_budget")
+    except NumericalStepFailure as error:
+        state["stop_reason"] = "nonfinite_after_fp32"
+        summary = save("failed_nonfinite")
+        diagnostic = {"epoch": state["epoch"], "batch": state["batch"],
+                      "optimizer_steps": state["optimizer_steps"], "identity": state["identity"],
+                      **error.diagnostic}
+        (work_dir / "numerical_failure.json").write_text(json.dumps(diagnostic, indent=2), encoding="utf-8")
+        raise FloatingPointError(f"Non-finite values persisted in FP32. Safe pre-group checkpoint: {summary['checkpoint']}; "
+                                 f"diagnostics: {work_dir / 'numerical_failure.json'}") from error
     return save("complete")
 
 
@@ -360,6 +387,7 @@ def evaluate_final(checkpoint: Path, frames: dict, graphs: dict, config: RunConf
     result["training_validation_wall_seconds"] = state["training_validation_wall_seconds"]
     result["session_setup_wall_seconds"] = state.get("session_setup_wall_seconds", 0.0)
     result["gpu"] = state["gpu"]
+    result.update({key: state.get(key) for key in ("numerical_policy", "numerical_events", "lineage")})
     predictions = frames["test"].copy()
     predictions["probability"] = p
     predictions["threshold"] = state["best_threshold"]

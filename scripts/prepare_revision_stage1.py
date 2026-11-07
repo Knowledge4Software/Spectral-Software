@@ -18,6 +18,7 @@ from spectral_code.revision.model import RevisionModelConfig
 from spectral_code.revision.protocol import RunConfig
 from spectral_code.revision.training import LOSS_WEIGHTS
 from spectral_code.revision.transformer import TransformerConfig
+from spectral_code.revision.numerics import POLICY
 from spectral_code.revision.versioning import training_implementation_hash
 
 DATASETS = {
@@ -75,6 +76,7 @@ def prepare(root=None):
         writer.writeheader(); writer.writerows(selected)
     release = {"protocol": "spectra_revision_stage1_v1", "date": "2026-11-06",
                "training_implementation_hash": training_implementation_hash(),
+               "numerical_policy": POLICY,
                "research_jobs": len(jobs), "seed": 42, "test_release": False,
                "tuning": "One prespecified default configuration per method; no hyperparameter search in this stage",
                "scientific_settings": settings, "full_model": asdict(RevisionModelConfig()),

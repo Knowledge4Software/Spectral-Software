@@ -36,7 +36,7 @@ def package(output, stage_one=False):
             raise ValueError(f"Stale baseline encoder support: {path}")
     extras = ["README.md", "RUN_ORDER.md", "REVIEWER_COVERAGE.md", "MANUSCRIPT_CORRECTIONS.md",
               "requirements-transformers.txt", manifest_name, "transfer_plan.csv", "focused_transfer_plan.csv",
-              "EXPERIMENT_PROTOCOL.md", "FIRST_RUN.md", "stage1_run_queue.csv", "stage1_protocol.json"]
+              "EXPERIMENT_PROTOCOL.md", "FIRST_RUN.md", "NUMERICAL_RECOVERY.md", "stage1_run_queue.csv", "stage1_protocol.json"]
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, "x", compression=zipfile.ZIP_DEFLATED) as archive:

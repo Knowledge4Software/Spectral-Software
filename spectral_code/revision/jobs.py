@@ -33,7 +33,8 @@ def run_external(*, method, seed, started, clean_data=None, session_hours=10.0,
                  effective_batch_size=128, learning_rate=None, transfer_key=None,
                  matched_pairs=6000, resume_checkpoint=None, resume_tokens=None,
                  final_test=False, output_root=Path("/kaggle/working"),
-                 dataset="codenet", model_revision=None, measure_cost=True):
+                 dataset="codenet", model_revision=None, measure_cost=True,
+                 allow_numerical_upgrade=False):
     if not torch.cuda.is_available():
         raise RuntimeError("Enable a GPU for these full training jobs")
     is_text = method in {"codebert", "c4_adapted", "qwen3_lora"}
@@ -81,7 +82,8 @@ def run_external(*, method, seed, started, clean_data=None, session_hours=10.0,
         config_factory = LegacyConfig
     summary = train_session(frames, packed, config, model_config, {}, output, data_hash=data_hash,
                             data_group_hash=group_hash, model_factory=factory, clock=clock,
-                            resume=Path(resume_checkpoint) if resume_checkpoint else None, experiment_label=label)
+                            resume=Path(resume_checkpoint) if resume_checkpoint else None, experiment_label=label,
+                            allow_numerical_upgrade=allow_numerical_upgrade)
     if measure_cost and summary["complete"]:
         from .benchmark import benchmark_checkpoint
         benchmark_checkpoint(output / "progress.pt", frames["train"], packed, config, output / "benchmark.json",

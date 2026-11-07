@@ -6,6 +6,10 @@ until the Kaggle jobs finish and the final test is explicitly released.
 
 ## Start here
 
+If a T4 run failed with `Non-finite gradient norm`, use the fixed v3 notebook
+and follow [NUMERICAL_RECOVERY.md](NUMERICAL_RECOVERY.md) to continue a retained
+checkpoint. The numerical upgrade is explicit and records its source lineage.
+
 The current execution instructions are [FIRST_RUN.md](FIRST_RUN.md) and the
 frozen [EXPERIMENT_PROTOCOL.md](EXPERIMENT_PROTOCOL.md). Start one CodeNet full
 seed-42 pilot, then complete the 29-job seed-42 baseline queue before adding

@@ -94,6 +94,7 @@ TRANSFER_KEY = {key!r}
 MATCHED_TRAIN_PAIRS = 6000
 CLEAN_DATA_DIR = None
 RESUME_CHECKPOINT = None
+ALLOW_NUMERICAL_UPGRADE = False
 RESUME_TOKENS_DIR = None
 MODEL_REVISION = None  # resolved to a fixed model commit at first token-cache creation
 FINAL_TEST = False
@@ -109,7 +110,8 @@ summary = run_external(method=METHOD, dataset=DATASET, seed=SEED, started=SESSIO
                        learning_rate=LEARNING_RATE, transfer_key=TRANSFER_KEY,
                        matched_pairs=MATCHED_TRAIN_PAIRS, resume_checkpoint=RESUME_CHECKPOINT,
                        resume_tokens=RESUME_TOKENS_DIR, model_revision=MODEL_REVISION,
-                       final_test=FINAL_TEST, measure_cost=MEASURE_COST)
+                       final_test=FINAL_TEST, measure_cost=MEASURE_COST,
+                       allow_numerical_upgrade=ALLOW_NUMERICAL_UPGRADE)
 print(json.dumps(summary, indent=2))
 '''
                     if is_text:

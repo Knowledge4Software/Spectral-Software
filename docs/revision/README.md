@@ -5,6 +5,8 @@
 - [Persian guide](REVISION_PLAN_FA.md): goals, rationale and planning estimates.
 - [First Kaggle run](../../experiments/kaggle/revision/FIRST_RUN.md): exact input,
   notebook settings, progress and checkpoint continuation.
+- [T4 numerical checkpoint recovery](../../experiments/kaggle/revision/NUMERICAL_RECOVERY.md):
+  AMP retry/FP32 fallback and explicit source-version upgrade with lineage.
 - [Frozen experiment protocol](../../experiments/kaggle/revision/EXPERIMENT_PROTOCOL.md).
 - [Seed-42 run queue](../../experiments/kaggle/revision/stage1_run_queue.csv).
 - [Reviewer coverage and remaining limitations](../../experiments/kaggle/revision/REVIEWER_COVERAGE.md).

@@ -38,6 +38,7 @@ MIN_EPOCHS = 10
 PATIENCE = 10  # stop after this many validations without improvement
 CLEAN_DATA_DIR = None  # optional explicit directory containing metadata.json
 RESUME_CHECKPOINT = None  # /kaggle/input/<previous-output>/.../progress.pt
+ALLOW_NUMERICAL_UPGRADE = False  # True only for the documented pre-fix AMP checkpoint recovery
 FINAL_TEST = False  # enable only after experiment/model choices are frozen
 MEASURE_COST = True
 SESSION_HOURS = 10.0  # 9h15 training/evaluation + 45 min reserved for safe output
@@ -90,7 +91,8 @@ work_dir = Path("/kaggle/working") / f"revision_{ARM}_seed{SEED}"
 summary = train_session(frames, graphs, run_config, model_config, losses, work_dir,
                         data_hash=data_hash,
                         resume=Path(RESUME_CHECKPOINT) if RESUME_CHECKPOINT else None, clock=clock,
-                        experiment_label=ARM, data_group_hash=data_group_hash)
+                        experiment_label=ARM, data_group_hash=data_group_hash,
+                        allow_numerical_upgrade=ALLOW_NUMERICAL_UPGRADE)
 print(json.dumps(summary, indent=2))
 if MEASURE_COST and summary["complete"]:
     from spectral_code.revision.benchmark import benchmark_checkpoint

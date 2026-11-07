@@ -5,7 +5,7 @@ needed now. Use this release rather than the older notebook ZIP.
 
 ## Files
 
-1. Current notebook packet: `output/review/spectra_revision_stage1_v2.zip`.
+1. Current notebook packet: `output/review/spectra_revision_stage1_v3.zip`.
 2. Dataset: `C:/PyProjects/spectrals/data/benchmarks/codenet_revision_common_support.zip`.
 3. First notebook inside the packet:
    `revision/01_readout_controls/codenet_full_seed42.ipynb`.
@@ -38,6 +38,7 @@ MIN_EPOCHS = 10
 PATIENCE = 10
 CLEAN_DATA_DIR = None
 RESUME_CHECKPOINT = None
+ALLOW_NUMERICAL_UPGRADE = False
 FINAL_TEST = False
 MEASURE_COST = True
 SESSION_HOURS = 10.0
@@ -60,6 +61,11 @@ training/evaluation batches and token/embedding cache creation. Training bars
 start at the saved batch cursor on resume. These display adapters do not change
 the scientific training fingerprint, model, optimizer or sampling schedule.
 An already running older notebook can finish; do not restart solely for tqdm.
+
+The v3 numerical fix separately updates training code to replay AMP-overflow
+batches, with bounded FP32 fallback. An existing pre-fix checkpoint needs the
+explicit, checked upgrade in [NUMERICAL_RECOVERY.md](NUMERICAL_RECOVERY.md).
+An ordinary resume never silently accepts a different source snapshot.
 
 Output directory: `/kaggle/working/revision_full_seed42/`.
 Retain the whole output version, especially:
