@@ -1,8 +1,8 @@
 # Revision documentation
 
 For execution start with [the Persian workspace guide](../START_HERE_FA.md)
-and [the next 24 jobs](../queues/LAUNCH_24.md). The user-reported CodeNet pilot
-is complete; reuse it. Original roadmap dates and checklists are retained below
+and [the current launch list](../queues/LAUNCH_24.md). The CodeNet/full checkpoint
+is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
 - [Full revision roadmap](REVISION_MASTER_PLAN.md): reviewer concerns, dependencies,

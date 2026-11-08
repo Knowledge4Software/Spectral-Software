@@ -11,8 +11,11 @@ The 2026-11-08 batch is retained at
 `_audit/` contain validation scores, integrity checks and the archive rename
 manifest. Five CodeNet baselines are complete and verified: ASTNN, RtvNN,
 DeepSim, FA-AST-GGNN and FA-AST-GMN. CDLH must resume its saved checkpoint
-partway through epoch 9. CodeNet/full/42 remains reported complete at 43 epochs;
-its full local output is still needed before its best validation score is known.
+partway through epoch 9. CodeNet/full/42 is now also verified from its full
+archive: 43 completed epochs, best epoch 33, validation Accuracy 79.91% and
+F1 80.67%. DeepSim leads this batch at 81.33% Accuracy. These are single-seed
+validation results; final tests remain off. The three text-run reports are
+still pending review. The CPU collector continues to need only those three.
 
 Download saved output versions into this local structure when available:
 

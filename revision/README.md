@@ -29,12 +29,12 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | [results](results/README.md) | Run tracker and instructions for retaining Kaggle outputs |
 | [optional](optional/README.md) | Frozen Qwen probe; outside the 29-job baseline roster |
 
-On 2026-11-07 the user reported CodeNet/full/seed42 completed at epoch 43 on a
-Tesla T4, with test evaluation off. Its saved `status.json` has not been imported
-locally. Reuse that successful run; obtain its best validation fields before
-assessing accuracy. On 2026-11-08, five CodeNet graph-baseline completions were
-verified from local archives. CDLH paused on its session budget and must resume
-its checkpoint. See [the results tracker](results/README.md) for evidence and
+On 2026-11-08, CodeNet/full/seed42 was verified from its saved archive: 43 epochs
+completed on T4, best epoch 33, validation Accuracy 79.91% and F1 80.67%, with
+test evaluation off. Five CodeNet graph baselines are also verified complete.
+DeepSim leads the received batch at 81.33% validation Accuracy; text-run reports
+are still pending. Reuse completed runs. CDLH must resume its checkpoint.
+See [the results tracker](results/README.md) for evidence and
 [the current launch list](queues/LAUNCH_24.md) before starting another job.
 
 The folder reorganization preserves the bytes of all 193 existing notebooks,

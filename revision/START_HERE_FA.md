@@ -10,10 +10,11 @@ Import کن. فایل ZIP فقط برای انتقال مجموعه است و ب
 
 ## الان چه کاری انجام بدهم؟
 
-ران **CodeNet / SPECTRA full / seed 42** طبق خروجی‌ای که فرستادی با ۴۳ epoch
-کامل شده است. دوباره اجرا نکن. خروجی کامل آن، خصوصاً `progress.pt` و `status.json`
-را نگه دار. `FINAL_TEST=False` درست است. بهترین امتیاز validation و epoch انتخاب‌شده
-هنوز باید از `status.json` دریافت شود؛ لاگ انتهایی امتیاز نهایی را نشان نمی‌دهد.
+ران **CodeNet / SPECTRA full / seed 42** از روی ZIP و checkpoint تأیید شد:
+۴۳ epoch کامل، بهترین epoch برابر ۳۳، دقت validation برابر ۷۹٫۹۱٪ و F1 برابر
+۸۰٫۶۷٪. دوباره اجرا نکن. خروجی کامل آن، خصوصاً `progress.pt` و `status.json` را
+نگه دار. `FINAL_TEST=False` درست است. DeepSim فعلاً با دقت ۸۱٫۳۳٪ جلوتر است؛
+این مقایسه فقط validation یک seed است و برتری آماری یا نتیجهٔ test را ثابت نمی‌کند.
 
 در بررسی خروجی‌های محلی در تاریخ ۲۰۲۶-۱۱-۰۸، پنج baseline روی CodeNet شامل
 ASTNN، RtvNN، DeepSim، FA-AST-GGNN و FA-AST-GMN کامل و صحت checkpoint آن‌ها
