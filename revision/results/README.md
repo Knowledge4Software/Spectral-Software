@@ -1,5 +1,15 @@
 # Keep experiment outputs here by dataset and job
 
+**2026-11-09 update:** [the combined validation review](BATCH_2026-11-09.md)
+adds eleven verified completions: five AtCoder and six BigCloneBench runs.
+The 29-job roster now has **17 complete, four paused, eight without submitted
+results**. Reuse every completed run. The older CodeNet evidence below remains
+valid. SPECTRA has 76.10% AtCoder Accuracy and 67.92% BigCloneBench F1, below
+the leading completed baselines at 82.91% and 98.27%, respectively.
+Input diagnostics found extremely sparse BigCloneBench node lexical features;
+the cause of the performance gap is not yet established. Prioritize the central
+matched controls before launching all repeat seeds or transfer conditions.
+
 `run_progress.csv` distinguishes reported completions, verified local outputs,
 resumable budget pauses, and `output_reported_pending_review`. The latter means
 the user has a saved output but its completion and metrics have not been checked;

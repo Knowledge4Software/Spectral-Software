@@ -4,9 +4,11 @@ Open the notebooks directly: [CodeNet](codenet), [AtCoder](atcoder),
 [BigCloneBench](bigclonebench). There are 10 + 10 + 9 = 29 jobs.
 
 Check [the run tracker](../results/run_progress.csv) before launching a job.
-CodeNet/full/42 and five CodeNet graph baselines have verified complete outputs.
-Reuse them. CodeNet/CDLH/42 must resume its saved checkpoint,
-not restart. The remaining jobs are listed in
+As of 2026-11-09, 17 outputs are verified complete: six CodeNet, five AtCoder
+and six BigCloneBench jobs. Reuse them. Four CodeNet jobs remain paused;
+CDLH must resume its saved checkpoint, not restart. Eight jobs have no submitted
+results; see [the combined review and priorities](../results/BATCH_2026-11-09.md).
+The remaining original-roster jobs are listed in
 [the parallel launch list](../queues/LAUNCH_24.md). Jobs with unreported status
 may already be running; confirm before starting another copy.
 

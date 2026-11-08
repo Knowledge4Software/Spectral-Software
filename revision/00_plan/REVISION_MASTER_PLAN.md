@@ -1,5 +1,12 @@
 # SPECTRA reviewer-revision master plan
 
+Execution update, 2026-11-09: [the combined validation review](../results/BATCH_2026-11-09.md)
+verifies 17 completed baseline jobs across all three datasets; four CodeNet jobs
+are paused and eight jobs lack submitted results. The original planning scope
+below is retained. SPECTRA trails several baselines; prioritize input diagnostics
+and central readout/objective controls before committing to all repeated seeds
+and transfer conditions. These are validation findings with final tests off.
+
 Execution update, 2026-11-07: current folders and the 24-job launch plan are in
 [START_HERE_FA.md](../START_HERE_FA.md). The user reported CodeNet/full/seed42
 complete at epoch 43 on T4 with test evaluation off; its full status file is

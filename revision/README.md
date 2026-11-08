@@ -6,6 +6,12 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
+Latest review, **2026-11-09**: [17 verified completions across three datasets](results/BATCH_2026-11-09.md),
+four paused CodeNet runs, and eight baseline jobs without submitted results.
+SPECTRA trails several baselines on AtCoder and BigCloneBench. Reuse completed
+runs and investigate the input representation and matched controls before
+launching every repeat or transfer experiment. Final tests remain off.
+
 If a text job fails with `RobertaConfig has no attribute '_commit_hash'`, use
 the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETUP_RECOVERY.md).
 Its dependency installer now enforces the supported versions, without changing
@@ -19,7 +25,7 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | Folder | Use |
 | --- | --- |
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
-| [01_baselines_seed42](01_baselines_seed42/README.md) | **Run now:** 29 jobs across the three datasets |
+| [01_baselines_seed42](01_baselines_seed42/README.md) | Original 29-job roster; consult tracker before starting a job |
 | [02_controls_seed42](02_controls_seed42/README.md) | Next: architecture/loss controls addressing spectral attribution |
 | [03_selected_repeats](03_selected_repeats/README.md) | Later: seed 123/231 candidates; run only selected comparisons |
 | [04_transfer](04_transfer/README.md) | Later: generate the focused conditions after choosing comparators |

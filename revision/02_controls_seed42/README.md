@@ -1,5 +1,11 @@
 # Stage 2: architecture and loss screening, seed 42
 
+2026-11-09 priority: [the new validation review](../results/BATCH_2026-11-09.md)
+identifies five central CodeNet controls to run first: mean/max, attention,
+classification-only full, classification-only mean/max and classification-only
+attention. These separate readout and auxiliary objectives using the same
+encoder settings. This ordering retains the full planned control set below.
+
 After the baseline stage, run the 20 CodeNet controls in
 [codenet/architecture](codenet/architecture) and [codenet/losses](codenet/losses).
 Together with the already completed full model, they form the 21-arm study.
