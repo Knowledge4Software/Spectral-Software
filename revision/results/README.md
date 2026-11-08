@@ -13,9 +13,18 @@ manifest. Five CodeNet baselines are complete and verified: ASTNN, RtvNN,
 DeepSim, FA-AST-GGNN and FA-AST-GMN. CDLH must resume its saved checkpoint
 partway through epoch 9. CodeNet/full/42 is now also verified from its full
 archive: 43 completed epochs, best epoch 33, validation Accuracy 79.91% and
-F1 80.67%. DeepSim leads this batch at 81.33% Accuracy. These are single-seed
-validation results; final tests remain off. The three text-run reports are
-still pending review. The CPU collector continues to need only those three.
+F1 80.67%. DeepSim leads the completed runs at 81.33% Accuracy. These are
+single-seed validation results; final tests remain off.
+
+The three text summaries have now been reviewed and renamed to
+`codenet_text_seed42_session01_reports.zip`. All three paused on the session
+budget. CodeBERT and C4 have six validated epochs, with provisional Accuracy
+79.42% and 92.66%; Qwen finished epoch-1 training but has no validation result.
+All 57 summary checks passed, but their weights were not supplied or audited.
+Use [the text continuation guide](../00_plan/TEXT_RUN_CONTINUATION.md) with each
+original checkpoint and token cache. The CPU collector still handles only
+those three text outputs. CDLH also needs continuation: six CodeNet runs are
+complete and four are paused.
 
 Download saved output versions into this local structure when available:
 

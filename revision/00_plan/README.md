@@ -16,6 +16,8 @@ as planning history, while the protocol and current guide describe execution.
   versions and fresh-session instructions for the missing `_commit_hash` error.
 - [Small report downloads](SMALL_REPORT_DOWNLOADS.md): review large text-run
   outputs on CPU without downloading multi-gigabyte checkpoints.
+- [Text-run continuation](TEXT_RUN_CONTINUATION.md): the reviewed CodeNet
+  CodeBERT/C4/Qwen pauses, exact checkpoint/token-cache settings and Qwen timing.
 - [Frozen experiment protocol](EXPERIMENT_PROTOCOL.md).
 - [Seed-42 run queue](../queues/stage1_run_queue.csv).
 - [Reviewer coverage and remaining limitations](REVIEWER_COVERAGE.md).

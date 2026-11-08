@@ -10,6 +10,11 @@ not restart. The remaining jobs are listed in
 [the parallel launch list](../queues/LAUNCH_24.md). Jobs with unreported status
 may already be running; confirm before starting another copy.
 
+CodeBERT, C4-adapted and Qwen3-LoRA also paused on their session budgets. Their
+reports are reviewed, but they are not completed screening results. Follow
+[the text continuation guide](../00_plan/TEXT_RUN_CONTINUATION.md) to retain
+their checkpoints, pinned model revisions and method-specific token caches.
+
 Attach the [exact dataset version](../datasets/README_FA.md) for each folder.
 Keep `FINAL_TEST=False`. Only completed runs are ranked. Transformer jobs need
 Internet. Preserve checkpoints, status, benchmarks and token caches.

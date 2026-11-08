@@ -32,8 +32,12 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 On 2026-11-08, CodeNet/full/seed42 was verified from its saved archive: 43 epochs
 completed on T4, best epoch 33, validation Accuracy 79.91% and F1 80.67%, with
 test evaluation off. Five CodeNet graph baselines are also verified complete.
-DeepSim leads the received batch at 81.33% validation Accuracy; text-run reports
-are still pending. Reuse completed runs. CDLH must resume its checkpoint.
+DeepSim leads the completed list at 81.33% validation Accuracy. The three text
+summaries are now reviewed: all paused on the session budget; C4 provisionally
+reports 92.66% Accuracy, CodeBERT 79.42%, and Qwen has no validated epoch yet.
+Reuse the six completed runs. Resume the three text runs using
+[their saved checkpoints and token caches](00_plan/TEXT_RUN_CONTINUATION.md).
+CDLH also needs checkpoint continuation.
 See [the results tracker](results/README.md) for evidence and
 [the current launch list](queues/LAUNCH_24.md) before starting another job.
 

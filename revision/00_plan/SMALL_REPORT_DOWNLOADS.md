@@ -36,8 +36,9 @@ weights are finite. No rerun is needed simply to obtain these reports.
 
 Current priorities after the local batch-01 review:
 
-1. Collect the three text-run reports with the CPU notebook. The separately
-   supplied SPECTRA/full output is already verified; it needs no rerun.
+1. The first three text reports are reviewed: all paused on the session budget.
+   Follow [the continuation guide](TEXT_RUN_CONTINUATION.md), then collect their
+   next reports with the CPU notebook. SPECTRA/full is verified and needs no rerun.
 2. Resume CodeNet/CDLH/42 from its saved checkpoint, with the original settings.
 3. If not already started, upload the corrected AtCoder/BigCloneBench v2 datasets
    and run their 10 + 9 seed-42 baseline jobs in parallel. Their training does
