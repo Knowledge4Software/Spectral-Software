@@ -12,8 +12,9 @@ Use [validation_screening.ipynb](../05_analysis/validation_screening.ipynb) to
 collect small reports without downloading training outputs to your laptop:
 
 1. Import this updated notebook into Kaggle. Select CPU; Internet can be off.
-2. Add the saved outputs of CodeNet/CodeBERT, CodeNet/C4-adapted,
-   CodeNet/Qwen3-LoRA, and CodeNet/SPECTRA full as inputs. Only attach outputs
+2. Add only the saved outputs of CodeNet/CodeBERT, CodeNet/C4-adapted,
+   and CodeNet/Qwen3-LoRA as inputs. SPECTRA/full will be downloaded separately
+   and supplied later; it is not needed for this collection. Only attach outputs
    that the current Kaggle account can access. If the outputs are on different
    private accounts, run the collector separately on each account instead.
 3. Do not attach the training dataset. Keep `QUEUE_CSV=None` unless a planned
@@ -35,7 +36,8 @@ weights are finite. No rerun is needed simply to obtain these reports.
 
 Current priorities after the local batch-01 review:
 
-1. Collect the three text-run reports and the missing SPECTRA/full report.
+1. Collect the three text-run reports with the CPU notebook. Download the
+   SPECTRA/full output separately and supply it later.
 2. Resume CodeNet/CDLH/42 from its saved checkpoint, with the original settings.
 3. If not already started, upload the corrected AtCoder/BigCloneBench v2 datasets
    and run their 10 + 9 seed-42 baseline jobs in parallel. Their training does

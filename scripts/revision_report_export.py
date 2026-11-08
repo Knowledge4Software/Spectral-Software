@@ -5,8 +5,14 @@ import inspect
 
 SCREENING_INTRO = """# Validation-only screening summary
 
-Attach saved training notebook outputs. Run on CPU; no GPU, Internet, or training
-dataset is needed. Collect validation status and export `revision_small_reports.zip`
+For this collection, attach only these saved CodeNet training outputs:
+
+- CodeBERT, seed 42
+- C4-adapted, seed 42
+- Qwen3-LoRA, seed 42
+
+Run on CPU; no GPU, Internet, or training dataset is needed.
+Collect validation status and export `revision_small_reports.zip`
 containing only small JSON reports and summary CSVs. Download that ZIP instead of
 multi-gigabyte checkpoints. Incomplete runs are listed but not ranked. Checkpoints,
 token arrays and final tests are never opened. Keep the full saved outputs on

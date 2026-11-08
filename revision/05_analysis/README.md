@@ -9,6 +9,8 @@
   runs are listed but not ranked. Preserve the full saved outputs on Kaggle;
   the small ZIP supports summary review, not an independent weight-integrity
   check. See [the download guide](../00_plan/SMALL_REPORT_DOWNLOADS.md).
+  For the current collection, attach only CodeNet/CodeBERT, C4-adapted and
+  Qwen3-LoRA (seed 42); the SPECTRA/full output will be supplied separately.
 - `validation_spectral_diagnostics.ipynb`: use a SPECTRA checkpoint and its exact
   dataset for spectral/slot/graph-size diagnostics on validation.
 - `paired_problem_uncertainty.ipynb`: later, after final tests and repeated
