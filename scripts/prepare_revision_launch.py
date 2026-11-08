@@ -23,7 +23,8 @@ def prepare(root: Path = REVISION_ROOT, capacity: int = 24) -> None:
         raise ValueError("Progress tracker contains jobs outside the baseline queue")
     # A manual report keeps a successful job out of the launch list, but does
     # not turn it into an authenticated score in the scientific aggregator.
-    excluded = {"complete_reported", "complete_verified", "running", "incomplete_session_budget"}
+    excluded = {"complete_reported", "complete_verified", "running", "incomplete_session_budget",
+                "output_reported_pending_review"}
     pending = [job for job in jobs if progress.get(job["job_id"], {}).get("status") not in excluded]
     for name, selected in (("launch_24.csv", pending[:capacity]), ("launch_next.csv", pending[capacity:])):
         with (queue_root / name).open("w", encoding="utf-8", newline="") as stream:
@@ -36,7 +37,8 @@ def prepare(root: Path = REVISION_ROOT, capacity: int = 24) -> None:
     lines = ["# Parallel launch list", "", "Paths below open the actual `.ipynb` files in this workspace.",
              "Attach the dataset named in each row. Keep seed 42 and `FINAL_TEST=False`.",
              "Account numbers are planning labels; no credentials are stored.", "",
-             "Reported complete/running jobs are excluded. Confirm the tracker before starting",
+             "Complete/running jobs, resumable pauses and outputs awaiting review are excluded.",
+             "Confirm the tracker before starting",
              "another copy of a job. Runtime and memory still need verification per method.", ""]
     for label, selected in ((f"Launch now: {min(capacity, len(pending))} jobs", pending[:capacity]),
                             (f"Start when slots free: {max(0, len(pending) - capacity)} jobs", pending[capacity:])):

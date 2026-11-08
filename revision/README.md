@@ -11,6 +11,11 @@ the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETU
 Its dependency installer now enforces the supported versions, without changing
 the training implementation or restarting successful graph jobs.
 
+For multi-gigabyte text-run outputs, use the updated
+[CPU report collector](05_analysis/validation_screening.ipynb) and download only
+`revision_small_reports.zip`. [Instructions](00_plan/SMALL_REPORT_DOWNLOADS.md)
+explain how to retain checkpoints on Kaggle while sending small validation reports.
+
 | Folder | Use |
 | --- | --- |
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
@@ -27,7 +32,10 @@ the training implementation or restarting successful graph jobs.
 On 2026-11-07 the user reported CodeNet/full/seed42 completed at epoch 43 on a
 Tesla T4, with test evaluation off. Its saved `status.json` has not been imported
 locally. Reuse that successful run; obtain its best validation fields before
-assessing accuracy. The remaining 28 baseline jobs are independent.
+assessing accuracy. On 2026-11-08, five CodeNet graph-baseline completions were
+verified from local archives. CDLH paused on its session budget and must resume
+its checkpoint. See [the results tracker](results/README.md) for evidence and
+[the current launch list](queues/LAUNCH_24.md) before starting another job.
 
 The folder reorganization preserves the bytes of all 193 existing notebooks,
 the training implementation hash and dataset releases. Old-to-new paths are

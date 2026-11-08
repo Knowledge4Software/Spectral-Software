@@ -1,14 +1,14 @@
 job_id,status,evidence,completed_epochs,test_evaluated,updated,notes
 codenet_full_seed42,complete_reported,User-provided Kaggle completion excerpt; status.json not imported,43,False,2026-11-07,Keep saved output; best validation fields pending
-codenet_astnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_codebert_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_rtvnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_cdlh_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_deepsim_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_fa_ast_ggnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_fa_ast_gmn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_c4_adapted_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
-codenet_qwen3_lora_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
+codenet_astnn_seed42,complete_verified,Local batch 01: codenet_astnn_seed42_complete.zip; checkpoint/data/source audit passed,23,False,2026-11-08,Best validation Accuracy=0.71233888; F1=0.74241058; best epoch=13; validation patience; do not rerun
+codenet_codebert_seed42,output_reported_pending_review,User reports saved outputs from internet-required CodeNet runs; small reports pending,,,2026-11-08,Do not start a duplicate; collect status.json and benchmark.json with the CPU report collector; completion and scores unknown
+codenet_rtvnn_seed42,complete_verified,Local batch 01: codenet_rtvnn_seed42_complete.zip; checkpoint/data/source audit passed,28,False,2026-11-08,Best validation Accuracy=0.78954082; F1=0.79848300; best epoch=18; validation patience; do not rerun
+codenet_cdlh_seed42,incomplete_session_budget,Local batch 01: codenet_cdlh_seed42_incomplete_session_budget.zip; checkpoint/data/source audit passed,8,False,2026-11-08,Best validation Accuracy=0.73556660; F1=0.73874113; best epoch=8; resume epoch 9 batch 12800 from progress.pt; do not restart
+codenet_deepsim_seed42,complete_verified,Local batch 01: codenet_deepsim_seed42_complete.zip; checkpoint/data/source audit passed,19,False,2026-11-08,Best validation Accuracy=0.81330559; F1=0.81909842; best epoch=9; validation patience; do not rerun
+codenet_fa_ast_ggnn_seed42,complete_verified,Local batch 01: codenet_fa_ast_ggnn_seed42_complete.zip; checkpoint/data/source audit passed,16,False,2026-11-08,Best validation Accuracy=0.79155478; F1=0.79359170; best epoch=6; validation patience; do not rerun
+codenet_fa_ast_gmn_seed42,complete_verified,Local batch 01: codenet_fa_ast_gmn_seed42_complete.zip; checkpoint/data/source audit passed,20,False,2026-11-08,Best validation Accuracy=0.79806660; F1=0.79943993; best epoch=10; validation patience; do not rerun
+codenet_c4_adapted_seed42,output_reported_pending_review,User reports saved outputs from internet-required CodeNet runs; small reports pending,,,2026-11-08,Do not start a duplicate; collect status.json and benchmark.json with the CPU report collector; completion and scores unknown
+codenet_qwen3_lora_seed42,output_reported_pending_review,User reports saved outputs from internet-required CodeNet runs; small reports pending,,,2026-11-08,Do not start a duplicate; collect status.json and benchmark.json with the CPU report collector; completion and scores unknown
 atcoder_full_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
 atcoder_astnn_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy
 atcoder_codebert_seed42,not_reported,,,,2026-11-07,Check whether already running before launching another copy

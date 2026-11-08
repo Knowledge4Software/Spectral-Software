@@ -1,8 +1,18 @@
 # Keep experiment outputs here by dataset and job
 
-`run_progress.csv` records reported progress. The first completion comes from
-the user's Kaggle log; the complete `status.json` is still needed locally.
-Other rows marked `not_reported` do not establish whether a job has started.
+`run_progress.csv` distinguishes reported completions, verified local outputs,
+resumable budget pauses, and `output_reported_pending_review`. The latter means
+the user has a saved output but its completion and metrics have not been checked;
+it is excluded from fresh launches. `not_reported` does not establish whether a
+job has started. A verified output is not a final test result.
+
+The 2026-11-08 batch is retained at
+`C:\PyProjects\spectrals\outputs\revesion\01`. Its `RESULTS_REVIEW.md` and
+`_audit/` contain validation scores, integrity checks and the archive rename
+manifest. Five CodeNet baselines are complete and verified: ASTNN, RtvNN,
+DeepSim, FA-AST-GGNN and FA-AST-GMN. CDLH must resume its saved checkpoint
+partway through epoch 9. CodeNet/full/42 remains reported complete at 43 epochs;
+its full local output is still needed before its best validation score is known.
 
 Download saved output versions into this local structure when available:
 

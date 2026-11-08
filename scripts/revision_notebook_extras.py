@@ -21,15 +21,13 @@ def extend(output, template, transfer_keys):
         path.write_text(json.dumps(notebook, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
         written.append(path)
     screening = copy.deepcopy(template)
-    screening["cells"][0] = cell("markdown", "# Validation-only screening summary\n\nAttach saved revision outputs. This CPU job reads only status.json; it does not open final tests or checkpoints. Incomplete runs are listed but not ranked.\n")
+    from scripts.revision_report_export import SCREENING_INTRO, screening_run_source
+    screening["cells"][0] = cell("markdown", SCREENING_INTRO)
     screening["cells"][1] = cell("code", '''from pathlib import Path
 INPUT_ROOT = Path("/kaggle/input")
 QUEUE_CSV = None  # optional attached stage1_run_queue.csv for a planned/pending ledger
 ''')
-    screening["cells"][3] = cell("code", '''from spectral_code.revision.screening import collect_validation
-summary = collect_validation(INPUT_ROOT, Path("/kaggle/working/validation_screening"), QUEUE_CSV)
-print(summary.to_string(index=False))
-''')
+    screening["cells"][3] = cell("code", screening_run_source())
     screening["metadata"]["kaggle"]["accelerator"] = "none"
     write(Path("08_analysis/validation_screening.ipynb"), screening)
     support = {p.name: p.read_text(encoding="utf-8") for p in

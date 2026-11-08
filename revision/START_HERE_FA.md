@@ -15,19 +15,30 @@ Import کن. فایل ZIP فقط برای انتقال مجموعه است و ب
 را نگه دار. `FINAL_TEST=False` درست است. بهترین امتیاز validation و epoch انتخاب‌شده
 هنوز باید از `status.json` دریافت شود؛ لاگ انتهایی امتیاز نهایی را نشان نمی‌دهد.
 
-از ۲۹ ران مرحلهٔ اول، ۲۸ ران دیگر باقی مانده که نتیجه‌شان به ما گزارش نشده است.
-با ظرفیت اعلام‌شدهٔ ۲۴ ران موازی، فهرست فعلی این است:
+در بررسی خروجی‌های محلی در تاریخ ۲۰۲۶-۱۱-۰۸، پنج baseline روی CodeNet شامل
+ASTNN، RtvNN، DeepSim، FA-AST-GGNN و FA-AST-GMN کامل و صحت checkpoint آن‌ها
+تأیید شد. این پنج ران را دوباره اجرا نکن. CDLH بعد از ۸ epoch کامل و بخشی از
+epoch ۹ به محدودیت زمانی نشست رسیده و باید از `progress.pt` ادامه پیدا کند؛
+از ابتدا شروع نکن. راهنمای دقیق ادامه و جدول امتیازهای validation در
+`C:\PyProjects\spectrals\outputs\revesion\01\RESULTS_REVIEW.md` است.
+
+برای سه ران اینترنت‌دار CodeNet یعنی CodeBERT، C4-adapted و Qwen3-LoRA
+گزارش کردی که خروجی ذخیره‌شده داری. آن‌ها را دوباره شروع نکن؛ با
+[نوت‌بوک جمع‌آوری گزارش](05_analysis/validation_screening.ipynb) فقط
+`revision_small_reports.zip` را دریافت کن. نیازی به دانلود checkpointهای چند
+گیگابایتی برای بررسی اولیه نیست. خروجی اصلی را در Kaggle نگه دار.
+
+از ۲۹ ران مرحلهٔ اول، وضعیت ۱۹ ران دیگر هنوز به ما گزارش نشده است:
 
 | مجموعه | فایل‌های قابل اجرا الان | تعداد |
 | --- | --- | ---: |
-| [CodeNet](01_baselines_seed42/codenet) | هر ۹ baseline؛ full قبلاً کامل شده | ۹ |
 | [AtCoder](01_baselines_seed42/atcoder) | full و هر ۹ baseline | ۱۰ |
-| [BigCloneBench](01_baselines_seed42/bigclonebench) | full، ASTNN، CodeBERT، RtvNN، CDLH | ۵ |
-| جمع | ردیف‌های ۲ تا ۲۵ صف اصلی | ۲۴ |
+| [BigCloneBench](01_baselines_seed42/bigclonebench) | full و هر ۸ baseline | ۹ |
+| جمع | وضعیت گزارش‌نشده؛ ادامهٔ CDLH جداست | ۱۹ |
 
 فهرست تک‌تک فایل‌ها در [برنامهٔ اجرای ۲۴تایی](queues/LAUNCH_24.md) و
-[نسخهٔ CSV](queues/launch_24.csv) است. با خالی شدن هر اسلات، چهار فایل باقی‌ماندهٔ
-BigCloneBench یعنی DeepSim، FA-AST-GGNN، FA-AST-GMN و Qwen3-LoRA را شروع کن.
+[نسخهٔ CSV](queues/launch_24.csv) است. این فهرست ران‌های کامل و CDLH ناقص را برای
+شروع دوباره پیشنهاد نمی‌کند؛ ادامهٔ CDLH را با checkpoint در یک نشست جدا اجرا کن.
 اگر هر کدام را قبلاً شروع کرده‌ای، همان ران را ادامه بده و نسخهٔ تکراری نساز.
 
 ## دیتاست قبلی را می‌توانم استفاده کنم؟
