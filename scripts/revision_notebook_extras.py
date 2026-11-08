@@ -135,6 +135,10 @@ generalization. Missing functionality/clone-type labels are not inferred.
 Main training follows the same validation/checkpoint rules as CodeNet. Final
 test remains off until choices are frozen. Never mix official-split and derived
 common-support scores in the same row.
+
+Input v2 preserves exported Java callee names in the hashed lexical channel.
+Keep the existing dataset ZIP and start fresh with RESUME_CHECKPOINT=None.
+Old SPECTRA checkpoints use a different representation. New outputs end in _input_v2.
 '''
                     notebook["cells"][0] = cell("markdown", intro)
                     config = "".join(notebook["cells"][1]["source"])
@@ -148,7 +152,7 @@ common-support scores in the same row.
                     if dataset == "bigclonebench":
                         run = run.replace('selection_metric="Accuracy"', 'selection_metric="F1"')
                     run = run.replace("prepare_data(CLEAN_DATA_DIR, run_config)", "prepare_data(CLEAN_DATA_DIR, run_config, require_disjoint=False)")
-                    run = run.replace('f"revision_{ARM}_seed{SEED}"', f'f"revision_{dataset}_{{ARM}}_seed{{SEED}}"')
+                    run = run.replace('f"revision_{ARM}_seed{SEED}_input_v2"', f'f"revision_{dataset}_{{ARM}}_seed{{SEED}}_input_v2"')
                     notebook["cells"][3] = cell("code", run)
                     write(Path("07_cross_benchmark") / dataset / f"{arm}_seed{seed}.ipynb", notebook)
     diagnostics = copy.deepcopy(template)

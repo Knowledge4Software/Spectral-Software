@@ -9,6 +9,23 @@ import pandas as pd
 
 from .protocol import fingerprint
 
+# Explicit compatibility exception for the audited input-only fix. External
+# baselines never call canonical_graph_from_record/lexical_source. Preserve
+# their original hashes in exports; old SPECTRA outputs remain incompatible.
+INPUT_V1_HASH = "793a3d2debc4cac7c045fb34df66f4f12f0694538e3da7a046c1b0623cee2de4"
+INPUT_V2_HASH = "8ad938f286142084e2c89ef8439bf9310db61e30019f3d61d02b90426df52e26"
+EXTERNAL_INPUT_V1_ARMS = frozenset({
+    "baseline/" + method for method in
+    ("astnn", "rtvnn", "cdlh", "deepsim", "fa_ast_ggnn", "fa_ast_gmn", "codebert", "c4_adapted", "qwen3_lora")
+})
+
+
+def comparison_implementation_hash(state):
+    implementation = state["implementation_hash"]
+    if implementation == INPUT_V1_HASH and state["arm"] in EXTERNAL_INPUT_V1_ARMS:
+        return INPUT_V2_HASH
+    return implementation
+
 
 def collect_validation(root, output, queue=None):
     snapshots = {}
@@ -43,6 +60,7 @@ def collect_validation(root, output, queue=None):
         rows.append({"dataset": key[0], "arm": key[1], "seed": key[2],
                      "identity": state["identity"], "data_hash": state["data_hash"],
                      "implementation_hash": state["implementation_hash"],
+                     "comparison_implementation_hash": comparison_implementation_hash(state),
                      "complete": bool(state.get("complete")), "status": state["status"],
                      "stop_reason": state.get("stop_reason"), "primary_metric": primary,
                      "validation_score": valid.get(primary), "best_epoch": state.get("best_epoch"),
@@ -57,7 +75,7 @@ def collect_validation(root, output, queue=None):
         raise ValueError("Multiple configurations for the same dataset/arm/seed; select authoritative candidate outputs first")
     if not frame.empty:
         for _, group in frame.groupby("dataset"):
-            if group.implementation_hash.nunique() != 1 or group.data_hash.nunique() != 1:
+            if group.comparison_implementation_hash.nunique() != 1 or group.data_hash.nunique() != 1:
                 raise ValueError("Screen each dataset on one common support and training implementation")
         # Incomplete jobs are visible in the ledger but cannot win screening.
         frame["validation_rank"] = float("nan")
@@ -76,7 +94,9 @@ def collect_validation(root, output, queue=None):
         "Validation only. No final_test.json, predictions or progress.pt files were opened. "
         "Only completed runs receive a rank. Resumed snapshots are deduplicated by identity; "
         "conflicting configurations require an explicit candidate choice. Single-seed ranks "
-        "are screening evidence, not statistical superiority claims.\n", encoding="utf-8")
+        "are screening evidence, not statistical superiority claims. The documented input-v2 "
+        "exception reuses input-v1 external baselines only: their preparation is unchanged. "
+        "Original implementation hashes remain in the CSV. Old SPECTRA inputs are incompatible.\n", encoding="utf-8")
     return frame
 
 

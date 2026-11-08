@@ -1,5 +1,12 @@
 # SPECTRA reviewer-revision master plan
 
+Current execution amendment: [the Java lexical-input fix](INPUT_V2_FIX.md)
+requires fresh SPECTRA full runs on all three datasets and corrected-input
+controls. [Run these eight jobs now](../queues/RUN_NOW_INPUT_V2.md). Existing
+dataset uploads and 14 completed external baselines remain reusable; the old
+three full-model scores remain historical evidence. Earlier execution updates
+below predate this amendment.
+
 Execution update, 2026-11-09: [the combined validation review](../results/BATCH_2026-11-09.md)
 verifies 17 completed baseline jobs across all three datasets; four CodeNet jobs
 are paused and eight jobs lack submitted results. The original planning scope

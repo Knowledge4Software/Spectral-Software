@@ -84,11 +84,12 @@ clock = SessionClock(run_config, started=SESSION_STARTED)
 frames, graphs, data_hash = prepare_data(CLEAN_DATA_DIR, run_config)
 print(json.dumps({"gpu": torch.cuda.get_device_name(0), "torch": torch.__version__,
                   "pair_counts": {split: len(frame) for split, frame in frames.items()},
-                  "data_hash": data_hash, "final_test": FINAL_TEST}, indent=2), flush=True)
+                  "data_hash": data_hash, "final_test": FINAL_TEST,
+                  "input_representation": "java_callee_lexical_v2"}, indent=2), flush=True)
 data_group_hash = data_hash
 changes, losses = arm_settings(ARM)
 model_config = RevisionModelConfig(max_input_nodes=run_config.max_nodes, **changes)
-work_dir = Path("/kaggle/working") / f"revision_{ARM}_seed{SEED}"
+work_dir = Path("/kaggle/working") / f"revision_{ARM}_seed{SEED}_input_v2"
 summary = train_session(frames, graphs, run_config, model_config, losses, work_dir,
                         data_hash=data_hash,
                         resume=Path(RESUME_CHECKPOINT) if RESUME_CHECKPOINT else None, clock=clock,
@@ -113,6 +114,10 @@ if FINAL_TEST:
 This is a new experiment version. It fixes masked slot assignments and uses
 angular Chebyshev quadrature, explicit validation accuracy, and audited disjoint
 data. Its results must not be mixed with the submitted four-epoch experiment.
+
+Input v2 preserves exported Java callee names in hashed node lexical features.
+Use the same dataset ZIP. Start this corrected representation from scratch;
+old input-v1 SPECTRA checkpoints cannot resume into it. Outputs end in _input_v2.
 
 One arm/seed runs per Save & Run. The default session is 10 hours with a 45-minute
 reserve. Progress is checkpointed every 10 minutes and on a graceful time stop.
@@ -177,8 +182,8 @@ from spectral_code.revision.protocol import fingerprint
 frames, transfer_metadata = select_transfer_frames(frames, TRANSFER_KEY, MATCHED_TRAIN_PAIRS, SEED)
 data_hash = fingerprint({"bundle": data_hash, "transfer": transfer_metadata})
 ''' + needle)
-            s = s.replace('work_dir = Path("/kaggle/working") / f"revision_{ARM}_seed{SEED}"',
-                          'work_dir = Path("/kaggle/working") / ("transfer_" + ARM + "_" + TRANSFER_KEY.replace("|", "_").replace("->", "_") + f"_seed{SEED}")\nwork_dir.mkdir(parents=True, exist_ok=True)\n(work_dir / "transfer_metadata.json").write_text(json.dumps(transfer_metadata, indent=2))')
+            s = s.replace('work_dir = Path("/kaggle/working") / f"revision_{ARM}_seed{SEED}_input_v2"',
+                          'work_dir = Path("/kaggle/working") / ("transfer_" + ARM + "_" + TRANSFER_KEY.replace("|", "_").replace("->", "_") + f"_seed{SEED}_input_v2")\nwork_dir.mkdir(parents=True, exist_ok=True)\n(work_dir / "transfer_metadata.json").write_text(json.dumps(transfer_metadata, indent=2))')
             s = s.replace("experiment_label=ARM", 'experiment_label=f"transfer/{ARM}/{TRANSFER_KEY}"')
             notebook["cells"][3] = cell("code", s)
             path = output / notebook_path(Path("03_transfer") / f"{key.replace('|', '_').replace('->', '_')}_seed{seed}.ipynb")

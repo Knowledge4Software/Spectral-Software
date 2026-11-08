@@ -1,5 +1,12 @@
 # Frozen first-stage experiment protocol
 
+**2026-11-09 amendment:** [input v2](INPUT_V2_FIX.md) preserves Java callee
+lexical features. Dataset bundles and scientific settings stay unchanged.
+The current machine-readable release is `spectra_revision_stage1_input_v2`;
+the original v1 JSON and notebook bytes are in `../archive/input_v1/`.
+All new SPECTRA models/controls use v2; old external baselines remain reusable
+under the explicitly documented compatibility exception.
+
 Version `spectra_revision_stage1_v1`, 2026-11-06. This specification replaces the
 older run-order suggestions. Its machine-readable companion is
 `../queues/stage1_protocol.json`; `../queues/stage1_run_queue.csv` identifies

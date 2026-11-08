@@ -1,5 +1,11 @@
 # Keep experiment outputs here by dataset and job
 
+**Input-v2 amendment:** the 17 completions below are historical input-v1
+evidence. Fourteen external baselines remain reusable; the three SPECTRA full
+runs need fresh corrected-input training. See [the amendment](../00_plan/INPUT_V2_FIX.md)
+and [eight immediate jobs](../queues/RUN_NOW_INPUT_V2.md). Do not mix old
+SPECTRA full checkpoints with the corrected controls.
+
 **2026-11-09 update:** [the combined validation review](BATCH_2026-11-09.md)
 adds eleven verified completions: five AtCoder and six BigCloneBench runs.
 The 29-job roster now has **17 complete, four paused, eight without submitted

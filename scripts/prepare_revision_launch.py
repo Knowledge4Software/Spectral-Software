@@ -34,13 +34,15 @@ def prepare(root: Path = REVISION_ROOT, capacity: int = 24) -> None:
             for index, job in enumerate(selected, start=1):
                 writer.writerow({"launch_slot": index, "account": (index + 1) // 2,
                                  "account_slot": (index - 1) % 2 + 1, **job})
-    lines = ["# Parallel launch list", "", "Paths below open the actual `.ipynb` files in this workspace.",
+    lines = ["# Remaining baseline roster", "", "For the current input-fix priorities use [the eight-run list](RUN_NOW_INPUT_V2.md).",
+             "This roster also retains expensive baselines deferred for now; it is not an instruction to launch all rows immediately.",
+             "", "Paths below open the actual `.ipynb` files in this workspace.",
              "Attach the dataset named in each row. Keep seed 42 and `FINAL_TEST=False`.",
              "Account numbers are planning labels; no credentials are stored.", "",
              "Complete/running jobs, resumable pauses and outputs awaiting review are excluded.",
              "Confirm the tracker before starting",
              "another copy of a job. Runtime and memory still need verification per method.", ""]
-    for label, selected in ((f"Launch now: {min(capacity, len(pending))} jobs", pending[:capacity]),
+    for label, selected in ((f"Pending baseline jobs: {min(capacity, len(pending))}", pending[:capacity]),
                             (f"Start when slots free: {max(0, len(pending) - capacity)} jobs", pending[capacity:])):
         lines.extend(["## " + label, "", "| Slot | Dataset | Notebook | Internet |",
                       "| ---: | --- | --- | --- |"])

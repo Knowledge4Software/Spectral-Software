@@ -2,9 +2,13 @@
 
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
-- [LAUNCH_24.md](LAUNCH_24.md): eight jobs without submitted results as of
-  2026-11-09; verified completions and resumable pauses are excluded.
-- `launch_24.csv`: slot/account allocation for those eight jobs. This retains
+- [RUN_NOW_INPUT_V2.md](RUN_NOW_INPUT_V2.md) and `input_v2_run_queue.csv`:
+  the eight immediate corrected-input jobs. This list takes priority over the
+  remaining original baseline roster. Existing dataset uploads are reused.
+
+- [LAUNCH_24.md](LAUNCH_24.md): eleven pending baseline jobs after the input fix:
+  three corrected full runs and eight jobs without submitted results.
+- `launch_24.csv`: slot/account allocation for that remaining roster. This retains
   the original roster, including costly Qwen/CDLH candidates; it is not an
   instruction to launch every remaining job immediately. See the
   [current evidence and priorities](../results/BATCH_2026-11-09.md).

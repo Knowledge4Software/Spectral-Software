@@ -6,11 +6,12 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-Latest review, **2026-11-09**: [17 verified completions across three datasets](results/BATCH_2026-11-09.md),
-four paused CodeNet runs, and eight baseline jobs without submitted results.
-SPECTRA trails several baselines on AtCoder and BigCloneBench. Reuse completed
-runs and investigate the input representation and matched controls before
-launching every repeat or transfer experiment. Final tests remain off.
+**Run now: [eight corrected-input jobs](queues/RUN_NOW_INPUT_V2.md).**
+The 2026-11-09 [Java lexical-input fix](00_plan/INPUT_V2_FIX.md) requires fresh
+SPECTRA full runs on all three datasets and the five central CodeNet controls.
+Reuse the existing dataset uploads. Fourteen completed external baseline runs
+remain usable; three earlier SPECTRA full results are historical input-v1 results.
+Defer the expensive remaining external baselines for now. Final tests remain off.
 
 If a text job fails with `RobertaConfig has no attribute '_commit_hash'`, use
 the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETUP_RECOVERY.md).
@@ -35,22 +36,18 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | [results](results/README.md) | Run tracker and instructions for retaining Kaggle outputs |
 | [optional](optional/README.md) | Frozen Qwen probe; outside the 29-job baseline roster |
 
-On 2026-11-08, CodeNet/full/seed42 was verified from its saved archive: 43 epochs
-completed on T4, best epoch 33, validation Accuracy 79.91% and F1 80.67%, with
-test evaluation off. Five CodeNet graph baselines are also verified complete.
-DeepSim leads the completed list at 81.33% validation Accuracy. The three text
-summaries are now reviewed: all paused on the session budget; C4 provisionally
-reports 92.66% Accuracy, CodeBERT 79.42%, and Qwen has no validated epoch yet.
-Reuse the six completed runs. Resume the three text runs using
-[their saved checkpoints and token caches](00_plan/TEXT_RUN_CONTINUATION.md).
-CDLH also needs checkpoint continuation.
+The [historical input-v1 review](results/BATCH_2026-11-09.md) contains 17
+verified completions and four paused CodeNet runs. Retain those results;
+the corrected SPECTRA representation has not yet been trained. To resume an old
+external baseline, use its [archived original notebook](archive/input_v1/README.md)
+and [saved checkpoint/token cache](00_plan/TEXT_RUN_CONTINUATION.md).
 See [the results tracker](results/README.md) for evidence and
 [the current launch list](queues/LAUNCH_24.md) before starting another job.
 
-The folder reorganization preserves the bytes of all 193 existing notebooks,
-the training implementation hash and dataset releases. Old-to-new paths are
-listed in [queues/path_migration.csv](queues/path_migration.csv). Retain the
-source notebook used by an existing run when continuing its checkpoint.
+The maintained suite has 193 generated notebooks. The input fix changes their
+runtime hash; dataset releases stay unchanged. Twenty-nine original baseline
+notebooks and their old protocol/manifest are archived for continuation.
+Earlier folder-migration paths are in [queues/path_migration.csv](queues/path_migration.csv).
 
 Dataset ZIPs remain outside Git at `../data/benchmarks/` relative to the project
 root. Local release packets, verification reports and archived planning drafts

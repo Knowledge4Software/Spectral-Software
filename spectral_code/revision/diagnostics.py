@@ -13,6 +13,7 @@ from .batching import pack_graphs
 from .model import RevisionModelConfig, RevisionPairModel
 from .protocol import RunConfig, fingerprint
 from .training import _load_checkpoint, load_pair_data, SessionBudgetReached
+from .versioning import training_implementation_hash
 from tqdm.auto import tqdm
 
 
@@ -34,6 +35,8 @@ def _distance(a, b):
 @torch.no_grad()
 def validation_diagnostics(root, checkpoint, output, *, clock=None, maximum_pairs=4000, seed=9173):
     state = _load_checkpoint(checkpoint, "cpu")
+    if state.get("implementation_hash") != training_implementation_hash():
+        raise ValueError("Diagnostic input/runtime differs from checkpoint; use its original notebook or an input-v2 checkpoint")
     if state["model_config"].get("family") is not None or state["best_model"] is None:
         raise ValueError("Use a validation-selected SPECTRA checkpoint")
     corpus, frames, data_hash = load_pair_data(Path(root), require_disjoint=state["training"]["dataset"] == "codenet")

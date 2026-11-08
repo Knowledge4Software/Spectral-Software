@@ -32,6 +32,7 @@ LEXICAL_PAD_ID = 0
 LEXICAL_UNKNOWN_ID = 1
 DEFAULT_LEXICAL_BUCKETS = 4096
 DEFAULT_LEXICAL_SLOTS = 4
+INPUT_REPRESENTATION_VERSION = "java_callee_lexical_v2"
 
 
 @dataclass(frozen=True)
@@ -230,13 +231,13 @@ def source_lexical_ids(
     return output
 
 
-def lexical_source(raw_type: str, raw_label: str, canonical_id: int) -> str:
+def lexical_source(raw_type: str, raw_label: str, canonical_id: int, *, language: str | None = None) -> str:
     """Select a source-level lexical fallback without using numeric line IDs.
 
     Python fallback graphs serialize labels such as ``Name,total`` while many
     Joern graphs serialize only a line number.  In the former case the parser
-    type prefix is removed; in the latter, an otherwise unknown raw node text
-    is used as a weak fallback.  Known structural parser tags are deliberately
+    type prefix is removed; in the latter, unknown raw node text and recovered
+    Java callee names supply the fallback. Known structural parser tags are deliberately
     not hashed, because their canonical category already represents them.
     """
     raw_type_text = html.unescape(str(raw_type or "")).strip()
@@ -247,10 +248,16 @@ def lexical_source(raw_type: str, raw_label: str, canonical_id: int) -> str:
             label = label[len(prefix):].strip()
         if label and not label.isdigit() and label.lower() != raw_type_text.lower():
             return label
-    # The graph exporter loses Joern's original ``CALL`` node kind for labels
-    # like ``println``.  Only unmapped entries use that text, and the model
-    # gates the hashed feature, so this never becomes a raw-type embedding.
-    if canonical_id == get_canonical_id("Canonical_Unknown") and raw_type_text and not raw_type_text.isdigit():
+    # Java exports can put the callee (e.g. ``println``) in node_types while
+    # node_labels contains only a line number. Canonical mapping deliberately
+    # recognizes that as Call_Expr; retain the callee in the separate hashed
+    # lexical channel as well. Exact/parser-pattern structural tags remain
+    # excluded, so CALL/IDENTIFIER/etc. do not become lexical features.
+    unknown = get_canonical_id("Canonical_Unknown")
+    java_callee = (str(language or "").strip().lower() == "java"
+                   and canonical_id == get_canonical_id("CALL")
+                   and get_canonical_id(raw_type_text) == unknown)
+    if (canonical_id == unknown or java_callee) and raw_type_text and not raw_type_text.isdigit():
         return raw_type_text
     return ""
 
@@ -315,7 +322,7 @@ def canonical_graph_from_record(
     lexical_ids = np.stack(
         [
             lexical_feature_ids(
-                lexical_source(raw_types[index], raw_labels[index], raw_type_ids[index]),
+                lexical_source(raw_types[index], raw_labels[index], raw_type_ids[index], language=language),
                 bucket_count=lexical_buckets,
                 slots=lexical_slots,
             )

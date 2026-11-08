@@ -123,6 +123,28 @@ def test_validation_collector_refuses_competing_configurations(tmp_path):
         collect_validation(source, tmp_path / "out")
 
 
+def test_input_fix_reuses_only_unchanged_external_baselines(tmp_path):
+    from spectral_code.revision.screening import INPUT_V1_HASH, INPUT_V2_HASH
+    source = tmp_path / 'input'; source.mkdir()
+    states = [('fixed', 'full', INPUT_V2_HASH), ('baseline', 'baseline/astnn', INPUT_V1_HASH)]
+    for name,arm,implementation in states:
+        state = _status(source,name,identity=name,arm=arm,complete=True)
+        state['implementation_hash'] = implementation
+        (source/name/'status.json').write_text(json.dumps(state))
+    frame = collect_validation(source,tmp_path/'out')
+    assert frame.implementation_hash.nunique() == 2
+    assert frame.comparison_implementation_hash.nunique() == 1
+    state = json.loads((source/'baseline/status.json').read_text())
+    state['arm'] = 'mean_max'
+    (source/'baseline/status.json').write_text(json.dumps(state))
+    with pytest.raises(ValueError,match='one common support and training implementation'):
+        collect_validation(source,tmp_path/'out_bad')
+    state['arm'] = 'baseline/astnn'; state['data_hash'] = 'different_support'
+    (source/'baseline/status.json').write_text(json.dumps(state))
+    with pytest.raises(ValueError,match='one common support and training implementation'):
+        collect_validation(source,tmp_path/'out_bad_data')
+
+
 def test_empty_validation_ledger_is_still_useful(tmp_path):
     queue = tmp_path / "queue.csv"
     pd.DataFrame([{"dataset": "codenet", "arm": "full", "seed": 42}]).to_csv(queue, index=False)

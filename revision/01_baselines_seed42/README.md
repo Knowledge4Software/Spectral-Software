@@ -1,5 +1,11 @@
 # Stage 1: baseline screening, seed 42
 
+**Current priority:** [the eight input-v2 jobs](../queues/RUN_NOW_INPUT_V2.md).
+The three old SPECTRA full runs must be repeated because their Java lexical
+features changed. The 14 completed external baselines can be reused. For old
+external checkpoints use [archived notebooks](../archive/input_v1/README.md).
+The completion counts below refer to the historical input-v1 review.
+
 Open the notebooks directly: [CodeNet](codenet), [AtCoder](atcoder),
 [BigCloneBench](bigclonebench). There are 10 + 10 + 9 = 29 jobs.
 

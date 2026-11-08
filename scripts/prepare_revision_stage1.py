@@ -21,6 +21,7 @@ from spectral_code.revision.training import LOSS_WEIGHTS
 from spectral_code.revision.transformer import TransformerConfig
 from spectral_code.revision.numerics import POLICY
 from spectral_code.revision.versioning import training_implementation_hash
+from spectral_code.revision.screening import INPUT_V1_HASH, INPUT_V2_HASH
 
 DATASETS = {
     "codenet": ("codenet_revision_common_support", "ec86d556b37b32180c44be50b3d79336fabae97432fe004a0baaebc7b9e4b46f", (69538, 14896, 14906)),
@@ -77,8 +78,13 @@ def prepare(root=None):
     with (queue_root / "stage1_notebook_manifest.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(selected[0]))
         writer.writeheader(); writer.writerows(selected)
-    release = {"protocol": "spectra_revision_stage1_v1", "date": "2026-11-06",
+    release = {"protocol": "spectra_revision_stage1_input_v2", "date": "2026-11-09",
                "training_implementation_hash": training_implementation_hash(),
+               "input_representation": "java_callee_lexical_v2",
+               "amendment": "Preserve Java callee text in SPECTRA hashed lexical features; datasets, labels, splits, models, losses and stopping settings unchanged. Rerun SPECTRA full on all three datasets and use v2 for all new SPECTRA controls. Preserve all v1 results.",
+               "previous_training_implementation_hash": INPUT_V1_HASH,
+               "reusable_external_baseline_hashes": [INPUT_V1_HASH, INPUT_V2_HASH],
+               "continuation": "For old checkpoints use the original notebooks under revision/archive/input_v1/01_baselines_seed42/. New v2 SPECTRA runs start from scratch; never override the identity check.",
                "numerical_policy": POLICY,
                "research_jobs": len(jobs), "seed": 42, "test_release": False,
                "tuning": "One prespecified default configuration per method; no hyperparameter search in this stage",

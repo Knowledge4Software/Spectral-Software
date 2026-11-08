@@ -1,5 +1,9 @@
 # Continue the three CodeNet text runs from their saved outputs
 
+After the input-v2 amendment, use the archived original notebooks linked below
+for these old checkpoints. The current generated notebooks have a new runtime
+hash. Inputs, token caches and scientific settings for the old runs stay unchanged.
+
 The first small report archive was reviewed on 2026-11-08. All three jobs paused
 on `incomplete_session_budget`; none is a completed baseline yet. The reports
 pass their manifest, identity, settings, cursor and counts-based metric checks.
@@ -8,9 +12,9 @@ independently audited.
 
 | Original notebook | Validated epochs | Saved position | Best validation Accuracy / F1 |
 | --- | ---: | --- | --- |
-| [CodeBERT](../01_baselines_seed42/codenet/codenet_codebert_seed42.ipynb) | 6 | Epoch 7, batch 896; 3,320 optimizer steps | 79.42% / 80.54% |
-| [C4-adapted](../01_baselines_seed42/codenet/codenet_c4_adapted_seed42.ipynb) | 6 | Epoch 7, batch 8,608; 3,802 optimizer steps | 92.66% / 92.35% |
-| [Qwen3-LoRA](../01_baselines_seed42/codenet/codenet_qwen3_lora_seed42.ipynb) | 0 | Epoch 1 training finished; 544 optimizer steps, validation pending | Not available |
+| [CodeBERT](../archive/input_v1/01_baselines_seed42/codenet/codenet_codebert_seed42.ipynb) | 6 | Epoch 7, batch 896; 3,320 optimizer steps | 79.42% / 80.54% |
+| [C4-adapted](../archive/input_v1/01_baselines_seed42/codenet/codenet_c4_adapted_seed42.ipynb) | 6 | Epoch 7, batch 8,608; 3,802 optimizer steps | 92.66% / 92.35% |
+| [Qwen3-LoRA](../archive/input_v1/01_baselines_seed42/codenet/codenet_qwen3_lora_seed42.ipynb) | 0 | Epoch 1 training finished; 544 optimizer steps, validation pending | Not available |
 
 These are provisional validation scores and receive no completed screening
 rank. C4's current Accuracy is 12.75 percentage points above SPECTRA/full's

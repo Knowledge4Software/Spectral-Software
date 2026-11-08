@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from .protocol import fingerprint
+from .screening import comparison_implementation_hash
 from tqdm.auto import tqdm
 from .io_utils import replace_file
 
@@ -83,7 +84,7 @@ def paired_comparison(root, method_a, method_b, output, *, repetitions=2000, see
     for key in sorted(left):
         a, fa = left[key]
         b, fb = right[key]
-        versions.update((a["implementation_hash"], b["implementation_hash"]))
+        versions.update((comparison_implementation_hash(a), comparison_implementation_hash(b)))
         supports.update((a.get("data_group_hash", a["data_hash"]), b.get("data_group_hash", b["data_hash"])))
         for result in (a, b):
             training = dict(result.get("protocol", {}))

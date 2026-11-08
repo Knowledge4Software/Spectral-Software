@@ -1,5 +1,10 @@
 # Stage 2: architecture and loss screening, seed 42
 
+Use the **updated input-v2 notebooks** in [the current run list](../queues/RUN_NOW_INPUT_V2.md).
+Repeat CodeNet/full/42 with that corrected input before comparing these controls.
+The older instruction below to reuse the old full model is superseded by
+[the input fix](../00_plan/INPUT_V2_FIX.md); all old results remain historical evidence.
+
 2026-11-09 priority: [the new validation review](../results/BATCH_2026-11-09.md)
 identifies five central CodeNet controls to run first: mean/max, attention,
 classification-only full, classification-only mean/max and classification-only
@@ -8,8 +13,7 @@ encoder settings. This ordering retains the full planned control set below.
 
 After the baseline stage, run the 20 CodeNet controls in
 [codenet/architecture](codenet/architecture) and [codenet/losses](codenet/losses).
-Together with the already completed full model, they form the 21-arm study.
-Do not rerun CodeNet/full/42 for this stage.
+Together with the corrected input-v2 full model, they form the 21-arm study.
 
 These comparisons address reviewer 6's request to distinguish spectral readout
 from the shared encoder and auxiliary objectives. Classification-only siblings,

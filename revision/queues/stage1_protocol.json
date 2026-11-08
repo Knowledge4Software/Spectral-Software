@@ -1,7 +1,15 @@
 {
-  "protocol": "spectra_revision_stage1_v1",
-  "date": "2026-11-06",
-  "training_implementation_hash": "793a3d2debc4cac7c045fb34df66f4f12f0694538e3da7a046c1b0623cee2de4",
+  "protocol": "spectra_revision_stage1_input_v2",
+  "date": "2026-11-09",
+  "training_implementation_hash": "8ad938f286142084e2c89ef8439bf9310db61e30019f3d61d02b90426df52e26",
+  "input_representation": "java_callee_lexical_v2",
+  "amendment": "Preserve Java callee text in SPECTRA hashed lexical features; datasets, labels, splits, models, losses and stopping settings unchanged. Rerun SPECTRA full on all three datasets and use v2 for all new SPECTRA controls. Preserve all v1 results.",
+  "previous_training_implementation_hash": "793a3d2debc4cac7c045fb34df66f4f12f0694538e3da7a046c1b0623cee2de4",
+  "reusable_external_baseline_hashes": [
+    "793a3d2debc4cac7c045fb34df66f4f12f0694538e3da7a046c1b0623cee2de4",
+    "8ad938f286142084e2c89ef8439bf9310db61e30019f3d61d02b90426df52e26"
+  ],
+  "continuation": "For old checkpoints use the original notebooks under revision/archive/input_v1/01_baselines_seed42/. New v2 SPECTRA runs start from scratch; never override the identity check.",
   "numerical_policy": "amp_batch_replay_fp32_fallback_v1",
   "research_jobs": 29,
   "seed": 42,
