@@ -3,8 +3,8 @@
 **The five central controls are now verified complete**; together with the
 input-v2 full model they form the completed seed-42 six-cell core. Reuse them.
 [Results and interpretation](../results/CORE_CONTROLS_REVIEW.md).
-Eleven of the 12 core repeats are complete; the corrected seed-123 restart is
-running. **Four additional controls are [verified complete](../results/ARCHITECTURE_CONTROLS_REVIEW.md)**:
+All 12 core repeats are verified complete, including the seed-123 fresh restart.
+**Four additional controls are [verified complete](../results/ARCHITECTURE_CONTROLS_REVIEW.md)**:
 projected AST+DDG, projected AST, projected DDG and energy-only. Nine of 20
 controls are complete; 11 have no submitted output. The [remaining independent list](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)
 has corrected numerical validation and per-notebook T4 estimates. Use the files

@@ -1,11 +1,11 @@
 # SPECTRA reviewer-revision master plan
 
-Current execution: [11 CodeNet core repeats are verified complete](../results/CORE_REPEATS_PROGRESS.md)
-and the fixed classification-only/123 restart is running according to the user.
+Current execution: [all 12 CodeNet core repeats are verified complete](../results/CORE_REPEATS_PROGRESS.md),
+including the successful classification-only/123 fresh restart. The earlier failed attempt remains historical.
 The six seed-42 core conditions are also complete. [The next independent batch](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)
 originally contained 15 CodeNet seed-42 controls and four full-model repeats
 on AtCoder/BigCloneBench with seeds 123/231. These jobs were already prescribed
-in phases 4-6 and do not depend on the running seed or external-finalist choice.
+in phases 4-6 and do not depend on external-finalist choice.
 They can use idle slots now; training has not been launched by preparing this
 queue. The other external repeats and focused transfer remain gated by completed
 baseline screening. Reuse all completed results; preserve failed attempts and

@@ -1,44 +1,51 @@
-# CodeNet core repeats: batch 03 review
+# CodeNet core repeats: complete
 
-**11 verified complete, 1 fresh restart running (user reported), 0 missing jobs**, from the 12 planned seed-123/231 core jobs. The three latest archives passed all 60 completion checks. All 12 preserved archives passed 239 applicable checks: 220 completion checks plus 19 checks on the original failed seed-123 checkpoint. That failed attempt is not a completed result. The current restart has no supplied output yet. All three new ZIPs were renamed; archive hashes are unchanged.
+**All 12 seed-123/231 core repeats are verified complete.** Classification-only/123 finished its fresh restart after 53 epochs and selected epoch 43. The latest archive passed all 36 checks. Across the 12 authoritative repeats there are 256 passed checks; the historical failed attempt has another 19 checkpoint checks and is excluded from completed results.
 
-All outputs use input v2 and the same CodeNet support (69538 training, 14896 validation, 14906 test pairs); validation has 7448 positives and 7448 negatives. Data/settings/models/losses match the planned jobs. Current/best weights and optimizer state are finite, histories and best-epoch selection agree, tests remain off. Each completed job stopped on the prescribed validation patience.
+The six seed-42 conditions are reused, so the complete core now contains six conditions x three seeds = 18 completed runs. All use the same input-v2 CodeNet support (69538/14896/14906 train/validation/test pairs) and frozen model/loss/stopping settings for each arm. The explicit numerical-only runtime amendment is retained in original hashes and comparison metadata. Final tests remain off.
 
-| Condition | Seed | Validated epochs | Best epoch | Validation Accuracy | Validation F1 | Status |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| full | 123 | 40 | 30 | 79.26% | 79.91% | complete_verified |
-| full | 231 | 36 | 26 | 79.20% | 79.02% | complete_verified |
-| mean_max | 123 | 31 | 21 | 79.71% | 80.16% | complete_verified |
-| mean_max | 231 | 35 | 25 | 79.56% | 80.32% | complete_verified |
-| attention | 123 | 28 | 18 | 78.79% | 79.04% | complete_verified |
-| attention | 231 | 26 | 16 | 78.56% | 78.75% | complete_verified |
-| classification_only | 123 | pending restart output | - | - | - | running_restart (user reported) |
-| classification_only | 231 | 36 | 26 | 80.87% | 81.28% | complete_verified |
-| mean_max_classification_only | 123 | 30 | 20 | 79.87% | 80.81% | complete_verified |
-| mean_max_classification_only | 231 | 36 | 26 | 80.14% | 80.51% | complete_verified |
-| attention_classification_only | 123 | 33 | 23 | 79.54% | 79.49% | complete_verified |
-| attention_classification_only | 231 | 26 | 16 | 79.67% | 79.92% | complete_verified |
+| Condition | Seed | Validated epochs | Best epoch | Validation Accuracy | Validation F1 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| full | 123 | 40 | 30 | 79.26% | 79.91% |
+| full | 231 | 36 | 26 | 79.20% | 79.02% |
+| mean_max | 123 | 31 | 21 | 79.71% | 80.16% |
+| mean_max | 231 | 35 | 25 | 79.56% | 80.32% |
+| attention | 123 | 28 | 18 | 78.79% | 79.04% |
+| attention | 231 | 26 | 16 | 78.56% | 78.75% |
+| classification_only | 123 | 53 | 43 | 80.58% | 80.99% |
+| classification_only | 231 | 36 | 26 | 80.87% | 81.28% |
+| mean_max_classification_only | 123 | 30 | 20 | 79.87% | 80.81% |
+| mean_max_classification_only | 231 | 36 | 26 | 80.14% | 80.51% |
+| attention_classification_only | 123 | 33 | 23 | 79.54% | 79.49% |
+| attention_classification_only | 231 | 26 | 16 | 79.67% | 79.92% |
 
-## Failed classification-only seed 123
+## Successful seed-123 restart
 
-This is the former `results(8).zip`, now `codenet_classification_only_seed123_input_v2_validation_pending.zip`. The user supplied the traceback: `choose_threshold` rejected non-finite validation probabilities after epoch 43 training. This is **not a session-budget stop**. The validation set has both classes.
+The new classification-only/123 run has Accuracy 80.58%, F1 80.99%, AUROC 0.8899, and AP 0.8841. Recorded setup plus training/validation was 3.52h. It stopped normally at validation patience 10, with batch cursor zero and 28832 optimizer updates. Current/best weights and optimizer/scaler/history are finite and load consistently. Identities, settings, metrics reconstructed from confusion counts, thresholds, RNG state and benchmark all passed.
 
-There are 42 validated epochs, provisional best epoch 33, and nine non-improving validations. Epoch 43 training is fully saved at batch 2174 / 23392 optimizer updates. Training/validation took about 2.76 hours plus 0.15 hours setup. The checkpoint contains finite weights/optimizer state, but training recorded 53 FP32 fallback recoveries and the scaler reached float32 tiny. Do not count the provisional 70.50% Accuracy as a completed run or average it with completed seeds.
+It logged 14 recovered same-group AMP retries, no FP32 training fallback and no FP32 validation retry. Thus the fixed notebook completed on T4, but this successful run did not exercise the conditional FP32 prediction-recovery branch. It is a fresh run with empty migration lineage, not a checkpoint continuation.
 
-[The recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md) preserve this checkpoint/history and retry validation first with conditional whole-pass FP32 fallback. Continuing the original unpatched notebook can reproduce the error. No optimizer cursor, data, seed or loss is reset.
+## Earlier failed attempt retained
 
-Full/231 recorded three recovered FP32 training groups and completed normally with finite state. Logged, recovered AMP overflows alone are not a reason to discard a run.
+The earlier classification-only/123 run failed validation after epoch 43 training, with 42 validated epochs and provisional best Accuracy 70.50%. Its archive was moved, with SHA-256 preserved, to `_archive/failed_attempts/codenet_classification_only_seed123_input_v2_validation_pending.zip`. It is retained under `historical_failed_attempts` in the audit. The new archive is `codenet_classification_only_seed123_input_v2_validation_fix_restart_complete.zip`.
 
-## What remains
+The restart was requested because the failed Kaggle output could not be reattached, not as a search for a better score. Count only the completed restart for seed 123; do not average both attempts as independent seeds. The finite AMP training path/settings were unchanged; no bitwise reproducibility across GPU restarts is claimed. Extract only authoritative completed archives for analysis and keep historical failures outside the active collection.
 
-- Wait for the already running classification-only/123 fresh restart. No checkpoint or live metrics from this restart have been supplied yet. Do not launch a duplicate.
-- No other job from this 12-run batch needs starting. Reuse all 11 complete repeats.
-- The previous seed-123 failed attempt remains archived and excluded from completed scores; its best validation Accuracy was 70.50% after 42 validated epochs.
+## Three-seed descriptive validation summary
 
-[Current queue](../queues/RUN_NEXT_CORE_REPEATS.md): zero fresh launches and one user-reported running job. `core_repeat_roster.csv` retains all 12 original jobs. The 15 deferred seed-42 controls, other selected repeats, external baselines and transfer study remain outside this batch. Final tests stay off.
+| Condition | Accuracy seed 42 | Accuracy seed 123 | Accuracy seed 231 | Mean Accuracy +/- sample SD | Mean F1 +/- sample SD |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| full | 79.67% | 79.26% | 79.20% | 79.38 +/- 0.26% | 79.72 +/- 0.62% |
+| mean_max | 79.09% | 79.71% | 79.56% | 79.45 +/- 0.32% | 79.97 +/- 0.48% |
+| attention | 78.52% | 78.79% | 78.56% | 78.62 +/- 0.15% | 78.51 +/- 0.67% |
+| classification_only | 77.21% | 80.58% | 80.87% | 79.55 +/- 2.04% | 80.19 +/- 1.64% |
+| mean_max_classification_only | 79.74% | 79.87% | 80.14% | 79.91 +/- 0.20% | 80.33 +/- 0.59% |
+| attention_classification_only | 79.69% | 79.54% | 79.67% | 79.63 +/- 0.08% | 79.85 +/- 0.32% |
 
-## Interpretation and limits
+These means and sample SD describe three validation-selected runs, not confidence intervals, final-test performance or statistical significance. Accuracy remains the prespecified primary metric. Mean/max classification-only has the highest descriptive mean Accuracy (79.91%); full spectral has 79.38%. There is no consistent demonstrated accuracy advantage for full spectral readout in this core. Classification-only spectral has substantial across-seed variation; auxiliary effects must be described by readout and seed, not claimed universally beneficial. Independent test reporting and paired uncertainty remain future work after choices are frozen.
 
-These are validation scores, not final-test performance. The completed full model has 79.67%, 79.26%, 79.20% Accuracy for seeds 42, 123, 231. Mean/max with the shared auxiliary objective has 79.09%, 79.71%, 79.56%. This does not show a consistent accuracy advantage for spectral readout. Finish the remaining seed-123 restart before the balanced readout/objective analysis; no aggregate superiority or statistical significance is claimed here.
+## Next work
 
-Detailed local evidence: `_audit/repeat_inventory.json`, archive SHA-256 values and `core_repeat_progress.csv`. Renaming changed no archive bytes. Validation recovery changes only the explicitly versioned numerical handling and retains original runtime hashes/lineage. GPU recovery still needs a Kaggle run.
+No job from these 12 needs continuation or repetition. [The independent batch](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) still has 11 CodeNet seed-42 controls and four AtCoder/BigCloneBench full repeats without supplied output; some may already be running. Four additional graph/descriptor controls are already [verified](ARCHITECTURE_CONTROLS_REVIEW.md). External baseline completion, other selected repeats, transfer, diagnostics and manuscript revision remain separate tasks. Keep final tests off.
+
+Local evidence: `_audit/repeat_inventory.json`, `_audit/classification_only_seed123_restart_audit.json`, `_audit/core_three_seed_validation.csv`, `_audit/core_three_seed_summary.json`, and `core_repeat_progress.csv`. Archive renaming/moving changed no bytes. AUROC/AP were range/finiteness checked, not independently recomputed without validation predictions. No new training or test evaluation was performed during this audit.

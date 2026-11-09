@@ -88,6 +88,20 @@ def prepare(root=None):
     with (base/'queues/core_repeat_resume_queue.csv').open('w',encoding='utf-8',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields+['saved_status','action']);w.writeheader();w.writerows(attention)
     running=sum(j['saved_status'] in {'running','running_restart'} for j in attention)
+    if len(completed)==12:
+        (base/'queues/RUN_NEXT_CORE_REPEATS.md').write_text(
+            '# CodeNet core repeats are complete\n\n'
+            '**12 of 12 repeats are verified complete. No fresh launch or continuation is needed.**\n\n'
+            'Reuse the six seed-42 conditions and these twelve seed-123/231 repeats: 18 completed core runs. '
+            'The successful classification-only/123 fresh restart replaces the earlier failed attempt, '
+            'which remains archived and is not another replicate.\n\n'
+            'See [completed results and descriptive three-seed summaries](../results/CORE_REPEATS_PROGRESS.md). '
+            'Both `core_repeat_run_queue.csv` and `core_repeat_resume_queue.csv` have headers and zero rows; '
+            '`core_repeat_roster.csv` preserves the original twelve jobs.\n\n'
+            '[The independent controls/repeats](RUN_NEXT_INDEPENDENT_BATCH.md), unfinished external baselines, '
+            'transfer and manuscript work remain separate. Final tests stay off.\n',encoding='utf-8')
+        print('All 12 CodeNet core repeats verified complete; no new launch or continuation queued.')
+        return fresh
     lines=['# Remaining CodeNet core repeats','',
         f'Original roster: 12 jobs. **{len(completed)} verified complete, {running} running (user reported), {len(attention)-running} other incomplete, {len(fresh)} without submitted results.** Reuse completed outputs. No seed-42 job is repeated.','',
         '**Every notebook uses the existing `codenet_revision_common_support.zip` dataset.** These are the seed-123/231 repetitions, separate from the remaining seed-42 ablations.','',

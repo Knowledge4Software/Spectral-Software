@@ -15,9 +15,8 @@ Notebook paths in these CSVs are relative to the `revision/` directory.
   the original eight-job priority batch is complete; zero pending rows.
 - [RUN_NEXT_CORE_REPEATS.md](RUN_NEXT_CORE_REPEATS.md) and
   `core_repeat_run_queue.csv`: zero fresh launches.
-  `core_repeat_resume_queue.csv`: classification-only/123 restart is already
-  running (user reported); wait for its saved output, do not launch a duplicate.
-  Eleven repeats are complete; `core_repeat_roster.csv` retains the original 12.
+  `core_repeat_resume_queue.csv`: zero continuations. All 12 repeats are verified
+  complete; reuse them. `core_repeat_roster.csv` retains the original 12.
   The four fixed notebook candidates and their source hashes remain in
   `validation_recovery_manifest.csv`; three now have verified original-runtime
   completions and need no rerun. Existing CodeNet data is reused.

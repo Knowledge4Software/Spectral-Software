@@ -8,20 +8,20 @@ The control roster now has nine complete and 11 without submitted output.
 Four jobs are removed from the original 19-job independent launch list, leaving
 15 without local output (11 controls plus four cross-benchmark full repeats).
 
-**Latest: [batch 03 has 11 complete repeats and one fresh restart running](CORE_REPEATS_PROGRESS.md).**
-All three latest archives passed 60 completion checks. The 12 preserved archives
-passed 239 applicable checks; the original failed seed-123 attempt passed
-checkpoint checks only. Its fixed fresh restart is running according to the
-user; no result from that restart has been supplied yet. [No new launch is needed
-from this batch](../queues/RUN_NEXT_CORE_REPEATS.md). Reuse all 11 complete outputs.
-Final tests remain off.
+**Latest: [all 12 batch-03 core repeats are verified complete](CORE_REPEATS_PROGRESS.md).**
+The classification-only/123 fresh restart passed 36 checks: Accuracy 80.58%,
+F1 80.99%, 53 epochs and best epoch 43. It needed no FP32 validation retry.
+Its earlier failed attempt is preserved under `_archive/failed_attempts/`, not
+counted as another seed. Reuse all 12 repeats; no continuation is needed.
+The report now includes descriptive means/sample SD for the six conditions
+across seeds 42/123/231. These are validation summaries; final tests remain off.
 
 **Seed 42: [the five CodeNet controls passed all 175 checks](CORE_CONTROLS_REVIEW.md).**
 The six-cell readout/objective core, including the existing full model, is
 complete for seed 42. Mean/max classification-only has 79.74% Accuracy versus
 full 79.67%, a 10-net-correct-pair difference. The
 [12 core repeats](../queues/RUN_NEXT_CORE_REPEATS.md) use seeds 123 and 231;
-11 are now complete and the remaining seed-123 restart is running (user reported).
+all 12 are complete and verified.
 `control_progress.csv` separately records nine verified controls and 11
 remaining planned controls; the baseline roster still has 18 complete,
 four paused and seven without submitted results.

@@ -1,32 +1,9 @@
-# Remaining CodeNet core repeats
+# CodeNet core repeats are complete
 
-Original roster: 12 jobs. **11 verified complete, 1 running (user reported), 0 other incomplete, 0 without submitted results.** Reuse completed outputs. No seed-42 job is repeated.
+**12 of 12 repeats are verified complete. No fresh launch or continuation is needed.**
 
-**Every notebook uses the existing `codenet_revision_common_support.zip` dataset.** These are the seed-123/231 repetitions, separate from the remaining seed-42 ablations.
+Reuse the six seed-42 conditions and these twelve seed-123/231 repeats: 18 completed core runs. The successful classification-only/123 fresh restart replaces the earlier failed attempt, which remains archived and is not another replicate.
 
-## No output submitted
+See [completed results and descriptive three-seed summaries](../results/CORE_REPEATS_PROGRESS.md). Both `core_repeat_run_queue.csv` and `core_repeat_resume_queue.csv` have headers and zero rows; `core_repeat_roster.csv` preserves the original twelve jobs.
 
-| Slot | Condition | Seed | Notebook |
-| ---: | --- | ---: | --- |
-
-If one of these is already running on Kaggle, let that existing job finish. No local output does not establish that a job has never started.
-
-## Running / incomplete
-
-| Condition | Seed | Tracker status | Action |
-| --- | ---: | --- | --- |
-| [classification_only](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb) | 123 | running_restart | Already running on Kaggle (user reported); wait for its saved output. Do not launch a duplicate. |
-
-**No new job needs launching from this 12-run batch.** Wait for any job marked running; preserve the completed outputs.
-
-For the failed seed 123 see [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). Its fresh restart uses only CodeNet data. A job marked running is already underway: do not start a second copy. The separately preserved resume notebook is optional if its original checkpoint becomes available.
-
-For fresh jobs only: use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run's own checkpoint.
-
-Seed-42 recorded times for the six conditions ranged from about 1.7h to 6.0h on T4, including setup and training/validation. Other seeds can stop at different epochs. Timing is an estimate; preserve incomplete outputs.
-
-The purpose is to estimate the readout/objective interaction across seeds. Mean/max classification-only exceeded full by only 10 net correct validation pairs at seed 42; attention classification-only exceeded it by two. Do not infer significance or paired error overlap from those aggregate counts.
-
-The other 15 seed-42 controls, external finalists and transfer study remain in the roadmap. This batch brings the already planned core replication forward before those more costly extensions. Final tests remain off.
-
-See [the current repeat progress](../results/CORE_REPEATS_PROGRESS.md) and [seed-42 results](../results/CORE_CONTROLS_REVIEW.md). `core_repeat_run_queue.csv` contains only jobs without submitted results; `core_repeat_resume_queue.csv` separates incomplete jobs; `core_repeat_roster.csv` retains all 12 planned jobs.
+[The independent controls/repeats](RUN_NEXT_INDEPENDENT_BATCH.md), unfinished external baselines, transfer and manuscript work remain separate. Final tests stay off.

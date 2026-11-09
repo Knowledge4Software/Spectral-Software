@@ -6,11 +6,12 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Current: [11 of the 12 core repeats are verified complete](results/CORE_REPEATS_PROGRESS.md).**
-The three latest uploads passed all 60 completion checks. Classification-only/123
-is running from scratch with the validation fix, according to the user; its new
-output has not been supplied yet. [No additional launch is needed from this batch](queues/RUN_NEXT_CORE_REPEATS.md).
-Reuse all 11 completed repeats and the six seed-42 conditions. Four additional
+**Current: [all 12 core repeats are verified complete](results/CORE_REPEATS_PROGRESS.md).**
+The classification-only/123 fresh restart passed all 36 checks: 53 epochs,
+best epoch 43, validation Accuracy 80.58% and F1 80.99%. The earlier failed
+attempt is retained separately, excluded from completed scores.
+[No launch or continuation is needed from this batch](queues/RUN_NEXT_CORE_REPEATS.md).
+Reuse all 12 completed repeats and the six seed-42 conditions. Four additional
 seed-42 controls are now [verified](results/ARCHITECTURE_CONTROLS_REVIEW.md);
 11 controls still have no submitted output. Final tests stay off.
 
@@ -40,7 +41,7 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
 | [01_baselines_seed42](01_baselines_seed42/README.md) | Original 29-job roster; consult tracker before starting a job |
 | [02_controls_seed42](02_controls_seed42/README.md) | Five central controls verified; 15 other planned controls remain |
-| [03_selected_repeats](03_selected_repeats/README.md) | 11 core repeats complete; seed-123 restart running |
+| [03_selected_repeats](03_selected_repeats/README.md) | All 12 core repeats complete; four cross-benchmark repeats still unreported |
 | [04_transfer](04_transfer/README.md) | Later: generate the focused conditions after choosing comparators |
 | [05_analysis](05_analysis/README.md) | Validation screening, spectral diagnostics and paired uncertainty |
 | [datasets](datasets/README_FA.md) | Exact dataset versions, checksums and reuse rules |

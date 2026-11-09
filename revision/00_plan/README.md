@@ -6,7 +6,7 @@ is verified complete; reuse it. Original roadmap dates and checklists are retain
 as planning history, while the protocol and current guide describe execution.
 
 **Independent batch:** [four complete; 15 controls/repeats without submitted output, with T4 estimates](../queues/RUN_NEXT_INDEPENDENT_BATCH.md).
-They can run alongside the already running CodeNet seed-123 restart. Use the
+All 12 CodeNet core repeats are complete; these independent jobs remain separate. Use the
 linked numerical-fix notebooks and existing dataset uploads; final tests stay off.
 
 - [Full revision roadmap](REVISION_MASTER_PLAN.md): reviewer concerns, dependencies,

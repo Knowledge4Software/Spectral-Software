@@ -75,6 +75,14 @@ def test_core_repeats_use_only_two_new_seeds_and_require_completed_core(tmp_path
     prepare_repeats(tmp_path)
     attention=list(csv.DictReader((tmp_path/'queues/core_repeat_resume_queue.csv').open(encoding='utf-8')))
     assert attention[0]['saved_status']=='running_restart' and 'Do not launch a duplicate' in attention[0]['action']
+    from spectral_code.revision.screening import VALIDATION_RECOVERY_HASH
+    reports=[dict(job_id=r['job_id'],status='complete_verified',implementation_hash=training_implementation_hash()) for r in jobs]
+    reports[8]['implementation_hash']=VALIDATION_RECOVERY_HASH
+    with (tmp_path/'results/core_repeat_progress.csv').open('w',newline='',encoding='utf-8') as f:
+        w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(reports)
+    assert prepare_repeats(tmp_path)==[]
+    assert list(csv.DictReader((tmp_path/'queues/core_repeat_resume_queue.csv').open(encoding='utf-8')))==[]
+    assert '12 of 12 repeats are verified complete' in (tmp_path/'queues/RUN_NEXT_CORE_REPEATS.md').read_text()
     controls[1]['status']='incomplete_session_budget'
     with (tmp_path/'results/control_progress.csv').open('w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(controls[1:])

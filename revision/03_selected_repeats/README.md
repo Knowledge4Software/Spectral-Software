@@ -2,11 +2,10 @@
 
 This folder is a library of candidates, not a queue to run in full.
 
-**Current: [11 core repeats complete; classification-only/123 restart running](../results/CORE_REPEATS_PROGRESS.md).**
-The user confirmed the fixed fresh restart is running on Kaggle. Wait for its
-saved output. [No new launch is needed from these twelve jobs](../queues/RUN_NEXT_CORE_REPEATS.md).
-The original notebooks remain frozen; reuse all 11 complete results and do not
-duplicate the live job. Model/loss/training settings and final-test hold remain
+**Current: [all 12 core repeats are verified complete](../results/CORE_REPEATS_PROGRESS.md).**
+The seed-123 restart completed after 53 epochs, selecting epoch 43. Its earlier
+failed attempt remains historical. [No launch or continuation is needed from these twelve jobs](../queues/RUN_NEXT_CORE_REPEATS.md).
+The original notebooks remain frozen; reuse all 12 complete results. Model/loss/training settings and final-test hold remain
 unchanged. These twelve jobs are part of the 28-run follow-up below.
 
 Four more prespecified full-model repeats are now [ready independently](../queues/RUN_NEXT_INDEPENDENT_BATCH.md):

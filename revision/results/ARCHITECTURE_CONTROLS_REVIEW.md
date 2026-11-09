@@ -35,7 +35,7 @@ Density/heat-only is the remaining graph/descriptor control; all ten additional 
 ## Files and remaining work
 
 - [Current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md): the four verified jobs are excluded from fresh launches.
-- [Original six-cell core review](CORE_CONTROLS_REVIEW.md) and [core repeat progress](CORE_REPEATS_PROGRESS.md): reuse those results; the seed-123 fixed restart still awaits its supplied output.
+- [Original six-cell core review](CORE_CONTROLS_REVIEW.md) and [core repeat progress](CORE_REPEATS_PROGRESS.md): all 12 core repeats are now verified complete, including the successful seed-123 fresh restart. Reuse those results.
 - Local evidence: `_audit/architecture_controls_additions_audit.json` and `_audit/architecture_controls_rename_manifest.json`; original five-control evidence remains untouched.
 - `control_progress.csv` has 9 complete and 11 unreported controls. The baseline and selected-followup rosters are separate.
 

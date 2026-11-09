@@ -1,9 +1,11 @@
 # CodeNet classification-only seed 123: recover validation
 
-**Current status: the fresh seed-123 restart is running (user reported).**
-No restart output has been supplied yet. Wait for it; do not start another copy.
-The other 11 repeats are now complete and verified. The instructions below
-document the current restart setup, not a request to launch another job.
+**Current status: the fresh seed-123 restart is verified complete.**
+It finished after 53 epochs, selected epoch 43, and has validation Accuracy
+80.58% / F1 80.99%. All 36 checks passed. No FP32 validation retry was needed.
+All 12 core repeats are complete; no restart or continuation is required.
+[Completed results and the historical failed attempt](../results/CORE_REPEATS_PROGRESS.md).
+The instructions below document the recovery setup, not a request to launch another job.
 
 The user cannot reattach the failed
 Kaggle output. Import [the fresh seed-123 notebook](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb)
