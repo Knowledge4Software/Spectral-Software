@@ -122,17 +122,48 @@ def _loader(frame, graphs, config, batches=None):
                       pin_memory=torch.cuda.is_available(), **kwargs)
 
 
+class NumericalPredictionFailure(FloatingPointError):
+    pass
+
+
 @torch.no_grad()
-def predict(model, frame, graphs, config, device, clock=None):
-    model.eval()
+def _prediction_pass(model, frame, graphs, config, device, clock, *, amp):
     probabilities = []
     for left, right, labels in _loader(frame, graphs, config):
         if clock is not None:
             clock.check()
-        with torch.autocast(device_type=device.type, enabled=config.amp and device.type == "cuda"):
+        with torch.autocast(device_type=device.type, enabled=amp):
             logits, _ = model(left.to(device), right.to(device), None)
         probabilities.append(torch.sigmoid(logits.float()).cpu().numpy())
     return np.concatenate(probabilities)
+
+
+def predict(model, frame, graphs, config, device, clock=None, *, on_event=None):
+    """Keep finite AMP predictions unchanged; retry an invalid whole pass in FP32.
+
+    Never replace invalid scores or discard pairs. A second failure remains
+    fatal, and session deadlines propagate to the usual checkpoint handler.
+    """
+    model.eval()
+    amp = config.amp and device.type == "cuda"
+    before = rng_state()
+    probabilities = _prediction_pass(model, frame, graphs, config, device, clock, amp=amp)
+    if np.isfinite(probabilities).all():
+        return probabilities
+    if amp:
+        restore_rng(before)
+        event = {"reason": "nonfinite_probabilities", "action": "retry_entire_prediction_fp32",
+                 "pairs": len(frame), "precision": "amp"}
+        if on_event:
+            on_event(event)
+        else:
+            print(json.dumps({"status": "prediction_numerical_recovery", **event}), flush=True)
+        probabilities = _prediction_pass(model, frame, graphs, config, device, clock, amp=False)
+        if np.isfinite(probabilities).all():
+            if on_event:
+                on_event({"action": "prediction_recovered", "precision": "fp32", "pairs": len(frame)})
+            return probabilities
+    raise NumericalPredictionFailure("Non-finite prediction probabilities persisted in FP32; no validation score was selected")
 
 
 def load_pair_data(clean_data: Path, *, require_disjoint: bool = True):
@@ -232,7 +263,7 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
                 "from_implementation_hash": old_hash, "to_identity": identity,
                 "to_implementation_hash": source_hash, "policy": POLICY,
                 "epoch": loaded["epoch"], "batch": loaded["batch"],
-                "reason": "Explicit approved AMP-overflow fix; architecture/data/hyperparameters unchanged"})
+                "reason": "Explicit approved numerical precision fix; architecture/data/hyperparameters unchanged"})
             loaded.update(identity=identity, implementation_hash=source_hash)
             print(json.dumps({"status": "approved_numerical_upgrade", "lineage": loaded["lineage"][-1]}), flush=True)
         state = loaded
@@ -250,6 +281,7 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
         0.0, now - getattr(clock, "started", accounted_at))
     accounted_at = now  # model loading/data preparation are setup, not training compute
     last_checkpoint = time.monotonic()
+    state.setdefault("validation_numerical_events", [])
 
     def save(status):
         nonlocal last_checkpoint, accounted_at
@@ -266,6 +298,7 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
                                                         "model_config", "losses", "data_hash", "data_group_hash",
                                                         "implementation_hash", "gpu", "training_validation_wall_seconds")})
         summary.update({key: state[key] for key in ("numerical_policy", "numerical_events", "lineage")})
+        summary["validation_numerical_events"] = state["validation_numerical_events"]
         summary["session_setup_wall_seconds"] = state["session_setup_wall_seconds"]
         summary.update(status=status, checkpoint=str(progress), test_evaluated=False,
                        continuation="Attach this output as a Kaggle input and set RESUME_CHECKPOINT to its progress.pt")
@@ -288,6 +321,11 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
                   "optimizer_steps": state["optimizer_steps"], **event}
         state["numerical_events"].append(record)
         print(json.dumps({"status": "numerical_recovery", **record}), flush=True)
+
+    def validation_event(event):
+        record = {"epoch": state["epoch"], "optimizer_steps": state["optimizer_steps"], **event}
+        state["validation_numerical_events"].append(record)
+        print(json.dumps({"status": "validation_numerical_recovery", **record}), flush=True)
 
     try:
         while state["epoch"] <= config.max_epochs and not state["complete"]:
@@ -312,7 +350,7 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
             # Persist the epoch before validation: validation can be retried on
             # resume without repeating updates if the session ends here.
             save("validation_pending")
-            p = predict(model, frames["valid"], graphs, config, device, clock)
+            p = predict(model, frames["valid"], graphs, config, device, clock, on_event=validation_event)
             threshold, result = choose_threshold(frames["valid"].label.to_numpy(), p, config.selection_metric)
             score = (result[config.selection_metric], result["F1"] if config.selection_metric == "Accuracy" else result["Accuracy"])
             if state["best_score"] is None or score > tuple(state["best_score"]):
@@ -330,6 +368,9 @@ def train_session(frames: dict, graphs: dict, config: RunConfig, model_config: R
             save("complete" if state["complete"] else "training")
     except SessionBudgetReached:
         return save("incomplete_session_budget")
+    except NumericalPredictionFailure:
+        save("failed_validation_nonfinite")
+        raise
     except NumericalStepFailure as error:
         state["stop_reason"] = "nonfinite_after_fp32"
         summary = save("failed_nonfinite")

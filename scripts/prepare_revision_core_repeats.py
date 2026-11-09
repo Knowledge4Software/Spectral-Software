@@ -4,7 +4,8 @@ import ast,csv,hashlib,json,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from spectral_code.revision.versioning import TRAINING_SOURCES,training_implementation_hash
+from spectral_code.revision.versioning import TRAINING_SOURCES
+from spectral_code.revision.screening import INPUT_V2_HASH,comparison_implementation_hash
 from spectral_code.revision.protocol import fingerprint
 from scripts.prepare_revision_stage1 import DATASETS
 
@@ -21,10 +22,11 @@ def prepare(root=None):
             for r in csv.DictReader(f):
                 if r['job_id'] in progress:raise ValueError('Duplicate progress job')
                 progress[r['job_id']]=r
-    code=training_implementation_hash()
+    # Frozen experiment notebooks remain valid after a numerical-only recovery.
+    code=INPUT_V2_HASH
     for arm,_ in CORE:
         row=progress[f'codenet_{arm}_seed42']
-        if row['status']!='complete_verified' or row['implementation_hash']!=code:
+        if row['status']!='complete_verified' or comparison_implementation_hash(dict(row,arm=arm))!=code:
             raise ValueError(f'Finish and verify the current seed-42 core before repeats: {arm}')
     jobs=[]
     for arm,group in CORE:
@@ -45,20 +47,58 @@ def prepare(root=None):
             jobs.append(dict(slot=len(jobs)+1,job_id=f'codenet_{arm}_seed{seed}',dataset='codenet',arm=arm,seed=seed,
                 notebook=relative,notebook_sha256=digest,dataset_zip=DATASETS['codenet'][0]+'.zip',dataset_sha256=DATASETS['codenet'][1],
                 implementation_hash=code,gpu=True,internet=False,resume_checkpoint='None',final_test=False))
+    fields=list(jobs[0])
+    with (base/'queues/core_repeat_roster.csv').open('w',encoding='utf-8',newline='') as f:
+        w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(jobs)
+    reported={}
+    tracker=base/'results/core_repeat_progress.csv'
+    if tracker.exists():
+        with tracker.open(encoding='utf-8',newline='') as f:
+            reported={r['job_id']:r for r in csv.DictReader(f)}
+        if reported.keys()-{r['job_id'] for r in jobs}:raise ValueError('Repeat tracker contains jobs outside the core roster')
+    fresh=[];attention=[];completed=[]
+    for job in jobs:
+        known=reported.get(job['job_id'],{})
+        status=known.get('status','not_reported')
+        if status=='complete_verified' and comparison_implementation_hash(dict(known,arm=job['arm']))==code:
+            completed.append(job['job_id'])
+        elif status not in ('not_reported','not_started',''):
+            attention.append(dict(job,saved_status=status,action='Check original Kaggle run state/error; continue its own checkpoint only after diagnosing the stop'))
+        else:fresh.append(job)
+    recovery_path=base/'queues/validation_recovery_manifest.csv'
+    recovery={}
+    if recovery_path.exists():
+        with recovery_path.open(encoding='utf-8',newline='') as f:
+            recovery={r['job_id']:r for r in csv.DictReader(f)}
+    for job in fresh+attention:
+        fixed=recovery.get(job['job_id'])
+        if fixed:
+            if hashlib.sha256((base/fixed['notebook']).read_bytes()).hexdigest()!=fixed['notebook_sha256']:
+                raise ValueError('Recovery notebook hash differs')
+            for key in ('notebook','notebook_sha256','implementation_hash','resume_checkpoint'):job[key]=fixed[key]
+            if 'action' in job:job['action']='Use the recovery notebook with its own failed output; retry epoch 43 validation before further training.'
+    for slot,job in enumerate(fresh,1):job['slot']=slot
     with (base/'queues/core_repeat_run_queue.csv').open('w',encoding='utf-8',newline='') as f:
-        w=csv.DictWriter(f,fieldnames=list(jobs[0]));w.writeheader();w.writerows(jobs)
-    lines=['# Next: 12 CodeNet core repeats','',
-        'The six seed-42 conditions are verified complete. This is the 12-run CodeNet core portion of the preplanned 28 selected-repeat jobs; it does not expand the original scope. Run the same six conditions with seeds 123 and 231. No seed-42 run is repeated.','',
-        '**Every notebook uses the existing `codenet_revision_common_support.zip` dataset.** All 12 can run in parallel with enough GPU slots.','',
+        w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(fresh)
+    with (base/'queues/core_repeat_resume_queue.csv').open('w',encoding='utf-8',newline='') as f:
+        w=csv.DictWriter(f,fieldnames=fields+['saved_status','action']);w.writeheader();w.writerows(attention)
+    lines=['# Remaining CodeNet core repeats','',
+        f'Original roster: 12 jobs. **{len(completed)} verified complete, {len(attention)} incomplete/needs attention, {len(fresh)} without submitted results.** Reuse completed outputs. No seed-42 job is repeated.','',
+        '**Every notebook uses the existing `codenet_revision_common_support.zip` dataset.** These are the seed-123/231 repetitions, separate from the remaining seed-42 ablations.','',
+        '## No output submitted','',
         '| Slot | Condition | Seed | Notebook |','| ---: | --- | ---: | --- |']
-    for j in jobs:lines.append(f"| {j['slot']} | {j['arm']} | {j['seed']} | [{Path(j['notebook']).name}](../{j['notebook']}) |")
-    lines += ['', 'Use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run’s own checkpoint.',
+    for j in fresh:lines.append(f"| {j['slot']} | {j['arm']} | {j['seed']} | [{Path(j['notebook']).name}](../{j['notebook']}) |")
+    lines += ['', 'If one of these is already running on Kaggle, let that existing job finish. No local output does not establish that a job has never started.','',
+        '## Incomplete / needs attention','', '| Condition | Seed | Saved status | Action |','| --- | ---: | --- | --- |']
+    for j in attention:lines.append(f"| [{j['arm']}](../{j['notebook']}) | {j['seed']} | {j['saved_status']} | {j['action']} |")
+    lines += ['', 'For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). Attach its own failed output; the recovery notebook auto-selects its checkpoint and enables the approved migration.',
+        '', 'For fresh jobs only: use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run\'s own checkpoint.',
         '', 'Seed-42 recorded times for the six conditions ranged from about 1.7h to 6.0h on T4, including setup and training/validation. Other seeds can stop at different epochs. Timing is an estimate; preserve incomplete outputs.',
         '', 'The purpose is to estimate the readout/objective interaction across seeds. Mean/max classification-only exceeded full by only 10 net correct validation pairs at seed 42; attention classification-only exceeded it by two. Do not infer significance or paired error overlap from those aggregate counts.',
         '', 'The other 15 seed-42 controls, external finalists and transfer study remain in the roadmap. This batch brings the already planned core replication forward before those more costly extensions. Final tests remain off.',
-        '', 'See [the audited seed-42 results](../results/CORE_CONTROLS_REVIEW.md). The machine-readable list is `core_repeat_run_queue.csv`.','']
+        '', 'See [the current repeat progress](../results/CORE_REPEATS_PROGRESS.md) and [seed-42 results](../results/CORE_CONTROLS_REVIEW.md). `core_repeat_run_queue.csv` contains only jobs without submitted results; `core_repeat_resume_queue.csv` separates incomplete jobs; `core_repeat_roster.csv` retains all 12 planned jobs.','']
     (base/'queues/RUN_NEXT_CORE_REPEATS.md').write_text('\n'.join(lines),encoding='utf-8')
-    print('Prepared 12 preplanned CodeNet core repeats; all notebooks match the seed-42 runtime.')
-    return jobs
+    print(f'Core repeats: {len(completed)} complete, {len(attention)} need attention, {len(fresh)} without output. Frozen roster verified; recovery notebooks have separate provenance.')
+    return fresh
 
 if __name__=='__main__':prepare()

@@ -1,10 +1,18 @@
 # Keep experiment outputs here by dataset and job
 
-**Latest: [the five CodeNet controls passed all 175 checks](CORE_CONTROLS_REVIEW.md).**
+**Latest: [batch 03 has eight complete repeats, one validation failure and three missing outputs](CORE_REPEATS_PROGRESS.md).**
+All nine supplied archives passed 179 applicable checks; the pending run passed
+checkpoint checks only. [Four pending notebooks](../queues/RUN_NEXT_CORE_REPEATS.md)
+include the explicit validation numerical repair. Classification-only/123
+must continue its own failed checkpoint; the other three use only existing
+CodeNet data. Reuse the eight complete outputs. Final tests remain off.
+
+**Seed 42: [the five CodeNet controls passed all 175 checks](CORE_CONTROLS_REVIEW.md).**
 The six-cell readout/objective core, including the existing full model, is
 complete for seed 42. Mean/max classification-only has 79.74% Accuracy versus
-full 79.67%, a 10-net-correct-pair difference. The next planned batch is
-[12 core repeats](../queues/RUN_NEXT_CORE_REPEATS.md) with seeds 123 and 231.
+full 79.67%, a 10-net-correct-pair difference. The
+[12 core repeats](../queues/RUN_NEXT_CORE_REPEATS.md) use seeds 123 and 231;
+eight are now complete, one failed validation and three have no submitted output.
 `control_progress.csv` separately records five verified controls and 15
 remaining planned controls; the baseline roster still has 18 complete,
 four paused and seven without submitted results.

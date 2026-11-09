@@ -2,11 +2,13 @@
 
 This folder is a library of candidates, not a queue to run in full.
 
-**Ready now: [12 CodeNet core repeats](../queues/RUN_NEXT_CORE_REPEATS.md).**
-All six seed-42 conditions passed the input/checkpoint review. These twelve
-jobs are the CodeNet core portion of the 28-run follow-up below. Use the
-existing CodeNet dataset and the existing seed-123/231 notebooks without
-changing model, loss or training settings. Keep final tests off.
+**Current: [8 core repeats complete, 1 validation failure, 3 without submitted output](../results/CORE_REPEATS_PROGRESS.md).**
+Use the [four pending notebooks](../queues/RUN_NEXT_CORE_REPEATS.md) in
+`codenet/validation_recovery/`. The failed classification-only/123 job continues
+its own checkpoint; the three fresh jobs need only the existing CodeNet data.
+The original twelve notebooks remain frozen. Reuse completed results; do not
+duplicate existing live jobs. Model/loss/training settings and final-test hold
+remain unchanged. These twelve jobs are part of the 28-run follow-up below.
 
 Select comparisons using completed seed-42 validation results and the frozen
 [protocol](../00_plan/EXPERIMENT_PROTOCOL.md). Then run only their matching seed

@@ -6,13 +6,13 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Next: [12 preplanned CodeNet core repeats](queues/RUN_NEXT_CORE_REPEATS.md).**
-The five controls and the corrected full model are [verified complete for seed 42](results/CORE_CONTROLS_REVIEW.md).
-Mean/max classification-only has 79.74% Accuracy versus full 79.67%; this seed
-does not establish a spectral advantage. Repeat the same six conditions with
-seeds 123 and 231. Reuse seed 42 and the existing CodeNet dataset. The other
-15 exploratory controls stay in the roadmap; external/transfer extensions can
-wait while the central comparison is assessed. Final tests remain off.
+**Current: [8 of the 12 core repeats are verified complete](results/CORE_REPEATS_PROGRESS.md).**
+Three jobs have no submitted output; classification-only/123 failed validation
+after epoch 43 training. [Four pending notebooks](queues/RUN_NEXT_CORE_REPEATS.md)
+include a numerical validation repair; the seed-123 recovery continues its own
+checkpoint without repeating training. Use the existing CodeNet dataset. Reuse
+all eight complete repeats and the six seed-42 conditions. The other 15 seed-42
+controls remain in the roadmap. Final tests stay off.
 
 [AtCoder GMN is now verified](results/GMN_RESULTS_REVIEW.md) at 80.32% Accuracy
 and 80.76% F1. The new BigCloneBench GMN upload duplicates its existing reviewed
@@ -33,7 +33,7 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
 | [01_baselines_seed42](01_baselines_seed42/README.md) | Original 29-job roster; consult tracker before starting a job |
 | [02_controls_seed42](02_controls_seed42/README.md) | Five central controls verified; 15 other planned controls remain |
-| [03_selected_repeats](03_selected_repeats/README.md) | Next: the 12 selected CodeNet core repeats |
+| [03_selected_repeats](03_selected_repeats/README.md) | 8 core repeats complete; 1 recovery and 3 without output |
 | [04_transfer](04_transfer/README.md) | Later: generate the focused conditions after choosing comparators |
 | [05_analysis](05_analysis/README.md) | Validation screening, spectral diagnostics and paired uncertainty |
 | [datasets](datasets/README_FA.md) | Exact dataset versions, checksums and reuse rules |
@@ -43,14 +43,14 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 
 The [historical input-v1 review](results/BATCH_2026-11-09.md) contains 17
 verified completions and four paused CodeNet runs. Retain those results;
-the corrected SPECTRA representation has not yet been trained. To resume an old
+the corrected SPECTRA representation is recorded separately above. To resume an old
 external baseline, use its [archived original notebook](archive/input_v1/README.md)
 and [saved checkpoint/token cache](00_plan/TEXT_RUN_CONTINUATION.md).
 See [the results tracker](results/README.md) for evidence and
 [the current launch list](queues/LAUNCH_24.md) before starting another job.
 
-The maintained suite has 193 generated notebooks. The input fix changes their
-runtime hash; dataset releases stay unchanged. Twenty-nine original baseline
+The maintained suite has 193 frozen generated notebooks and four separately
+versioned validation-recovery notebooks. Dataset releases stay unchanged. Twenty-nine original baseline
 notebooks and their old protocol/manifest are archived for continuation.
 Earlier folder-migration paths are in [queues/path_migration.csv](queues/path_migration.csv).
 

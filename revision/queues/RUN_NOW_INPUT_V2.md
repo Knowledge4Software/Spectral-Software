@@ -2,7 +2,7 @@
 
 All eight priority jobs are verified complete: full SPECTRA on the three datasets and five CodeNet readout/objective controls. Reuse them; no seed-42 rerun is queued.
 
-See [the six-condition core results](../results/CORE_CONTROLS_REVIEW.md). The next planned batch is [12 CodeNet core repeats](RUN_NEXT_CORE_REPEATS.md): the same six conditions with seeds 123 and 231. Existing CodeNet data, models, losses and training settings are reused.
+See [the six-condition core results](../results/CORE_CONTROLS_REVIEW.md) and [current progress of the 12 CodeNet core repeats](RUN_NEXT_CORE_REPEATS.md): the same six conditions with seeds 123 and 231. Existing CodeNet data, models, losses and training settings are reused.
 
 The other 15 seed-42 architecture/loss controls remain in the roadmap; they have not been completed or removed. Expensive external baselines and the transfer study remain deferred pending the central comparison. Final tests stay off.
 

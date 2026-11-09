@@ -7,7 +7,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from spectral_code.revision.numerics import (LEGACY_IMPLEMENTATIONS, MAX_AMP_ATTEMPTS,
+from spectral_code.revision.numerics import (VALIDATION_RECOVERY_SOURCE, MAX_AMP_ATTEMPTS,
                                              NumericalStepFailure, optimizer_group)
 from spectral_code.revision.protocol import RunConfig, fingerprint, run_identity
 from spectral_code.revision.training import (LOSS_WEIGHTS, atomic_save, restore_rng, rng_state,
@@ -194,7 +194,7 @@ def test_approved_upgrade_requires_opt_in_exact_settings_and_records_lineage(tmp
                   clock=Clock(5), experiment_label="full")
     state = torch.load(partial / "progress.pt", weights_only=False)
     assert state["optimizer_steps"] > 0 and not state["complete"]
-    legacy_hash = next(iter(LEGACY_IMPLEMENTATIONS))
+    legacy_hash = VALIDATION_RECOVERY_SOURCE
     state["implementation_hash"] = legacy_hash
     state["identity"] = fingerprint({"run": run_identity(config, asdict(model), LOSS_WEIGHTS, "data"),
                                       "implementation": legacy_hash, "arm": "full"})

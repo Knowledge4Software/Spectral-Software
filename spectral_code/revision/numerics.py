@@ -16,6 +16,8 @@ LEGACY_IMPLEMENTATIONS = frozenset({"6da6f8fffdc37744ce177a3f573260a6e52f5f8909d
 # Filled after the numerical-only training patch is frozen. This explicitly
 # prevents later architecture/data/training edits inheriting upgrade permission.
 APPROVED_UPGRADE_TARGET = "3b8b72701001931d3c3eb090521567b7902b05deac92b7e97f5523dd8b79d477"
+VALIDATION_RECOVERY_SOURCE = "8ad938f286142084e2c89ef8439bf9310db61e30019f3d61d02b90426df52e26"
+APPROVED_VALIDATION_TARGET = "8a3a065956f00155399f64574847ceb638db612693bfd9c3da9a1a57abad13ba"
 
 
 def upgrade_target_hash():
@@ -27,7 +29,9 @@ def upgrade_target_hash():
 
 
 def can_upgrade(implementation_hash):
-    return implementation_hash in LEGACY_IMPLEMENTATIONS and upgrade_target_hash() == APPROVED_UPGRADE_TARGET
+    target = upgrade_target_hash()
+    return ((implementation_hash in LEGACY_IMPLEMENTATIONS and target == APPROVED_UPGRADE_TARGET)
+            or (implementation_hash == VALIDATION_RECOVERY_SOURCE and target == APPROVED_VALIDATION_TARGET))
 
 
 def _finite_tree(value):

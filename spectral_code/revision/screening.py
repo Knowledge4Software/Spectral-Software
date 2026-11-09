@@ -14,6 +14,7 @@ from .protocol import fingerprint
 # their original hashes in exports; old SPECTRA outputs remain incompatible.
 INPUT_V1_HASH = "793a3d2debc4cac7c045fb34df66f4f12f0694538e3da7a046c1b0623cee2de4"
 INPUT_V2_HASH = "8ad938f286142084e2c89ef8439bf9310db61e30019f3d61d02b90426df52e26"
+VALIDATION_RECOVERY_HASH = "bc9d583ca609c7929cf4373737e07a53b1bfdc79e14a23672e40cb3d8d02e00b"
 EXTERNAL_INPUT_V1_ARMS = frozenset({
     "baseline/" + method for method in
     ("astnn", "rtvnn", "cdlh", "deepsim", "fa_ast_ggnn", "fa_ast_gmn", "codebert", "c4_adapted", "qwen3_lora")
@@ -22,6 +23,10 @@ EXTERNAL_INPUT_V1_ARMS = frozenset({
 
 def comparison_implementation_hash(state):
     implementation = state["implementation_hash"]
+    # Exact numerical-only amendment: finite AMP predictions and optimizer
+    # updates are unchanged. Preserve the real hash and migration lineage.
+    if implementation == VALIDATION_RECOVERY_HASH:
+        return INPUT_V2_HASH
     if implementation == INPUT_V1_HASH and state["arm"] in EXTERNAL_INPUT_V1_ARMS:
         return INPUT_V2_HASH
     return implementation

@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from scripts.prepare_revision_stage1 import DATASETS
-from spectral_code.revision.versioning import training_implementation_hash
+from spectral_code.revision.screening import INPUT_V2_HASH,comparison_implementation_hash
 
 
 def prepare(root=None):
@@ -18,11 +18,11 @@ def prepare(root=None):
         reader=csv.DictReader(f); fields=reader.fieldnames; rows=list(reader)
     if 'implementation_hash' not in fields:
         fields.append('implementation_hash')
-    current_hash=training_implementation_hash()
+    current_hash=INPUT_V2_HASH
     old={r['job_id']:r for r in csv.DictReader((base/'archive/input_v1/run_progress.csv').open(encoding='utf-8'))}
     for r in rows:
         if (r['job_id'] in {f'{d}_full_seed42' for d in DATASETS} and r['status']=='complete_verified'
-                and r.get('implementation_hash') != current_hash):
+                and comparison_implementation_hash(dict(r,arm='full')) != current_hash):
             previous=old[r['job_id']]
             r.update(status='rerun_required_input_fix',evidence='Input-v2 amendment; historical v1 archive remains verified: '+previous['evidence'],
                 completed_epochs='',test_evaluated='False',updated='2026-11-09',
@@ -46,13 +46,13 @@ def prepare(root=None):
     for dataset,arm,path in selected:
         job_id=f'{dataset}_{arm}_seed42'
         known=progress.get(job_id,{})
-        if known.get('status')=='complete_verified' and known.get('implementation_hash')==current_hash:
+        if known.get('status')=='complete_verified' and comparison_implementation_hash(dict(known,arm=arm))==current_hash:
             completed.append(job_id)
             continue
         bundle,digest,_=DATASETS[dataset]
         jobs.append(dict(slot=len(jobs)+1,job_id=job_id,dataset=dataset,arm=arm,seed=42,
             notebook=path,notebook_sha256=manifest[path]['sha256'],dataset_zip=bundle+'.zip',dataset_sha256=digest,
-            implementation_hash=training_implementation_hash(),gpu=True,internet=False,
+            implementation_hash=current_hash,gpu=True,internet=False,
             resume_checkpoint='None',final_test=False))
     with (base/'queues/input_v2_run_queue.csv').open('w',encoding='utf-8',newline='') as f:
         job_fields=('slot','job_id','dataset','arm','seed','notebook','notebook_sha256','dataset_zip','dataset_sha256','implementation_hash','gpu','internet','resume_checkpoint','final_test')
@@ -72,7 +72,7 @@ def prepare(root=None):
     if not jobs:
         lines=['# Input-v2 priority batch is complete','',
             'All eight priority jobs are verified complete: full SPECTRA on the three datasets and five CodeNet readout/objective controls. Reuse them; no seed-42 rerun is queued.','',
-            'See [the six-condition core results](../results/CORE_CONTROLS_REVIEW.md). The next planned batch is [12 CodeNet core repeats](RUN_NEXT_CORE_REPEATS.md): the same six conditions with seeds 123 and 231. Existing CodeNet data, models, losses and training settings are reused.','',
+            'See [the six-condition core results](../results/CORE_CONTROLS_REVIEW.md) and [current progress of the 12 CodeNet core repeats](RUN_NEXT_CORE_REPEATS.md): the same six conditions with seeds 123 and 231. Existing CodeNet data, models, losses and training settings are reused.','',
             'The other 15 seed-42 architecture/loss controls remain in the roadmap; they have not been completed or removed. Expensive external baselines and the transfer study remain deferred pending the central comparison. Final tests stay off.','',
             'Completed input-v2 priority jobs: '+', '.join(completed)+'.',
             '', 'The machine-readable `input_v2_run_queue.csv` has a header and zero pending rows.','']
