@@ -3,13 +3,19 @@
 Current execution: [11 CodeNet core repeats are verified complete](../results/CORE_REPEATS_PROGRESS.md)
 and the fixed classification-only/123 restart is running according to the user.
 The six seed-42 core conditions are also complete. [The next independent batch](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)
-contains the 15 remaining CodeNet seed-42 controls and four full-model repeats
+originally contained 15 CodeNet seed-42 controls and four full-model repeats
 on AtCoder/BigCloneBench with seeds 123/231. These jobs were already prescribed
 in phases 4-6 and do not depend on the running seed or external-finalist choice.
 They can use idle slots now; training has not been launched by preparing this
 queue. The other external repeats and focused transfer remain gated by completed
 baseline screening. Reuse all completed results; preserve failed attempts and
 keep final tests off. Earlier updates below are historical.
+
+Latest batch-02 update: [four graph/descriptor controls passed 144 checks](../results/ARCHITECTURE_CONTROLS_REVIEW.md).
+The original 19-job independent roster now has four verified completions and
+15 without submitted output (11 CodeNet controls plus four full repeats).
+Projected DDG has 56.00% validation Accuracy; retain this weak result and avoid
+attributing its cause to a dataset bug without further measured diagnostics.
 
 Execution update, 2026-11-09: [the combined validation review](../results/BATCH_2026-11-09.md)
 verifies 17 completed baseline jobs across all three datasets; four CodeNet jobs

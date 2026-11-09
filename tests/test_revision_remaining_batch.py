@@ -15,6 +15,16 @@ def test_independent_batch_preserves_experiments_and_never_requeues_reported_job
     for name in ("results/run_progress.csv", "results/control_progress.csv", "queues/notebook_manifest.csv"):
         (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source / name, tmp_path / name)
+    # Keep the fixture independent of results that arrive after this test was
+    # written: all 15 declared controls begin unreported in the test scenario.
+    tracker = tmp_path / "results/control_progress.csv"
+    with tracker.open(encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f); tracker_fields = reader.fieldnames; tracker_rows = list(reader)
+    planned_controls = {f"codenet_{arm}_seed42" for arm, _, _ in CONTROLS}
+    for row in tracker_rows:
+        if row["job_id"] in planned_controls:row["status"] = "not_reported"
+    with tracker.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=tracker_fields); writer.writeheader(); writer.writerows(tracker_rows)
     originals = [f"02_controls_seed42/codenet/{g}/codenet_{a}_seed42.ipynb" for a, g, _ in CONTROLS]
     originals += [f"03_selected_repeats/{d}/baselines/{d}_full_seed{s}.ipynb"
                   for d in ("atcoder", "bigclonebench") for s in (123, 231)]

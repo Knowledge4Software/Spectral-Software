@@ -4,10 +4,12 @@
 input-v2 full model they form the completed seed-42 six-cell core. Reuse them.
 [Results and interpretation](../results/CORE_CONTROLS_REVIEW.md).
 Eleven of the 12 core repeats are complete; the corrected seed-123 restart is
-running. **The other 15 controls are now [ready to run independently](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)**,
-with corrected numerical validation and per-notebook T4 estimates. Use the files
+running. **Four additional controls are [verified complete](../results/ARCHITECTURE_CONTROLS_REVIEW.md)**:
+projected AST+DDG, projected AST, projected DDG and energy-only. Nine of 20
+controls are complete; 11 have no submitted output. The [remaining independent list](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)
+has corrected numerical validation and per-notebook T4 estimates. Use the files
 under `codenet/validation_recovery/{architecture,losses}/` linked there. They
-remain unreported until outputs arrive; preparing them does not start training.
+remain unreported until outputs arrive; check existing Kaggle jobs before launching duplicates.
 See `../results/control_progress.csv`.
 
 Use the **updated input-v2 notebooks** in [the current run list](../queues/RUN_NOW_INPUT_V2.md).

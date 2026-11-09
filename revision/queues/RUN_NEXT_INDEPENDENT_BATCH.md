@@ -1,18 +1,14 @@
 # Next independent batch: controls and full-model repeats
 
-**19 fresh jobs ready from a 19-job preplanned roster.** Run alongside the already running CodeNet classification-only/123 restart; do not start another copy of that job.
+**15 fresh jobs ready from a 19-job preplanned roster.** Run alongside the already running CodeNet classification-only/123 restart; do not start another copy of that job.
 
-This brings forward the remaining 15 CodeNet seed-42 controls and four full-model repeats on AtCoder/BigCloneBench. All were already in the revision plan. The four full repeats are independent of external-finalist selection. The other selected external repeats and transfer study still wait for completed baseline screening. Nothing is selected using test results.
+The original roster contains 15 CodeNet seed-42 controls and four full-model repeats on AtCoder/BigCloneBench. Verified completions are excluded from the fresh list below. All were already in the revision plan. The four full repeats are independent of external-finalist selection. The other selected external repeats and transfer study still wait for completed baseline screening. Nothing is selected using test results.
 
 ## Exact notebooks and T4 estimates
 
 | Slot | Dataset | Condition | Seed | Hours per notebook | Notebook |
 | ---: | --- | --- | ---: | --- | --- |
-| 1 | codenet | projected | 42 | 2-8 | [codenet_projected_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/architecture/codenet_projected_seed42_validation_recovery.ipynb) |
-| 2 | codenet | projected_ast | 42 | 2-8 | [codenet_projected_ast_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/architecture/codenet_projected_ast_seed42_validation_recovery.ipynb) |
-| 3 | codenet | projected_ddg | 42 | 2-8 | [codenet_projected_ddg_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/architecture/codenet_projected_ddg_seed42_validation_recovery.ipynb) |
 | 4 | codenet | density_heat | 42 | 2-8 | [codenet_density_heat_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/architecture/codenet_density_heat_seed42_validation_recovery.ipynb) |
-| 5 | codenet | energy_only | 42 | 2-8 | [codenet_energy_only_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/architecture/codenet_energy_only_seed42_validation_recovery.ipynb) |
 | 6 | codenet | without_spectral | 42 | 2-8 | [codenet_without_spectral_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/losses/codenet_without_spectral_seed42_validation_recovery.ipynb) |
 | 7 | codenet | without_auc_ranking | 42 | 2-8 | [codenet_without_auc_ranking_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/losses/codenet_without_auc_ranking_seed42_validation_recovery.ipynb) |
 | 8 | codenet | without_hard_negative | 42 | 2-8 | [codenet_without_hard_negative_seed42_validation_recovery.ipynb](../02_controls_seed42/codenet/validation_recovery/losses/codenet_without_hard_negative_seed42_validation_recovery.ipynb) |
@@ -48,7 +44,7 @@ AtCoder full/42 took 4.00h for 60 epochs, with 3.96h training/validation. Its ex
 
 Each session still has a 10h internal budget with a 45-minute reserve (work stops around 9h15). Keep the 100-epoch ceiling, minimum 10 and patience 10. Numerical retries or slower hardware can require another session; preserve progress rather than shortening the schedule. Each job's own runtime forecast becomes more informative after its first completed epochs.
 
-If seed 123 is your only active job, all 19 new jobs fit within 24 simultaneous GPU-job slots: 20 total active jobs, leaving four slots. Allow roughly 8-10h for this batch if no job needs continuation; this is not an estimate for completing the entire revision.
+If seed 123 is your only active job, the 15 listed jobs would use 16 of 24 simultaneous GPU-job slots, leaving 8 slots. Check existing Kaggle jobs before starting duplicates. Allow roughly 8-10h for the parallel batch if no job needs continuation; this is not an estimate for completing the entire revision.
 
 ## Modern baselines are still pending
 

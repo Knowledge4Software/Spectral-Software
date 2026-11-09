@@ -1,5 +1,13 @@
 # Keep experiment outputs here by dataset and job
 
+**Newest batch 02 update: [four additional graph/descriptor controls passed all 144 checks](ARCHITECTURE_CONTROLS_REVIEW.md).**
+Projected AST+DDG, projected AST, projected DDG and energy-only are complete.
+The DDG-projected control is weak (56.00% validation Accuracy) but passed its
+checkpoint/configuration checks; keep the result without assuming a dataset bug.
+The control roster now has nine complete and 11 without submitted output.
+Four jobs are removed from the original 19-job independent launch list, leaving
+15 without local output (11 controls plus four cross-benchmark full repeats).
+
 **Latest: [batch 03 has 11 complete repeats and one fresh restart running](CORE_REPEATS_PROGRESS.md).**
 All three latest archives passed 60 completion checks. The 12 preserved archives
 passed 239 applicable checks; the original failed seed-123 attempt passed
@@ -14,7 +22,7 @@ complete for seed 42. Mean/max classification-only has 79.74% Accuracy versus
 full 79.67%, a 10-net-correct-pair difference. The
 [12 core repeats](../queues/RUN_NEXT_CORE_REPEATS.md) use seeds 123 and 231;
 11 are now complete and the remaining seed-123 restart is running (user reported).
-`control_progress.csv` separately records five verified controls and 15
+`control_progress.csv` separately records nine verified controls and 11
 remaining planned controls; the baseline roster still has 18 complete,
 four paused and seven without submitted results.
 

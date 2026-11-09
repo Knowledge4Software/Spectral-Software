@@ -10,15 +10,16 @@ ZIP packets are optional copies for transport; extraction is not required here.
 The three latest uploads passed all 60 completion checks. Classification-only/123
 is running from scratch with the validation fix, according to the user; its new
 output has not been supplied yet. [No additional launch is needed from this batch](queues/RUN_NEXT_CORE_REPEATS.md).
-Reuse all 11 completed repeats and the six seed-42 conditions. The other 15
-seed-42 controls remain in the roadmap. Final tests stay off.
+Reuse all 11 completed repeats and the six seed-42 conditions. Four additional
+seed-42 controls are now [verified](results/ARCHITECTURE_CONTROLS_REVIEW.md);
+11 controls still have no submitted output. Final tests stay off.
 
-**Run alongside seed 123: [19 independent jobs with T4 time estimates](queues/RUN_NEXT_INDEPENDENT_BATCH.md).**
-The 15 remaining CodeNet controls and four AtCoder/BigCloneBench full-model
-repeats are prepared with the numerical validation fix. Existing datasets are
-reused; each job is fresh, GPU on, Internet off and final tests off. All 19 fit
-beside the one running job within 24 slots. This is a ready queue, not a record
-that any additional job has started.
+**Independent batch: [four verified complete, 15 without submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md).**
+The original 19-job roster includes 15 CodeNet controls and four full-model
+repeats on AtCoder/BigCloneBench. Projected AST+DDG, projected AST, projected DDG
+and energy-only are complete; reuse them. The remaining list has 11 controls
+and four full repeats. Unreported jobs may already be running; check Kaggle
+before starting a duplicate. Existing datasets and final-test hold are unchanged.
 
 [AtCoder GMN is now verified](results/GMN_RESULTS_REVIEW.md) at 80.32% Accuracy
 and 80.76% F1. The new BigCloneBench GMN upload duplicates its existing reviewed
