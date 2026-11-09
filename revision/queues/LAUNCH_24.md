@@ -1,6 +1,6 @@
 # Remaining baseline roster
 
-For the current input-fix priorities use [the eight-run list](RUN_NOW_INPUT_V2.md).
+For immediate priorities use [the current run list](RUN_NOW_INPUT_V2.md).
 This roster also retains expensive baselines deferred for now; it is not an instruction to launch all rows immediately.
 
 Paths below open the actual `.ipynb` files in this workspace.
@@ -11,21 +11,18 @@ Complete/running jobs, resumable pauses and outputs awaiting review are excluded
 Confirm the tracker before starting
 another copy of a job. Runtime and memory still need verification per method.
 
-## Pending baseline jobs: 11
+## Pending baseline jobs: 8
 
 | Slot | Dataset | Notebook | Internet |
 | ---: | --- | --- | --- |
-| 1 | codenet | [codenet_full_seed42](../01_baselines_seed42/codenet/codenet_full_seed42.ipynb) | False |
-| 2 | atcoder | [atcoder_full_seed42](../01_baselines_seed42/atcoder/atcoder_full_seed42.ipynb) | False |
-| 3 | atcoder | [atcoder_codebert_seed42](../01_baselines_seed42/atcoder/atcoder_codebert_seed42.ipynb) | True |
-| 4 | atcoder | [atcoder_cdlh_seed42](../01_baselines_seed42/atcoder/atcoder_cdlh_seed42.ipynb) | False |
-| 5 | atcoder | [atcoder_fa_ast_gmn_seed42](../01_baselines_seed42/atcoder/atcoder_fa_ast_gmn_seed42.ipynb) | False |
-| 6 | atcoder | [atcoder_c4_adapted_seed42](../01_baselines_seed42/atcoder/atcoder_c4_adapted_seed42.ipynb) | True |
-| 7 | atcoder | [atcoder_qwen3_lora_seed42](../01_baselines_seed42/atcoder/atcoder_qwen3_lora_seed42.ipynb) | True |
-| 8 | bigclonebench | [bigclonebench_full_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_full_seed42.ipynb) | False |
-| 9 | bigclonebench | [bigclonebench_codebert_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_codebert_seed42.ipynb) | True |
-| 10 | bigclonebench | [bigclonebench_cdlh_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_cdlh_seed42.ipynb) | False |
-| 11 | bigclonebench | [bigclonebench_qwen3_lora_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_qwen3_lora_seed42.ipynb) | True |
+| 1 | atcoder | [atcoder_codebert_seed42](../01_baselines_seed42/atcoder/atcoder_codebert_seed42.ipynb) | True |
+| 2 | atcoder | [atcoder_cdlh_seed42](../01_baselines_seed42/atcoder/atcoder_cdlh_seed42.ipynb) | False |
+| 3 | atcoder | [atcoder_fa_ast_gmn_seed42](../01_baselines_seed42/atcoder/atcoder_fa_ast_gmn_seed42.ipynb) | False |
+| 4 | atcoder | [atcoder_c4_adapted_seed42](../01_baselines_seed42/atcoder/atcoder_c4_adapted_seed42.ipynb) | True |
+| 5 | atcoder | [atcoder_qwen3_lora_seed42](../01_baselines_seed42/atcoder/atcoder_qwen3_lora_seed42.ipynb) | True |
+| 6 | bigclonebench | [bigclonebench_codebert_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_codebert_seed42.ipynb) | True |
+| 7 | bigclonebench | [bigclonebench_cdlh_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_cdlh_seed42.ipynb) | False |
+| 8 | bigclonebench | [bigclonebench_qwen3_lora_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_qwen3_lora_seed42.ipynb) | True |
 
 ## Start when slots free: 0 jobs
 

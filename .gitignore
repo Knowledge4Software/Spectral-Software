@@ -112,6 +112,7 @@ revision/results/*
 !revision/results/README.md
 !revision/results/run_progress.csv
 !revision/results/BATCH_2026-11-09.md
+!revision/results/SPECTRA_INPUT_V2_REVIEW.md
 revision/results/kaggle/
 
 # serialized python objects

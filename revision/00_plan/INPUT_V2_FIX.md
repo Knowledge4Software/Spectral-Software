@@ -26,9 +26,11 @@ retention, not a measured improvement in F1/Accuracy.
 
 ## Runs and provenance
 
-Use [the eight-run list](../queues/RUN_NOW_INPUT_V2.md): corrected SPECTRA full
-on all three datasets, plus five central CodeNet readout/objective controls.
-Every run starts fresh with the same original training settings. The new
+The original input-fix batch comprised corrected SPECTRA full on all three
+datasets plus five central CodeNet controls. The three full runs are now
+[verified complete](../results/SPECTRA_INPUT_V2_REVIEW.md); reuse their outputs.
+[The current run list](../queues/RUN_NOW_INPUT_V2.md) contains the five controls.
+New controls start fresh with the same original training settings. The new
 SPECTRA output folder names end in `_input_v2`. An existing v1 SPECTRA
 checkpoint cannot resume into this representation; retain its old results
 separately and do not combine old full models with corrected matched controls.
@@ -63,4 +65,5 @@ features on existing local validation inputs without training or test scoring.
 
 Keep every historical result, including unfavorable ones. This dated amendment
 was made after inspecting validation behavior and before releasing final tests.
-Accuracy improvements remain unmeasured until Kaggle runs complete.
+The first corrected full-model results are now recorded in the linked review;
+only validation has been evaluated. Retain the unfavorable CodeNet change too.

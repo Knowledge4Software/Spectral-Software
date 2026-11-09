@@ -17,4 +17,4 @@ not use the corrected SPECTRA canonical/lexical loader.
 Do not start new SPECTRA runs from these notebooks. Historical v1 SPECTRA full
 results remain evidence, but new full models and matched controls must all
 use input v2 and fresh training. Follow the
-[current eight-run list](../../queues/RUN_NOW_INPUT_V2.md).
+[current run list](../../queues/RUN_NOW_INPUT_V2.md).

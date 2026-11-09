@@ -1,20 +1,16 @@
 # Keep experiment outputs here by dataset and job
 
-**Input-v2 amendment:** the 17 completions below are historical input-v1
-evidence. Fourteen external baselines remain reusable; the three SPECTRA full
-runs need fresh corrected-input training. See [the amendment](../00_plan/INPUT_V2_FIX.md)
-and [eight immediate jobs](../queues/RUN_NOW_INPUT_V2.md). Do not mix old
-SPECTRA full checkpoints with the corrected controls.
+**Current input-v2 results:** [all three SPECTRA full runs passed 102 checks](SPECTRA_INPUT_V2_REVIEW.md)
+and are complete: CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%,
+BigCloneBench F1 97.15%. Reuse them. The active baseline roster again has
+**17 complete, four paused and eight without submitted results**. The next
+priority is [five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md).
 
-**2026-11-09 update:** [the combined validation review](BATCH_2026-11-09.md)
-adds eleven verified completions: five AtCoder and six BigCloneBench runs.
-The 29-job roster now has **17 complete, four paused, eight without submitted
-results**. Reuse every completed run. The older CodeNet evidence below remains
-valid. SPECTRA has 76.10% AtCoder Accuracy and 67.92% BigCloneBench F1, below
-the leading completed baselines at 82.91% and 98.27%, respectively.
-Input diagnostics found extremely sparse BigCloneBench node lexical features;
-the cause of the performance gap is not yet established. Prioritize the central
-matched controls before launching all repeat seeds or transfer conditions.
+The three old SPECTRA ZIPs were moved to `_archive/input_v1/` in the local
+result folder, with hashes preserved. Old scores are excluded from current
+rankings and retained in `_audit/audit.json` under `historical_runs`.
+The [previous combined review](BATCH_2026-11-09.md) and the CodeNet details
+below describe historical input-v1 evidence, not current full-model scores.
 
 `run_progress.csv` distinguishes reported completions, verified local outputs,
 resumable budget pauses, and `output_reported_pending_review`. The latter means

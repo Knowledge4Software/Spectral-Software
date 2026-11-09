@@ -1,7 +1,7 @@
 # Stage 2: architecture and loss screening, seed 42
 
 Use the **updated input-v2 notebooks** in [the current run list](../queues/RUN_NOW_INPUT_V2.md).
-Repeat CodeNet/full/42 with that corrected input before comparing these controls.
+CodeNet/full/42 with that corrected input is now verified complete; reuse it.
 The older instruction below to reuse the old full model is superseded by
 [the input fix](../00_plan/INPUT_V2_FIX.md); all old results remain historical evidence.
 

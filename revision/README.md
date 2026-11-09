@@ -6,12 +6,12 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Run now: [eight corrected-input jobs](queues/RUN_NOW_INPUT_V2.md).**
-The 2026-11-09 [Java lexical-input fix](00_plan/INPUT_V2_FIX.md) requires fresh
-SPECTRA full runs on all three datasets and the five central CodeNet controls.
-Reuse the existing dataset uploads. Fourteen completed external baseline runs
-remain usable; three earlier SPECTRA full results are historical input-v1 results.
-Defer the expensive remaining external baselines for now. Final tests remain off.
+**Next: [five CodeNet controls](queues/RUN_NOW_INPUT_V2.md).** All three
+corrected-input SPECTRA full runs are now [verified complete](results/SPECTRA_INPUT_V2_REVIEW.md):
+CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%, BigCloneBench F1 97.15%.
+Reuse these three full models and the 14 completed external baselines. Old
+SPECTRA ZIPs are archived outside the active result folder. Existing dataset
+uploads stay unchanged. Remaining expensive baselines can wait; final tests stay off.
 
 If a text job fails with `RobertaConfig has no attribute '_commit_hash'`, use
 the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETUP_RECOVERY.md).

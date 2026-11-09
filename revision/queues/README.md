@@ -3,11 +3,12 @@
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
 - [RUN_NOW_INPUT_V2.md](RUN_NOW_INPUT_V2.md) and `input_v2_run_queue.csv`:
-  the eight immediate corrected-input jobs. This list takes priority over the
+  the five remaining CodeNet controls. The three corrected full runs are
+  verified complete and excluded. This list takes priority over the
   remaining original baseline roster. Existing dataset uploads are reused.
 
-- [LAUNCH_24.md](LAUNCH_24.md): eleven pending baseline jobs after the input fix:
-  three corrected full runs and eight jobs without submitted results.
+- [LAUNCH_24.md](LAUNCH_24.md): eight baseline jobs without submitted results;
+  the completed corrected full runs and resumable pauses are excluded.
 - `launch_24.csv`: slot/account allocation for that remaining roster. This retains
   the original roster, including costly Qwen/CDLH candidates; it is not an
   instruction to launch every remaining job immediately. See the
