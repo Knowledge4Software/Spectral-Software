@@ -1,5 +1,10 @@
 # SPECTRA input-v2 results review — 2026-11-09
 
+Latest follow-up: [all five seed-42 core controls are now verified complete](CORE_CONTROLS_REVIEW.md).
+The next priority is [12 preplanned core repetitions](../queues/RUN_NEXT_CORE_REPEATS.md).
+The baseline comparisons below remain valid; the core readout/objective study
+is reported separately so controls do not change the baseline roster.
+
 GMN addition: AtCoder FA-AST-GMN is now verified at 80.32% Accuracy and 80.76% F1. The BCB upload duplicates the existing reviewed run; no additional independent run is counted.
 
 **All three corrected-input SPECTRA full runs are complete and verified. All 102 checks passed. None needs continuation or another full-model run.**

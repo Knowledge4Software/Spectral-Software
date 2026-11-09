@@ -24,6 +24,8 @@ AtCoder GMN ranks third among six completed methods by Accuracy: RtvNN 82.91%, A
 
 The baseline roster now has **18 verified completions, four paused CodeNet jobs and seven jobs without submitted results**. There are 22 current report sets and three separately retained historical SPECTRA full records; the duplicate upload does not increase the run count.
 
-The next priority remains [five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md). Keep their existing running jobs if already started. Expensive unreported external baselines can remain deferred.
+The five CodeNet controls are now [verified complete](CORE_CONTROLS_REVIEW.md).
+The next priority is [12 preplanned core repetitions](../queues/RUN_NEXT_CORE_REPEATS.md).
+Expensive unreported external baselines can remain deferred.
 
 Limits: counts-based metrics were recomputed; independent AUROC/AP reproduction needs validation predictions. Recorded hours exclude the final benchmark and Kaggle startup/export overhead. No model, notebook, training code or dataset was modified during this review.

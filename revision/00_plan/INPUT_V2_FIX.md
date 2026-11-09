@@ -29,8 +29,10 @@ retention, not a measured improvement in F1/Accuracy.
 The original input-fix batch comprised corrected SPECTRA full on all three
 datasets plus five central CodeNet controls. The three full runs are now
 [verified complete](../results/SPECTRA_INPUT_V2_REVIEW.md); reuse their outputs.
-[The current run list](../queues/RUN_NOW_INPUT_V2.md) contains the five controls.
-New controls start fresh with the same original training settings. The new
+The five central controls are also [verified complete](../results/CORE_CONTROLS_REVIEW.md).
+[The next run list](../queues/RUN_NEXT_CORE_REPEATS.md) contains the already
+planned 12 core repetitions with seeds 123 and 231. New seeds start fresh
+with the same original training settings. The new
 SPECTRA output folder names end in `_input_v2`. An existing v1 SPECTRA
 checkpoint cannot resume into this representation; retain its old results
 separately and do not combine old full models with corrected matched controls.

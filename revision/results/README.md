@@ -1,10 +1,19 @@
 # Keep experiment outputs here by dataset and job
 
+**Latest: [the five CodeNet controls passed all 175 checks](CORE_CONTROLS_REVIEW.md).**
+The six-cell readout/objective core, including the existing full model, is
+complete for seed 42. Mean/max classification-only has 79.74% Accuracy versus
+full 79.67%, a 10-net-correct-pair difference. The next planned batch is
+[12 core repeats](../queues/RUN_NEXT_CORE_REPEATS.md) with seeds 123 and 231.
+`control_progress.csv` separately records five verified controls and 15
+remaining planned controls; the baseline roster still has 18 complete,
+four paused and seven without submitted results.
+
 **Current input-v2 results:** [all three SPECTRA full runs passed 102 checks](SPECTRA_INPUT_V2_REVIEW.md)
 and are complete: CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%,
 BigCloneBench F1 97.15%. Reuse them. The active baseline roster again has
 **18 complete, four paused and seven without submitted results**. The next
-priority is [five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md).
+priority is now [the core repetitions](../queues/RUN_NEXT_CORE_REPEATS.md).
 
 [Additional GMN review](GMN_RESULTS_REVIEW.md): AtCoder GMN completed 38 epochs,
 selected epoch 28, and has 80.32% validation Accuracy / 80.76% F1. Its full

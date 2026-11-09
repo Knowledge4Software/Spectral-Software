@@ -1,6 +1,6 @@
 # Remaining baseline roster
 
-For immediate priorities use [the current run list](RUN_NOW_INPUT_V2.md).
+For immediate priorities use [the current run list](RUN_NEXT_CORE_REPEATS.md).
 This roster also retains expensive baselines deferred for now; it is not an instruction to launch all rows immediately.
 
 Paths below open the actual `.ipynb` files in this workspace.

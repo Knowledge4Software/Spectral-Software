@@ -1,6 +1,7 @@
 # Stage 1: baseline screening, seed 42
 
-**Current priority:** [five CodeNet input-v2 controls](../queues/RUN_NOW_INPUT_V2.md).
+**Current priority:** [12 planned CodeNet core repeats](../queues/RUN_NEXT_CORE_REPEATS.md).
+The five input-v2 controls are verified complete and should be reused.
 The three corrected-input SPECTRA full runs are now verified complete; reuse
 them and the completed external baselines. For old
 external checkpoints use [archived notebooks](../archive/input_v1/README.md).

@@ -35,6 +35,13 @@ def prepare(root=None):
         ('mean_max_classification_only','architecture'),('attention_classification_only','architecture'))]
     jobs=[]
     progress={r['job_id']:r for r in rows}
+    control_tracker=base/'results/control_progress.csv'
+    if control_tracker.exists():
+        with control_tracker.open(encoding='utf-8',newline='') as f:
+            controls={r['job_id']:r for r in csv.DictReader(f)}
+        if progress.keys() & controls.keys():
+            raise ValueError('Baseline and control trackers must have distinct job IDs')
+        progress.update(controls)
     completed=[]
     for dataset,arm,path in selected:
         job_id=f'{dataset}_{arm}_seed42'
@@ -62,6 +69,13 @@ def prepare(root=None):
         '', 'Control runtimes are not yet measured. Preserve partial outputs if the session guard stops a run.',
         '', 'Completed input-v2 priority jobs: '+(', '.join(completed) if completed else 'none reported yet')+'.',
         '', 'See [the current full-model review](../results/SPECTRA_INPUT_V2_REVIEW.md) and [input-fix amendment](../00_plan/INPUT_V2_FIX.md). The machine-readable list is `input_v2_run_queue.csv`.','']
+    if not jobs:
+        lines=['# Input-v2 priority batch is complete','',
+            'All eight priority jobs are verified complete: full SPECTRA on the three datasets and five CodeNet readout/objective controls. Reuse them; no seed-42 rerun is queued.','',
+            'See [the six-condition core results](../results/CORE_CONTROLS_REVIEW.md). The next planned batch is [12 CodeNet core repeats](RUN_NEXT_CORE_REPEATS.md): the same six conditions with seeds 123 and 231. Existing CodeNet data, models, losses and training settings are reused.','',
+            'The other 15 seed-42 architecture/loss controls remain in the roadmap; they have not been completed or removed. Expensive external baselines and the transfer study remain deferred pending the central comparison. Final tests stay off.','',
+            'Completed input-v2 priority jobs: '+', '.join(completed)+'.',
+            '', 'The machine-readable `input_v2_run_queue.csv` has a header and zero pending rows.','']
     (base/'queues/RUN_NOW_INPUT_V2.md').write_text('\n'.join(lines),encoding='utf-8')
     print(f'Prepared {len(jobs)} unfinished input-v2 jobs; {len(completed)} verified current jobs excluded.')
 

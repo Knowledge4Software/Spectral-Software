@@ -34,7 +34,8 @@ def prepare(root: Path = REVISION_ROOT, capacity: int = 24) -> None:
             for index, job in enumerate(selected, start=1):
                 writer.writerow({"launch_slot": index, "account": (index + 1) // 2,
                                  "account_slot": (index - 1) % 2 + 1, **job})
-    lines = ["# Remaining baseline roster", "", "For immediate priorities use [the current run list](RUN_NOW_INPUT_V2.md).",
+    priority_file = "RUN_NEXT_CORE_REPEATS.md" if (queue_root / "RUN_NEXT_CORE_REPEATS.md").exists() else "RUN_NOW_INPUT_V2.md"
+    lines = ["# Remaining baseline roster", "", f"For immediate priorities use [the current run list]({priority_file}).",
              "This roster also retains expensive baselines deferred for now; it is not an instruction to launch all rows immediately.",
              "", "Paths below open the actual `.ipynb` files in this workspace.",
              "Attach the dataset named in each row. Keep seed 42 and `FINAL_TEST=False`.",

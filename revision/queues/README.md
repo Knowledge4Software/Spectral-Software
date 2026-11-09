@@ -3,9 +3,11 @@
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
 - [RUN_NOW_INPUT_V2.md](RUN_NOW_INPUT_V2.md) and `input_v2_run_queue.csv`:
-  the five remaining CodeNet controls. The three corrected full runs are
-  verified complete and excluded. This list takes priority over the
-  remaining original baseline roster. Existing dataset uploads are reused.
+  the original eight-job priority batch is complete; zero pending rows.
+- [RUN_NEXT_CORE_REPEATS.md](RUN_NEXT_CORE_REPEATS.md) and
+  `core_repeat_run_queue.csv`: the next 12 preplanned CodeNet jobs, the six
+  completed core conditions with seeds 123 and 231. Existing dataset uploads
+  are reused. Other external/transfer extensions remain deferred.
 
 - [LAUNCH_24.md](LAUNCH_24.md): remaining baseline jobs without submitted results;
   the completed corrected full runs and resumable pauses are excluded.

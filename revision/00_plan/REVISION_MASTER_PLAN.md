@@ -1,10 +1,12 @@
 # SPECTRA reviewer-revision master plan
 
-Current execution: all three corrected-input SPECTRA full runs are
-[verified complete](../results/SPECTRA_INPUT_V2_REVIEW.md). Reuse them and the
-completed external baselines. [Five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md)
-are next. The old three full-model ZIPs are archived and their scores remain
-historical evidence. Earlier execution updates below predate these results.
+Current execution: [the six-condition CodeNet core is verified complete for seed 42](../results/CORE_CONTROLS_REVIEW.md).
+The five new controls passed 175 checks. Bring the already planned
+[12 CodeNet core repetitions](../queues/RUN_NEXT_CORE_REPEATS.md) forward:
+same six conditions, seeds 123 and 231. The remaining 15 seed-42 controls stay
+in the roadmap. Reuse the corrected full models and completed external
+baselines; old full-model ZIPs remain archived. Earlier execution updates
+below predate these results.
 
 Execution update, 2026-11-09: [the combined validation review](../results/BATCH_2026-11-09.md)
 verifies 17 completed baseline jobs across all three datasets; four CodeNet jobs

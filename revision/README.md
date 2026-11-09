@@ -6,12 +6,13 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Next: [five CodeNet controls](queues/RUN_NOW_INPUT_V2.md).** All three
-corrected-input SPECTRA full runs are now [verified complete](results/SPECTRA_INPUT_V2_REVIEW.md):
-CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%, BigCloneBench F1 97.15%.
-Reuse these three full models and the completed external baselines. Old
-SPECTRA ZIPs are archived outside the active result folder. Existing dataset
-uploads stay unchanged. Remaining expensive baselines can wait; final tests stay off.
+**Next: [12 preplanned CodeNet core repeats](queues/RUN_NEXT_CORE_REPEATS.md).**
+The five controls and the corrected full model are [verified complete for seed 42](results/CORE_CONTROLS_REVIEW.md).
+Mean/max classification-only has 79.74% Accuracy versus full 79.67%; this seed
+does not establish a spectral advantage. Repeat the same six conditions with
+seeds 123 and 231. Reuse seed 42 and the existing CodeNet dataset. The other
+15 exploratory controls stay in the roadmap; external/transfer extensions can
+wait while the central comparison is assessed. Final tests remain off.
 
 [AtCoder GMN is now verified](results/GMN_RESULTS_REVIEW.md) at 80.32% Accuracy
 and 80.76% F1. The new BigCloneBench GMN upload duplicates its existing reviewed
@@ -31,8 +32,8 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | --- | --- |
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
 | [01_baselines_seed42](01_baselines_seed42/README.md) | Original 29-job roster; consult tracker before starting a job |
-| [02_controls_seed42](02_controls_seed42/README.md) | Next: architecture/loss controls addressing spectral attribution |
-| [03_selected_repeats](03_selected_repeats/README.md) | Later: seed 123/231 candidates; run only selected comparisons |
+| [02_controls_seed42](02_controls_seed42/README.md) | Five central controls verified; 15 other planned controls remain |
+| [03_selected_repeats](03_selected_repeats/README.md) | Next: the 12 selected CodeNet core repeats |
 | [04_transfer](04_transfer/README.md) | Later: generate the focused conditions after choosing comparators |
 | [05_analysis](05_analysis/README.md) | Validation screening, spectral diagnostics and paired uncertainty |
 | [datasets](datasets/README_FA.md) | Exact dataset versions, checksums and reuse rules |

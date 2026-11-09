@@ -114,6 +114,8 @@ revision/results/*
 !revision/results/BATCH_2026-11-09.md
 !revision/results/SPECTRA_INPUT_V2_REVIEW.md
 !revision/results/GMN_RESULTS_REVIEW.md
+!revision/results/CORE_CONTROLS_REVIEW.md
+!revision/results/control_progress.csv
 revision/results/kaggle/
 
 # serialized python objects
