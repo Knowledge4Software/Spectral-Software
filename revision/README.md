@@ -13,6 +13,13 @@ output has not been supplied yet. [No additional launch is needed from this batc
 Reuse all 11 completed repeats and the six seed-42 conditions. The other 15
 seed-42 controls remain in the roadmap. Final tests stay off.
 
+**Run alongside seed 123: [19 independent jobs with T4 time estimates](queues/RUN_NEXT_INDEPENDENT_BATCH.md).**
+The 15 remaining CodeNet controls and four AtCoder/BigCloneBench full-model
+repeats are prepared with the numerical validation fix. Existing datasets are
+reused; each job is fresh, GPU on, Internet off and final tests off. All 19 fit
+beside the one running job within 24 slots. This is a ready queue, not a record
+that any additional job has started.
+
 [AtCoder GMN is now verified](results/GMN_RESULTS_REVIEW.md) at 80.32% Accuracy
 and 80.76% F1. The new BigCloneBench GMN upload duplicates its existing reviewed
 result (97.77% F1), so it is archived without counting an additional run.
@@ -48,8 +55,9 @@ and [saved checkpoint/token cache](00_plan/TEXT_RUN_CONTINUATION.md).
 See [the results tracker](results/README.md) for evidence and
 [the current launch list](queues/LAUNCH_24.md) before starting another job.
 
-The maintained suite has 193 frozen generated notebooks and four separately
-queued validation-recovery notebooks, plus the optional preserved seed-123 resume notebook. Dataset releases stay unchanged. Twenty-nine original baseline
+The maintained suite has 193 frozen generated notebooks plus separately
+versioned numerical-fix copies listed in the queue manifests. Dataset releases
+stay unchanged. Twenty-nine original baseline
 notebooks and their old protocol/manifest are archived for continuation.
 Earlier folder-migration paths are in [queues/path_migration.csv](queues/path_migration.csv).
 

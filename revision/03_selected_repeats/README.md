@@ -9,6 +9,11 @@ The original notebooks remain frozen; reuse all 11 complete results and do not
 duplicate the live job. Model/loss/training settings and final-test hold remain
 unchanged. These twelve jobs are part of the 28-run follow-up below.
 
+Four more prespecified full-model repeats are now [ready independently](../queues/RUN_NEXT_INDEPENDENT_BATCH.md):
+AtCoder and BigCloneBench with seeds 123 and 231. Use the linked numerical-fix
+copies. Bringing these forward does not select external finalists or release tests.
+Their progress is tracked separately in `results/selected_followup_progress.csv`.
+
 Select comparisons using completed seed-42 validation results and the frozen
 [protocol](../00_plan/EXPERIMENT_PROTOCOL.md). Then run only their matching seed
 123 and 231 files. Reuse seed 42 when data/settings/source are unchanged.

@@ -3,10 +3,12 @@
 **The five central controls are now verified complete**; together with the
 input-v2 full model they form the completed seed-42 six-cell core. Reuse them.
 [Results and interpretation](../results/CORE_CONTROLS_REVIEW.md).
-The next priority is [12 already planned core repeats](../queues/RUN_NEXT_CORE_REPEATS.md),
-the same six conditions with seeds 123 and 231. The other 15 controls below
-remain planned and unreported; this is an execution-order change, not completion
-or removal of the rest of the study. See `../results/control_progress.csv`.
+Eleven of the 12 core repeats are complete; the corrected seed-123 restart is
+running. **The other 15 controls are now [ready to run independently](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)**,
+with corrected numerical validation and per-notebook T4 estimates. Use the files
+under `codenet/validation_recovery/{architecture,losses}/` linked there. They
+remain unreported until outputs arrive; preparing them does not start training.
+See `../results/control_progress.csv`.
 
 Use the **updated input-v2 notebooks** in [the current run list](../queues/RUN_NOW_INPUT_V2.md).
 CodeNet/full/42 with that corrected input is now verified complete; reuse it.

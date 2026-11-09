@@ -1,12 +1,15 @@
 # SPECTRA reviewer-revision master plan
 
-Current execution: [the six-condition CodeNet core is verified complete for seed 42](../results/CORE_CONTROLS_REVIEW.md).
-The five new controls passed 175 checks. Bring the already planned
-[12 CodeNet core repetitions](../queues/RUN_NEXT_CORE_REPEATS.md) forward:
-same six conditions, seeds 123 and 231. The remaining 15 seed-42 controls stay
-in the roadmap. Reuse the corrected full models and completed external
-baselines; old full-model ZIPs remain archived. Earlier execution updates
-below predate these results.
+Current execution: [11 CodeNet core repeats are verified complete](../results/CORE_REPEATS_PROGRESS.md)
+and the fixed classification-only/123 restart is running according to the user.
+The six seed-42 core conditions are also complete. [The next independent batch](../queues/RUN_NEXT_INDEPENDENT_BATCH.md)
+contains the 15 remaining CodeNet seed-42 controls and four full-model repeats
+on AtCoder/BigCloneBench with seeds 123/231. These jobs were already prescribed
+in phases 4-6 and do not depend on the running seed or external-finalist choice.
+They can use idle slots now; training has not been launched by preparing this
+queue. The other external repeats and focused transfer remain gated by completed
+baseline screening. Reuse all completed results; preserve failed attempts and
+keep final tests off. Earlier updates below are historical.
 
 Execution update, 2026-11-09: [the combined validation review](../results/BATCH_2026-11-09.md)
 verifies 17 completed baseline jobs across all three datasets; four CodeNet jobs

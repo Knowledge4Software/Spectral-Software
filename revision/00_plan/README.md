@@ -5,6 +5,10 @@ and [the current launch list](../queues/LAUNCH_24.md). The CodeNet/full checkpoi
 is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
+**Ready now:** [19 independent controls/repeats with per-notebook T4 estimates](../queues/RUN_NEXT_INDEPENDENT_BATCH.md).
+They can run alongside the already running CodeNet seed-123 restart. Use the
+linked numerical-fix notebooks and existing dataset uploads; final tests stay off.
+
 - [Full revision roadmap](REVISION_MASTER_PLAN.md): reviewer concerns, dependencies,
   experiment counts and manuscript work.
 - [Persian guide](REVISION_PLAN_FA.md): goals, rationale and planning estimates.

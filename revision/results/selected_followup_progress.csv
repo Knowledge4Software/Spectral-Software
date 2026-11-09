@@ -1,0 +1,5 @@
+job_id,dataset,arm,seed,status,evidence,completed_epochs,test_evaluated,updated,notes,implementation_hash
+atcoder_full_seed123,atcoder,full,123,not_reported,,,False,2026-11-09,Prespecified full-model repeat; independent of external finalist selection,
+atcoder_full_seed231,atcoder,full,231,not_reported,,,False,2026-11-09,Prespecified full-model repeat; independent of external finalist selection,
+bigclonebench_full_seed123,bigclonebench,full,123,not_reported,,,False,2026-11-09,Prespecified full-model repeat; independent of external finalist selection,
+bigclonebench_full_seed231,bigclonebench,full,231,not_reported,,,False,2026-11-09,Prespecified full-model repeat; independent of external finalist selection,
