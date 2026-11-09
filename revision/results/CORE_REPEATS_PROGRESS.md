@@ -1,6 +1,6 @@
 # CodeNet core repeats: batch 03 review
 
-**8 verified complete, 1 failed during validation, 3 without submitted output**, from the 12 planned seed-123/231 core jobs. All nine archives were renamed with condition/seed/status; all 179 applicable integrity/result checks passed. The failed run passed checkpoint checks, not completion checks.
+**11 verified complete, 1 fresh restart running (user reported), 0 missing jobs**, from the 12 planned seed-123/231 core jobs. The three latest archives passed all 60 completion checks. All 12 preserved archives passed 239 applicable checks: 220 completion checks plus 19 checks on the original failed seed-123 checkpoint. That failed attempt is not a completed result. The current restart has no supplied output yet. All three new ZIPs were renamed; archive hashes are unchanged.
 
 All outputs use input v2 and the same CodeNet support (69538 training, 14896 validation, 14906 test pairs); validation has 7448 positives and 7448 negatives. Data/settings/models/losses match the planned jobs. Current/best weights and optimizer state are finite, histories and best-epoch selection agree, tests remain off. Each completed job stopped on the prescribed validation patience.
 
@@ -12,11 +12,11 @@ All outputs use input v2 and the same CodeNet support (69538 training, 14896 val
 | mean_max | 231 | 35 | 25 | 79.56% | 80.32% | complete_verified |
 | attention | 123 | 28 | 18 | 78.79% | 79.04% | complete_verified |
 | attention | 231 | 26 | 16 | 78.56% | 78.75% | complete_verified |
-| classification_only | 123 | 42 | 33 | 70.50% | 72.70% | validation_pending |
-| classification_only | 231 | - | - | - | - | not_reported |
+| classification_only | 123 | pending restart output | - | - | - | running_restart (user reported) |
+| classification_only | 231 | 36 | 26 | 80.87% | 81.28% | complete_verified |
 | mean_max_classification_only | 123 | 30 | 20 | 79.87% | 80.81% | complete_verified |
-| mean_max_classification_only | 231 | - | - | - | - | not_reported |
-| attention_classification_only | 123 | - | - | - | - | not_reported |
+| mean_max_classification_only | 231 | 36 | 26 | 80.14% | 80.51% | complete_verified |
+| attention_classification_only | 123 | 33 | 23 | 79.54% | 79.49% | complete_verified |
 | attention_classification_only | 231 | 26 | 16 | 79.67% | 79.92% | complete_verified |
 
 ## Failed classification-only seed 123
@@ -31,14 +31,14 @@ Full/231 recorded three recovered FP32 training groups and completed normally wi
 
 ## What remains
 
-- Restart classification-only/123 from scratch using its fixed fresh notebook and CodeNet data only: the user cannot reattach the failed Kaggle output. Preserve the failed attempt; its 42 validated epochs cannot be reused without the checkpoint. The optional resume notebook is retained if the checkpoint becomes available later.
-- No submitted output: classification-only/231, mean-max-classification-only/231, attention-classification-only/123. Use their fixed notebooks if starting now; do not duplicate any existing live job.
-- Reuse the eight complete repeats. All four queued notebooks use only the existing CodeNet dataset. GPU on, Internet off, final tests off.
+- Wait for the already running classification-only/123 fresh restart. No checkpoint or live metrics from this restart have been supplied yet. Do not launch a duplicate.
+- No other job from this 12-run batch needs starting. Reuse all 11 complete repeats.
+- The previous seed-123 failed attempt remains archived and excluded from completed scores; its best validation Accuracy was 70.50% after 42 validated epochs.
 
-[Exact pending notebooks](../queues/RUN_NEXT_CORE_REPEATS.md). The complete 12-job original roster remains in `queues/core_repeat_roster.csv`; the tracker includes all 12 statuses. These jobs are separate from the 15 deferred seed-42 controls, external baselines and transfer study.
+[Current queue](../queues/RUN_NEXT_CORE_REPEATS.md): zero fresh launches and one user-reported running job. `core_repeat_roster.csv` retains all 12 original jobs. The 15 deferred seed-42 controls, other selected repeats, external baselines and transfer study remain outside this batch. Final tests stay off.
 
 ## Interpretation and limits
 
-These are validation scores, not final-test performance. The completed full model has 79.67%, 79.26%, 79.20% Accuracy for seeds 42, 123, 231. Mean/max with the shared auxiliary objective has 79.09%, 79.71%, 79.56%. This does not show a consistent accuracy advantage for spectral readout. Finish the missing conditions and audit the failed seed before the balanced readout/objective analysis; no aggregate superiority or statistical significance is claimed here.
+These are validation scores, not final-test performance. The completed full model has 79.67%, 79.26%, 79.20% Accuracy for seeds 42, 123, 231. Mean/max with the shared auxiliary objective has 79.09%, 79.71%, 79.56%. This does not show a consistent accuracy advantage for spectral readout. Finish the remaining seed-123 restart before the balanced readout/objective analysis; no aggregate superiority or statistical significance is claimed here.
 
 Detailed local evidence: `_audit/repeat_inventory.json`, archive SHA-256 values and `core_repeat_progress.csv`. Renaming changed no archive bytes. Validation recovery changes only the explicitly versioned numerical handling and retains original runtime hashes/lineage. GPU recovery still needs a Kaggle run.

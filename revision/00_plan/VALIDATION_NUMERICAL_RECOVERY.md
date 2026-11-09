@@ -1,6 +1,11 @@
 # CodeNet classification-only seed 123: recover validation
 
-**Current choice: restart from scratch.** The user cannot reattach the failed
+**Current status: the fresh seed-123 restart is running (user reported).**
+No restart output has been supplied yet. Wait for it; do not start another copy.
+The other 11 repeats are now complete and verified. The instructions below
+document the current restart setup, not a request to launch another job.
+
+The user cannot reattach the failed
 Kaggle output. Import [the fresh seed-123 notebook](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb)
 into a fresh Kaggle session. Attach only the existing CodeNet dataset, GPU on,
 Internet off, then Save & Run. `RESUME_CHECKPOINT=None`,
@@ -10,9 +15,9 @@ data and stopping schedule, including the validation fix. The previous
 42 validated epochs cannot be reused without their checkpoint. Preserve the
 failed archive separately; it is an incomplete attempt, not another completed seed.
 Outputs use `_input_v2_restart_validation_fix` to distinguish the restart.
-The eight completed repeats and three other pending notebooks are unchanged.
+All 11 other repeats are verified complete and should be reused.
 
-Regenerate the current four-job queue with
+Regenerate the four fixed notebook candidates with
 `python -m scripts.prepare_revision_validation_recovery --restart-seed123`,
 then `python -m scripts.prepare_revision_core_repeats`.
 The original resume notebook below is retained for use only if its checkpoint

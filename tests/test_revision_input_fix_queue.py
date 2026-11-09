@@ -69,6 +69,12 @@ def test_core_repeats_use_only_two_new_seeds_and_require_completed_core(tmp_path
     assert len(remaining)==3 and {r['job_id'] for r in remaining}=={r['job_id'] for r in jobs[9:]}
     attention=list(csv.DictReader((tmp_path/'queues/core_repeat_resume_queue.csv').open(encoding='utf-8')))
     assert len(attention)==1 and attention[0]['saved_status']=='validation_pending'
+    reports[-1]['status']='running_restart'
+    with (tmp_path/'results/core_repeat_progress.csv').open('w',newline='',encoding='utf-8') as f:
+        w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(reports)
+    prepare_repeats(tmp_path)
+    attention=list(csv.DictReader((tmp_path/'queues/core_repeat_resume_queue.csv').open(encoding='utf-8')))
+    assert attention[0]['saved_status']=='running_restart' and 'Do not launch a duplicate' in attention[0]['action']
     controls[1]['status']='incomplete_session_budget'
     with (tmp_path/'results/control_progress.csv').open('w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(controls[1:])

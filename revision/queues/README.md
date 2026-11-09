@@ -5,13 +5,13 @@ Notebook paths in these CSVs are relative to the `revision/` directory.
 - [RUN_NOW_INPUT_V2.md](RUN_NOW_INPUT_V2.md) and `input_v2_run_queue.csv`:
   the original eight-job priority batch is complete; zero pending rows.
 - [RUN_NEXT_CORE_REPEATS.md](RUN_NEXT_CORE_REPEATS.md) and
-  `core_repeat_run_queue.csv`: three repeats without submitted output.
-  `core_repeat_resume_queue.csv`: the failed classification-only/123 recovery.
-  Eight repeats are complete; `core_repeat_roster.csv` retains the original 12.
-  The four fixed notebooks and their source hashes are in
-  `validation_recovery_manifest.csv`. Existing CodeNet data is reused;
-  the current seed-123 choice restarts from scratch because its failed checkpoint
-  cannot be reattached. All four now require only CodeNet data.
+  `core_repeat_run_queue.csv`: zero fresh launches.
+  `core_repeat_resume_queue.csv`: classification-only/123 restart is already
+  running (user reported); wait for its saved output, do not launch a duplicate.
+  Eleven repeats are complete; `core_repeat_roster.csv` retains the original 12.
+  The four fixed notebook candidates and their source hashes remain in
+  `validation_recovery_manifest.csv`; three now have verified original-runtime
+  completions and need no rerun. Existing CodeNet data is reused.
 
 - [LAUNCH_24.md](LAUNCH_24.md): remaining baseline jobs without submitted results;
   the completed corrected full runs and resumable pauses are excluded.

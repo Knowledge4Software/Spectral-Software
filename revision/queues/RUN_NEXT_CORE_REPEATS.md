@@ -1,6 +1,6 @@
 # Remaining CodeNet core repeats
 
-Original roster: 12 jobs. **8 verified complete, 1 incomplete/needs attention, 3 without submitted results.** Reuse completed outputs. No seed-42 job is repeated.
+Original roster: 12 jobs. **11 verified complete, 1 running (user reported), 0 other incomplete, 0 without submitted results.** Reuse completed outputs. No seed-42 job is repeated.
 
 **Every notebook uses the existing `codenet_revision_common_support.zip` dataset.** These are the seed-123/231 repetitions, separate from the remaining seed-42 ablations.
 
@@ -8,19 +8,18 @@ Original roster: 12 jobs. **8 verified complete, 1 incomplete/needs attention, 3
 
 | Slot | Condition | Seed | Notebook |
 | ---: | --- | ---: | --- |
-| 1 | classification_only | 231 | [codenet_classification_only_seed231_validation_recovery.ipynb](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed231_validation_recovery.ipynb) |
-| 2 | mean_max_classification_only | 231 | [codenet_mean_max_classification_only_seed231_validation_recovery.ipynb](../03_selected_repeats/codenet/validation_recovery/codenet_mean_max_classification_only_seed231_validation_recovery.ipynb) |
-| 3 | attention_classification_only | 123 | [codenet_attention_classification_only_seed123_validation_recovery.ipynb](../03_selected_repeats/codenet/validation_recovery/codenet_attention_classification_only_seed123_validation_recovery.ipynb) |
 
 If one of these is already running on Kaggle, let that existing job finish. No local output does not establish that a job has never started.
 
-## Incomplete / needs attention
+## Running / incomplete
 
-| Condition | Seed | Saved status | Action |
+| Condition | Seed | Tracker status | Action |
 | --- | ---: | --- | --- |
-| [classification_only](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb) | 123 | validation_pending | Restart from epoch 1 with the fixed notebook and CodeNet data only; failed checkpoint unavailable. |
+| [classification_only](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb) | 123 | running_restart | Already running on Kaggle (user reported); wait for its saved output. Do not launch a duplicate. |
 
-For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). The current queue uses a fresh restart because its saved Kaggle checkpoint is unavailable. Attach only CodeNet data. The separately preserved resume notebook is optional if that checkpoint becomes available.
+**No new job needs launching from this 12-run batch.** Wait for any job marked running; preserve the completed outputs.
+
+For the failed seed 123 see [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). Its fresh restart uses only CodeNet data. A job marked running is already underway: do not start a second copy. The separately preserved resume notebook is optional if its original checkpoint becomes available.
 
 For fresh jobs only: use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run's own checkpoint.
 

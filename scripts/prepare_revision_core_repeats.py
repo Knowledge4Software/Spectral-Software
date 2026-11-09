@@ -80,21 +80,26 @@ def prepare(root=None):
                 job['action']=('Restart from epoch 1 with the fixed notebook and CodeNet data only; failed checkpoint unavailable.'
                                if fixed['resume_checkpoint']=='None' else
                                'Use the recovery notebook with its own failed output; retry epoch 43 validation before further training.')
+        if 'action' in job and reported.get(job['job_id'],{}).get('status') in {'running','running_restart'}:
+            job['action']='Already running on Kaggle (user reported); wait for its saved output. Do not launch a duplicate.'
     for slot,job in enumerate(fresh,1):job['slot']=slot
     with (base/'queues/core_repeat_run_queue.csv').open('w',encoding='utf-8',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(fresh)
     with (base/'queues/core_repeat_resume_queue.csv').open('w',encoding='utf-8',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields+['saved_status','action']);w.writeheader();w.writerows(attention)
+    running=sum(j['saved_status'] in {'running','running_restart'} for j in attention)
     lines=['# Remaining CodeNet core repeats','',
-        f'Original roster: 12 jobs. **{len(completed)} verified complete, {len(attention)} incomplete/needs attention, {len(fresh)} without submitted results.** Reuse completed outputs. No seed-42 job is repeated.','',
+        f'Original roster: 12 jobs. **{len(completed)} verified complete, {running} running (user reported), {len(attention)-running} other incomplete, {len(fresh)} without submitted results.** Reuse completed outputs. No seed-42 job is repeated.','',
         '**Every notebook uses the existing `codenet_revision_common_support.zip` dataset.** These are the seed-123/231 repetitions, separate from the remaining seed-42 ablations.','',
         '## No output submitted','',
         '| Slot | Condition | Seed | Notebook |','| ---: | --- | ---: | --- |']
     for j in fresh:lines.append(f"| {j['slot']} | {j['arm']} | {j['seed']} | [{Path(j['notebook']).name}](../{j['notebook']}) |")
     lines += ['', 'If one of these is already running on Kaggle, let that existing job finish. No local output does not establish that a job has never started.','',
-        '## Incomplete / needs attention','', '| Condition | Seed | Saved status | Action |','| --- | ---: | --- | --- |']
+        '## Running / incomplete','', '| Condition | Seed | Tracker status | Action |','| --- | ---: | --- | --- |']
     for j in attention:lines.append(f"| [{j['arm']}](../{j['notebook']}) | {j['seed']} | {j['saved_status']} | {j['action']} |")
-    lines += ['', 'For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). The current queue uses a fresh restart because its saved Kaggle checkpoint is unavailable. Attach only CodeNet data. The separately preserved resume notebook is optional if that checkpoint becomes available.',
+    if not fresh:
+        lines += ['', '**No new job needs launching from this 12-run batch.** Wait for any job marked running; preserve the completed outputs.']
+    lines += ['', 'For the failed seed 123 see [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). Its fresh restart uses only CodeNet data. A job marked running is already underway: do not start a second copy. The separately preserved resume notebook is optional if its original checkpoint becomes available.',
         '', 'For fresh jobs only: use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run\'s own checkpoint.',
         '', 'Seed-42 recorded times for the six conditions ranged from about 1.7h to 6.0h on T4, including setup and training/validation. Other seeds can stop at different epochs. Timing is an estimate; preserve incomplete outputs.',
         '', 'The purpose is to estimate the readout/objective interaction across seeds. Mean/max classification-only exceeded full by only 10 net correct validation pairs at seed 42; attention classification-only exceeded it by two. Do not infer significance or paired error overlap from those aggregate counts.',
