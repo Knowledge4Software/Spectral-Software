@@ -3,8 +3,13 @@
 **Current input-v2 results:** [all three SPECTRA full runs passed 102 checks](SPECTRA_INPUT_V2_REVIEW.md)
 and are complete: CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%,
 BigCloneBench F1 97.15%. Reuse them. The active baseline roster again has
-**17 complete, four paused and eight without submitted results**. The next
+**18 complete, four paused and seven without submitted results**. The next
 priority is [five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md).
+
+[Additional GMN review](GMN_RESULTS_REVIEW.md): AtCoder GMN completed 38 epochs,
+selected epoch 28, and has 80.32% validation Accuracy / 80.76% F1. Its full
+checkpoint passed all 32 checks. The new BigCloneBench upload duplicates all
+56 files of the already verified GMN archive; it does not add a new seed/run.
 
 The three old SPECTRA ZIPs were moved to `_archive/input_v1/` in the local
 result folder, with hashes preserved. Old scores are excluded from current

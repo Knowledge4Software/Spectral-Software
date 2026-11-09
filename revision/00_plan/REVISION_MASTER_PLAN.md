@@ -2,7 +2,7 @@
 
 Current execution: all three corrected-input SPECTRA full runs are
 [verified complete](../results/SPECTRA_INPUT_V2_REVIEW.md). Reuse them and the
-14 completed external baselines. [Five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md)
+completed external baselines. [Five CodeNet controls](../queues/RUN_NOW_INPUT_V2.md)
 are next. The old three full-model ZIPs are archived and their scores remain
 historical evidence. Earlier execution updates below predate these results.
 

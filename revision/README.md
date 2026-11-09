@@ -9,9 +9,13 @@ ZIP packets are optional copies for transport; extraction is not required here.
 **Next: [five CodeNet controls](queues/RUN_NOW_INPUT_V2.md).** All three
 corrected-input SPECTRA full runs are now [verified complete](results/SPECTRA_INPUT_V2_REVIEW.md):
 CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%, BigCloneBench F1 97.15%.
-Reuse these three full models and the 14 completed external baselines. Old
+Reuse these three full models and the completed external baselines. Old
 SPECTRA ZIPs are archived outside the active result folder. Existing dataset
 uploads stay unchanged. Remaining expensive baselines can wait; final tests stay off.
+
+[AtCoder GMN is now verified](results/GMN_RESULTS_REVIEW.md) at 80.32% Accuracy
+and 80.76% F1. The new BigCloneBench GMN upload duplicates its existing reviewed
+result (97.77% F1), so it is archived without counting an additional run.
 
 If a text job fails with `RobertaConfig has no attribute '_commit_hash'`, use
 the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETUP_RECOVERY.md).

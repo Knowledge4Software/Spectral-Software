@@ -11,18 +11,17 @@ Complete/running jobs, resumable pauses and outputs awaiting review are excluded
 Confirm the tracker before starting
 another copy of a job. Runtime and memory still need verification per method.
 
-## Pending baseline jobs: 8
+## Pending baseline jobs: 7
 
 | Slot | Dataset | Notebook | Internet |
 | ---: | --- | --- | --- |
 | 1 | atcoder | [atcoder_codebert_seed42](../01_baselines_seed42/atcoder/atcoder_codebert_seed42.ipynb) | True |
 | 2 | atcoder | [atcoder_cdlh_seed42](../01_baselines_seed42/atcoder/atcoder_cdlh_seed42.ipynb) | False |
-| 3 | atcoder | [atcoder_fa_ast_gmn_seed42](../01_baselines_seed42/atcoder/atcoder_fa_ast_gmn_seed42.ipynb) | False |
-| 4 | atcoder | [atcoder_c4_adapted_seed42](../01_baselines_seed42/atcoder/atcoder_c4_adapted_seed42.ipynb) | True |
-| 5 | atcoder | [atcoder_qwen3_lora_seed42](../01_baselines_seed42/atcoder/atcoder_qwen3_lora_seed42.ipynb) | True |
-| 6 | bigclonebench | [bigclonebench_codebert_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_codebert_seed42.ipynb) | True |
-| 7 | bigclonebench | [bigclonebench_cdlh_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_cdlh_seed42.ipynb) | False |
-| 8 | bigclonebench | [bigclonebench_qwen3_lora_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_qwen3_lora_seed42.ipynb) | True |
+| 3 | atcoder | [atcoder_c4_adapted_seed42](../01_baselines_seed42/atcoder/atcoder_c4_adapted_seed42.ipynb) | True |
+| 4 | atcoder | [atcoder_qwen3_lora_seed42](../01_baselines_seed42/atcoder/atcoder_qwen3_lora_seed42.ipynb) | True |
+| 5 | bigclonebench | [bigclonebench_codebert_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_codebert_seed42.ipynb) | True |
+| 6 | bigclonebench | [bigclonebench_cdlh_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_cdlh_seed42.ipynb) | False |
+| 7 | bigclonebench | [bigclonebench_qwen3_lora_seed42](../01_baselines_seed42/bigclonebench/bigclonebench_qwen3_lora_seed42.ipynb) | True |
 
 ## Start when slots free: 0 jobs
 

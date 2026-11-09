@@ -1,5 +1,7 @@
 # SPECTRA input-v2 results review — 2026-11-09
 
+GMN addition: AtCoder FA-AST-GMN is now verified at 80.32% Accuracy and 80.76% F1. The BCB upload duplicates the existing reviewed run; no additional independent run is counted.
+
 **All three corrected-input SPECTRA full runs are complete and verified. All 102 checks passed. None needs continuation or another full-model run.**
 
 The three old full-model ZIPs were moved out of the active folder into `_archive/input_v1/`. The new ZIPs were renamed with dataset, seed, input version and completion status. All six SHA-256 hashes were preserved; no historical result was deleted.
@@ -49,9 +51,10 @@ AUROC/AP cannot be independently reproduced without validation predictions. This
 | ---: | --- | ---: | ---: | ---: |
 | 1 | RtvNN | 82.91% | 83.26% | 0.9056 |
 | 2 | ASTNN | 81.29% | 82.20% | 0.8809 |
-| 3 | FA-AST-GGNN | 80.26% | 80.72% | 0.8762 |
-| 4 | SPECTRA full (input v2) | 78.34% | 79.36% | 0.8561 |
-| 5 | DeepSim | 71.27% | 72.82% | 0.7721 |
+| 3 | FA-AST-GMN | 80.32% | 80.76% | 0.8757 |
+| 4 | FA-AST-GGNN | 80.26% | 80.72% | 0.8762 |
+| 5 | SPECTRA full (input v2) | 78.34% | 79.36% | 0.8561 |
+| 6 | DeepSim | 71.27% | 72.82% | 0.7721 |
 
 ### bigclonebench — F1
 
@@ -66,7 +69,7 @@ AUROC/AP cannot be independently reproduced without validation predictions. This
 
 ## Next jobs
 
-Reuse the three current full models and the 14 completed external baselines. The baseline roster has 17 verified completions, four paused CodeNet runs and eight without submitted results. The paused C4-adapted CodeNet result remains provisional at 92.66% Accuracy; it is not silently discarded or included in completed ranking.
+Reuse the three current full models and the 15 completed external baselines. The baseline roster has 18 verified completions, four paused CodeNet runs and seven without submitted results. The paused C4-adapted CodeNet result remains provisional at 92.66% Accuracy; it is not silently discarded or included in completed ranking.
 
 The next priority is the five CodeNet controls: mean/max, attention, full classification-only, mean/max classification-only and attention classification-only. All use the same corrected input-v2 representation. See [the current run list](../queues/RUN_NOW_INPUT_V2.md). If already running, preserve those outputs rather than launching duplicates. Remaining expensive baselines can stay deferred for now.
 
@@ -75,7 +78,7 @@ The next priority is the five CodeNet controls: mean/max, attention, full classi
 - Current ZIPs: `codenet_full_seed42_input_v2_complete.zip`, `atcoder_full_seed42_input_v2_complete.zip`, `bigclonebench_full_seed42_input_v2_complete.zip`.
 - `_audit/spectra_input_v2_audit.json`: all 102 new checks.
 - `_audit/input_v2_archive_plan.json`: old/new names, archive destinations and preserved hashes.
-- `_audit/audit.json`: 21 current reported runs plus three separately retained historical full-model records.
+- `_audit/audit.json`: 22 current reported runs plus three separately retained historical full-model records.
 - `_audit/validation_results.csv`: current scores and completed-only ranks; old full-model scores are excluded.
 - `_archive/input_v1/`: the three superseded SPECTRA ZIPs. Earlier audit snapshots and `INPUT_V1_RESULTS_REVIEW.md` are retained.
 

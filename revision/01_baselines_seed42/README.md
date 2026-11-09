@@ -2,7 +2,7 @@
 
 **Current priority:** [five CodeNet input-v2 controls](../queues/RUN_NOW_INPUT_V2.md).
 The three corrected-input SPECTRA full runs are now verified complete; reuse
-them and the 14 completed external baselines. For old
+them and the completed external baselines. For old
 external checkpoints use [archived notebooks](../archive/input_v1/README.md).
 The completion counts below refer to the historical input-v1 review.
 

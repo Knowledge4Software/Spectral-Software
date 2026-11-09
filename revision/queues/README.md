@@ -7,7 +7,7 @@ Notebook paths in these CSVs are relative to the `revision/` directory.
   verified complete and excluded. This list takes priority over the
   remaining original baseline roster. Existing dataset uploads are reused.
 
-- [LAUNCH_24.md](LAUNCH_24.md): eight baseline jobs without submitted results;
+- [LAUNCH_24.md](LAUNCH_24.md): remaining baseline jobs without submitted results;
   the completed corrected full runs and resumable pauses are excluded.
 - `launch_24.csv`: slot/account allocation for that remaining roster. This retains
   the original roster, including costly Qwen/CDLH candidates; it is not an
