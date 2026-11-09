@@ -43,6 +43,20 @@ def test_recovery_notebooks_are_versioned_compile_and_preserve_frozen_files(tmp_
     first = (tmp_path / "queues/validation_recovery_manifest.csv").read_bytes()
     prepare(tmp_path)
     assert (tmp_path / "queues/validation_recovery_manifest.csv").read_bytes() == first
+    resume_row = next(r for r in rows if r["allow_numerical_upgrade"])
+    resume_bytes = (tmp_path / resume_row["notebook"]).read_bytes()
+    restarted = prepare(tmp_path, restart_seed123=True)
+    assert len(restarted) == 4 and not any(r["allow_numerical_upgrade"] for r in restarted)
+    fresh = next(r for r in restarted if r["job_id"] == "codenet_classification_only_seed123")
+    assert fresh["resume_checkpoint"] == "None" and fresh["notebook"] != resume_row["notebook"]
+    nb = json.loads((tmp_path / fresh["notebook"]).read_text(encoding="utf-8"))
+    config = "".join(nb["cells"][1]["source"])
+    assert "RESUME_CHECKPOINT = None" in config and "ALLOW_NUMERICAL_UPGRADE = False" in config
+    assert "_matches" not in config
+    assert "_input_v2_restart_validation_fix" in "".join(nb["cells"][3]["source"])
+    for c in nb["cells"]:
+        if c["cell_type"] == "code":compile("".join(c["source"]), fresh["notebook"], "exec")
+    assert (tmp_path / resume_row["notebook"]).read_bytes() == resume_bytes
 
 
 def test_only_exact_approved_recovery_can_migrate_or_share_comparison_hash(monkeypatch):

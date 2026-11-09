@@ -76,7 +76,10 @@ def prepare(root=None):
             if hashlib.sha256((base/fixed['notebook']).read_bytes()).hexdigest()!=fixed['notebook_sha256']:
                 raise ValueError('Recovery notebook hash differs')
             for key in ('notebook','notebook_sha256','implementation_hash','resume_checkpoint'):job[key]=fixed[key]
-            if 'action' in job:job['action']='Use the recovery notebook with its own failed output; retry epoch 43 validation before further training.'
+            if 'action' in job:
+                job['action']=('Restart from epoch 1 with the fixed notebook and CodeNet data only; failed checkpoint unavailable.'
+                               if fixed['resume_checkpoint']=='None' else
+                               'Use the recovery notebook with its own failed output; retry epoch 43 validation before further training.')
     for slot,job in enumerate(fresh,1):job['slot']=slot
     with (base/'queues/core_repeat_run_queue.csv').open('w',encoding='utf-8',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(fresh)
@@ -91,7 +94,7 @@ def prepare(root=None):
     lines += ['', 'If one of these is already running on Kaggle, let that existing job finish. No local output does not establish that a job has never started.','',
         '## Incomplete / needs attention','', '| Condition | Seed | Saved status | Action |','| --- | ---: | --- | --- |']
     for j in attention:lines.append(f"| [{j['arm']}](../{j['notebook']}) | {j['seed']} | {j['saved_status']} | {j['action']} |")
-    lines += ['', 'For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). Attach its own failed output; the recovery notebook auto-selects its checkpoint and enables the approved migration.',
+    lines += ['', 'For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). The current queue uses a fresh restart because its saved Kaggle checkpoint is unavailable. Attach only CodeNet data. The separately preserved resume notebook is optional if that checkpoint becomes available.',
         '', 'For fresh jobs only: use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run\'s own checkpoint.',
         '', 'Seed-42 recorded times for the six conditions ranged from about 1.7h to 6.0h on T4, including setup and training/validation. Other seeds can stop at different epochs. Timing is an estimate; preserve incomplete outputs.',
         '', 'The purpose is to estimate the readout/objective interaction across seeds. Mean/max classification-only exceeded full by only 10 net correct validation pairs at seed 42; attention classification-only exceeded it by two. Do not infer significance or paired error overlap from those aggregate counts.',

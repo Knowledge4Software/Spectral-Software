@@ -6,9 +6,10 @@
 هشت ران کامل و شش حالت seed=42 را دوباره اجرا نکن.
 
 [چهار نوت‌بوک فعلی](queues/RUN_NEXT_CORE_REPEATS.md) آماده‌اند:
-classification-only با seed=123 باید با نوت‌بوک recovery از checkpoint خودش ادامه یابد؛
-آموزش epoch 43 ذخیره شده و ابتدا validation دوباره اجرا می‌شود.
-همان دیتاست CodeNet قبلی و خروجی ذخیره‌شدهٔ ران خطادار را به این نوت‌بوک وصل کن.
+classification-only با seed=123 اکنون با نوت‌بوک اصلاح‌شده از ابتدا اجرا می‌شود،
+چون خروجی ران خطادار در Kaggle قابل اتصال مجدد نیست.
+فقط همان دیتاست CodeNet قبلی را وصل کن؛ checkpoint لازم نیست.
+بدون checkpoint امکان استفادهٔ مجدد از ۴۲ epoch قبلی وجود ندارد.
 سه ران بدون خروجی عبارت‌اند از classification-only/231، mean-max-classification-only/231
 و attention-classification-only/123. اگر قبلاً روی Kaggle در حال اجرا نیستند،
 نسخه‌های اصلاح‌شده را فقط با دیتاست CodeNet و بدون checkpoint قبلی اجرا کن.

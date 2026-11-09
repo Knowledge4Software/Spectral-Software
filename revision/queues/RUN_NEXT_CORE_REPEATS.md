@@ -18,9 +18,9 @@ If one of these is already running on Kaggle, let that existing job finish. No l
 
 | Condition | Seed | Saved status | Action |
 | --- | ---: | --- | --- |
-| [classification_only](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_resume_validation.ipynb) | 123 | validation_pending | Use the recovery notebook with its own failed output; retry epoch 43 validation before further training. |
+| [classification_only](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb) | 123 | validation_pending | Restart from epoch 1 with the fixed notebook and CodeNet data only; failed checkpoint unavailable. |
 
-For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). Attach its own failed output; the recovery notebook auto-selects its checkpoint and enables the approved migration.
+For the failed seed 123 follow [validation recovery instructions](../00_plan/VALIDATION_NUMERICAL_RECOVERY.md). The current queue uses a fresh restart because its saved Kaggle checkpoint is unavailable. Attach only CodeNet data. The separately preserved resume notebook is optional if that checkpoint becomes available.
 
 For fresh jobs only: use GPU (T4 supported), Internet off, `RESUME_CHECKPOINT=None`, `FINAL_TEST=False`. Start each new seed from scratch without old model outputs attached. Keep the encoded seed and all model/loss/training settings unchanged. The 100-epoch ceiling, minimum 10 and patience 10 stay fixed; each session uses the existing 10-hour budget and 45-minute output reserve. A budget pause may still require continuation with that run's own checkpoint.
 

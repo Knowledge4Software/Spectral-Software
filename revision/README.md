@@ -9,8 +9,8 @@ ZIP packets are optional copies for transport; extraction is not required here.
 **Current: [8 of the 12 core repeats are verified complete](results/CORE_REPEATS_PROGRESS.md).**
 Three jobs have no submitted output; classification-only/123 failed validation
 after epoch 43 training. [Four pending notebooks](queues/RUN_NEXT_CORE_REPEATS.md)
-include a numerical validation repair; the seed-123 recovery continues its own
-checkpoint without repeating training. Use the existing CodeNet dataset. Reuse
+include a numerical validation repair; seed 123 now restarts from scratch because
+its failed Kaggle output cannot be reattached. Use only the existing CodeNet dataset. Reuse
 all eight complete repeats and the six seed-42 conditions. The other 15 seed-42
 controls remain in the roadmap. Final tests stay off.
 
@@ -50,7 +50,7 @@ See [the results tracker](results/README.md) for evidence and
 [the current launch list](queues/LAUNCH_24.md) before starting another job.
 
 The maintained suite has 193 frozen generated notebooks and four separately
-versioned validation-recovery notebooks. Dataset releases stay unchanged. Twenty-nine original baseline
+queued validation-recovery notebooks, plus the optional preserved seed-123 resume notebook. Dataset releases stay unchanged. Twenty-nine original baseline
 notebooks and their old protocol/manifest are archived for continuation.
 Earlier folder-migration paths are in [queues/path_migration.csv](queues/path_migration.csv).
 

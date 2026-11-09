@@ -1,5 +1,23 @@
 # CodeNet classification-only seed 123: recover validation
 
+**Current choice: restart from scratch.** The user cannot reattach the failed
+Kaggle output. Import [the fresh seed-123 notebook](../03_selected_repeats/codenet/validation_recovery/codenet_classification_only_seed123_validation_recovery.ipynb)
+into a fresh Kaggle session. Attach only the existing CodeNet dataset, GPU on,
+Internet off, then Save & Run. `RESUME_CHECKPOINT=None`,
+`ALLOW_NUMERICAL_UPGRADE=False`, `FINAL_TEST=False` are already set.
+This repeats training from epoch 1 with seed 123 and the same model, losses,
+data and stopping schedule, including the validation fix. The previous
+42 validated epochs cannot be reused without their checkpoint. Preserve the
+failed archive separately; it is an incomplete attempt, not another completed seed.
+Outputs use `_input_v2_restart_validation_fix` to distinguish the restart.
+The eight completed repeats and three other pending notebooks are unchanged.
+
+Regenerate the current four-job queue with
+`python -m scripts.prepare_revision_validation_recovery --restart-seed123`,
+then `python -m scripts.prepare_revision_core_repeats`.
+The original resume notebook below is retained for use only if its checkpoint
+becomes available. The fresh restart is the current queued choice.
+
 This run failed during validation after epoch 43 training. It is not a time-limit
 pause and is not complete. There are 42 validated epochs, best epoch 33, with
 provisional validation Accuracy 70.50%. Keep this result; do not replace it with

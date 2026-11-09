@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import argparse
 import csv
 import hashlib
 import json
@@ -17,14 +18,16 @@ JOBS = (("classification_only", 123, True), ("classification_only", 231, False),
         ("mean_max_classification_only", 231, False), ("attention_classification_only", 123, False))
 
 
-def prepare(root=None):
+def prepare(root=None, *, restart_seed123=False):
     base = Path(root) if root is not None else ROOT / "revision"
     source_hash = training_implementation_hash()
     if source_hash != VALIDATION_RECOVERY_HASH or not can_upgrade(VALIDATION_RECOVERY_SOURCE):
         raise ValueError("The exact approved validation-only runtime has changed; review before generating recovery jobs")
     sources = {p.name: p.read_text(encoding="utf-8") for p in sorted((ROOT / "spectral_code/revision").glob("*.py"))}
     rows = []
-    for arm, seed, resume in JOBS:
+    jobs = tuple((arm, seed, False if restart_seed123 and (arm, seed) == ("classification_only", 123) else resume)
+                 for arm, seed, resume in JOBS)
+    for arm, seed, resume in jobs:
         group = dict(CORE)[arm]
         original = f"03_selected_repeats/codenet/{group}/codenet_{arm}_seed{seed}.ipynb"
         nb = json.loads((base / original).read_text(encoding="utf-8"))
@@ -52,10 +55,17 @@ if len(_matches) != 1:
 RESUME_CHECKPOINT = str(_matches[0])
 '''
         nb["cells"][1]["source"] = config.splitlines(keepends=True)
+        restarting = restart_seed123 and (arm, seed) == ("classification_only", 123)
+        if restarting:
+            run = "".join(nb["cells"][3]["source"])
+            run = run.replace('f"revision_{ARM}_seed{SEED}_input_v2"',
+                              'f"revision_{ARM}_seed{SEED}_input_v2_restart_validation_fix"')
+            nb["cells"][3]["source"] = run.splitlines(keepends=True)
         nb["cells"][0]["source"] = (
             f"# CodeNet {arm}, seed {seed}: validation numerical recovery\n\n"
             + ("Continue the failed checkpoint. Epoch 43 training is already saved; validation is retried first.\n"
-               if resume else "Fresh seed: no old model checkpoint is needed.\n")
+               if resume else "Restart seed 123 from epoch 1 in a fresh session; no checkpoint is needed. Preserve the failed attempt separately.\n"
+               if restarting else "Fresh seed: no old model checkpoint is needed.\n")
             + "\nAttach the existing codenet_revision_common_support dataset; GPU on, Internet off. "
             "An invalid AMP prediction pass is retried once in FP32 for all validation pairs. "
             "Finite AMP predictions and optimizer updates are unchanged. Persistent FP32 failure stops the run. "
@@ -81,4 +91,7 @@ RESUME_CHECKPOINT = str(_matches[0])
 
 
 if __name__ == "__main__":
-    prepare()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--restart-seed123", action="store_true",
+                        help="Start seed 123 from scratch when the failed Kaggle checkpoint is unavailable")
+    prepare(restart_seed123=parser.parse_args().restart_seed123)

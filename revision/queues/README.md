@@ -10,7 +10,8 @@ Notebook paths in these CSVs are relative to the `revision/` directory.
   Eight repeats are complete; `core_repeat_roster.csv` retains the original 12.
   The four fixed notebooks and their source hashes are in
   `validation_recovery_manifest.csv`. Existing CodeNet data is reused;
-  only the failed seed 123 also needs its own checkpoint output attached.
+  the current seed-123 choice restarts from scratch because its failed checkpoint
+  cannot be reattached. All four now require only CodeNet data.
 
 - [LAUNCH_24.md](LAUNCH_24.md): remaining baseline jobs without submitted results;
   the completed corrected full runs and resumable pauses are excluded.

@@ -4,8 +4,8 @@
 All nine supplied archives passed 179 applicable checks; the pending run passed
 checkpoint checks only. [Four pending notebooks](../queues/RUN_NEXT_CORE_REPEATS.md)
 include the explicit validation numerical repair. Classification-only/123
-must continue its own failed checkpoint; the other three use only existing
-CodeNet data. Reuse the eight complete outputs. Final tests remain off.
+now restarts from scratch because its failed Kaggle output cannot be reattached.
+All four use only existing CodeNet data. Reuse the eight complete outputs. Final tests remain off.
 
 **Seed 42: [the five CodeNet controls passed all 175 checks](CORE_CONTROLS_REVIEW.md).**
 The six-cell readout/objective core, including the existing full model, is

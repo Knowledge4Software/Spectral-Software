@@ -31,9 +31,9 @@ Full/231 recorded three recovered FP32 training groups and completed normally wi
 
 ## What remains
 
-- Resume classification-only/123 using its dedicated recovery notebook and its own saved Kaggle output.
+- Restart classification-only/123 from scratch using its fixed fresh notebook and CodeNet data only: the user cannot reattach the failed Kaggle output. Preserve the failed attempt; its 42 validated epochs cannot be reused without the checkpoint. The optional resume notebook is retained if the checkpoint becomes available later.
 - No submitted output: classification-only/231, mean-max-classification-only/231, attention-classification-only/123. Use their fixed notebooks if starting now; do not duplicate any existing live job.
-- Reuse the eight complete repeats. All four notebooks use the existing CodeNet dataset. GPU on, Internet off, final tests off.
+- Reuse the eight complete repeats. All four queued notebooks use only the existing CodeNet dataset. GPU on, Internet off, final tests off.
 
 [Exact pending notebooks](../queues/RUN_NEXT_CORE_REPEATS.md). The complete 12-job original roster remains in `queues/core_repeat_roster.csv`; the tracker includes all 12 statuses. These jobs are separate from the 15 deferred seed-42 controls, external baselines and transfer study.
 
