@@ -46,6 +46,6 @@ These means and sample SD describe three validation-selected runs, not confidenc
 
 ## Next work
 
-No job from these 12 needs continuation or repetition. [The independent batch](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) still has 11 CodeNet seed-42 controls and four AtCoder/BigCloneBench full repeats without supplied output; some may already be running. Four additional graph/descriptor controls are already [verified](ARCHITECTURE_CONTROLS_REVIEW.md). External baseline completion, other selected repeats, transfer, diagnostics and manuscript revision remain separate tasks. Keep final tests off.
+No job from these 12 needs continuation or repetition. [The independent batch](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) still has ten CodeNet seed-42 loss/weight controls and four AtCoder/BigCloneBench full repeats without supplied output; some may already be running. All five additional graph/descriptor controls are [verified](ARCHITECTURE_CONTROLS_REVIEW.md). External baseline completion, other selected repeats, transfer, diagnostics and manuscript revision remain separate tasks. Keep final tests off.
 
 Local evidence: `_audit/repeat_inventory.json`, `_audit/classification_only_seed123_restart_audit.json`, `_audit/core_three_seed_validation.csv`, `_audit/core_three_seed_summary.json`, and `core_repeat_progress.csv`. Archive renaming/moving changed no bytes. AUROC/AP were range/finiteness checked, not independently recomputed without validation predictions. No new training or test evaluation was performed during this audit.

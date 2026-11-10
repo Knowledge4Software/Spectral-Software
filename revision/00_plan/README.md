@@ -5,7 +5,7 @@ and [the current launch list](../queues/LAUNCH_24.md). The CodeNet/full checkpoi
 is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
-**Independent batch:** [four complete; 15 controls/repeats without submitted output, with T4 estimates](../queues/RUN_NEXT_INDEPENDENT_BATCH.md).
+**Independent batch:** [five complete; 14 controls/repeats without submitted output, with T4 estimates](../queues/RUN_NEXT_INDEPENDENT_BATCH.md).
 All 12 CodeNet core repeats are complete; these independent jobs remain separate. Use the
 linked numerical-fix notebooks and existing dataset uploads; final tests stay off.
 

@@ -11,9 +11,10 @@ queue. The other external repeats and focused transfer remain gated by completed
 baseline screening. Reuse all completed results; preserve failed attempts and
 keep final tests off. Earlier updates below are historical.
 
-Latest batch-02 update: [four graph/descriptor controls passed 144 checks](../results/ARCHITECTURE_CONTROLS_REVIEW.md).
-The original 19-job independent roster now has four verified completions and
-15 without submitted output (11 CodeNet controls plus four full repeats).
+Latest batch-02 update, 2026-11-10: [all five additional graph/descriptor controls passed 180 checks](../results/ARCHITECTURE_CONTROLS_REVIEW.md).
+Density/heat-only finished with 76.99% validation Accuracy (69 epochs, best 59).
+The original 19-job independent roster now has five verified completions and
+14 without submitted output (ten CodeNet loss/weight controls plus four full repeats).
 Projected DDG has 56.00% validation Accuracy; retain this weak result and avoid
 attributing its cause to a dataset bug without further measured diagnostics.
 

@@ -2,7 +2,7 @@
 
 **All five new input-v2 controls are complete and verified. All 175 new checks passed. Together with the already completed full model, the six-condition core is complete for seed 42. None needs continuation or a seed-42 rerun.**
 
-**Later update:** [four more graph/descriptor controls are verified](ARCHITECTURE_CONTROLS_REVIEW.md). The current control tracker has nine complete and 11 without submitted output. This document retains the original six-cell core evidence and historical batch counts below.
+**Later update:** [all five additional graph/descriptor controls are verified](ARCHITECTURE_CONTROLS_REVIEW.md). The current control tracker has ten complete and ten without submitted output. This document retains the original six-cell core evidence and historical batch counts below.
 
 The five ZIPs in `C:\PyProjects\spectrals\outputs\revesion\02` were renamed by dataset, arm, seed, input version and status. All archive hashes were preserved. The reference full model remains in batch `01`; its old input-v1 result is not used.
 

@@ -11,14 +11,14 @@ The classification-only/123 fresh restart passed all 36 checks: 53 epochs,
 best epoch 43, validation Accuracy 80.58% and F1 80.99%. The earlier failed
 attempt is retained separately, excluded from completed scores.
 [No launch or continuation is needed from this batch](queues/RUN_NEXT_CORE_REPEATS.md).
-Reuse all 12 completed repeats and the six seed-42 conditions. Four additional
+Reuse all 12 completed repeats and the six seed-42 conditions. Five additional
 seed-42 controls are now [verified](results/ARCHITECTURE_CONTROLS_REVIEW.md);
-11 controls still have no submitted output. Final tests stay off.
+10 controls still have no submitted output. Final tests stay off.
 
-**Independent batch: [four verified complete, 15 without submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md).**
+**Independent batch: [five verified complete, 14 without submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md).**
 The original 19-job roster includes 15 CodeNet controls and four full-model
 repeats on AtCoder/BigCloneBench. Projected AST+DDG, projected AST, projected DDG
-and energy-only are complete; reuse them. The remaining list has 11 controls
+and both descriptor-component controls (energy-only, density/heat-only) are complete; reuse them. The remaining list has 10 controls
 and four full repeats. Unreported jobs may already be running; check Kaggle
 before starting a duplicate. Existing datasets and final-test hold are unchanged.
 
