@@ -20,7 +20,7 @@ Usage (from the repository root, after the datasets have been rebuilt)::
     python scripts/build_transfer_bundles.py --source codexglue_v3 --targets atcoder_v3
     python scripts/build_transfer_bundles.py --list
 
-Each bundle is written to ``outputs/transfer_bundles/<name>/clean_data`` and
+Each bundle is written to ``data/archive/transfer_bundles/<name>/clean_data`` and
 zipped next to it. Attach one ZIP to Kaggle and run any baseline notebook
 unchanged; set its ``RUN_PROFILE`` as usual.
 """
@@ -39,7 +39,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS_ROOT = PROJECT_ROOT.parent / "outputs"
-BUNDLE_ROOT = OUTPUTS_ROOT / "transfer_bundles"
+BUNDLE_ROOT = PROJECT_ROOT.parent / "data/archive/transfer_bundles"
 
 DATASETS = ("codexglue_v3", "atcoder_v3", "gptclonebench_v3", "semanticclonebench_v3")
 TAGS = {

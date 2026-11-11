@@ -47,7 +47,7 @@ def inventory(source: Path, output: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=ROOT.parent / "outputs/kaggle/RQ2")
+    parser.add_argument("--source", type=Path, default=ROOT.parent / "outputs/paper/kaggle/RQ2")
     parser.add_argument("--output", type=Path, default=ROOT / "output/revision/result_inventory")
     args = parser.parse_args()
     frame = inventory(args.source, args.output)

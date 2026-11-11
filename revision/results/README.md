@@ -1,89 +1,51 @@
-# Keep experiment outputs here by dataset and job
+# Current revision results and remaining work
 
-**Newest batch 02 update: [all five additional graph/descriptor controls passed 180 checks](ARCHITECTURE_CONTROLS_REVIEW.md).**
-Density/heat-only is now also verified: 76.99% Accuracy / 77.61% F1, 69 epochs,
-best epoch 59, 4.48 recorded hours. Projected AST+DDG, projected AST, projected DDG
-and energy-only were already complete. All five are reused.
-The DDG-projected control is weak (56.00% validation Accuracy) but passed its
-checkpoint/configuration checks; keep the result without assuming a dataset bug.
-The control roster now has ten complete and ten without submitted output.
-Five jobs are removed from the original 19-job independent launch list, leaving
-14 without local output (ten controls plus four cross-benchmark full repeats).
+Updated 2026-11-11. CSV trackers are authoritative; `not_reported` means no
+verified local output, not that a job is idle or has never started.
 
-**Latest: [all 12 batch-03 core repeats are verified complete](CORE_REPEATS_PROGRESS.md).**
-The classification-only/123 fresh restart passed 36 checks: Accuracy 80.58%,
-F1 80.99%, 53 epochs and best epoch 43. It needed no FP32 validation retry.
-Its earlier failed attempt is preserved under `_archive/failed_attempts/`, not
-counted as another seed. Reuse all 12 repeats; no continuation is needed.
-The report now includes descriptive means/sample SD for the six conditions
-across seeds 42/123/231. These are validation summaries; final tests remain off.
+| Tracker | Verified complete | Other status |
+| --- | ---: | --- |
+| `run_progress.csv` | 18 / 29 baseline/full seed-42 jobs | Four incomplete; seven without submitted output. |
+| `control_progress.csv` | 16 / 20 CodeNet seed-42 controls | Four without submitted output. |
+| `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
+| `selected_followup_progress.csv` | 0 / 4 AtCoder/BigCloneBench full repeats | Four without submitted output. |
 
-**Seed 42: [the five CodeNet controls passed all 175 checks](CORE_CONTROLS_REVIEW.md).**
-The six-cell readout/objective core, including the existing full model, is
-complete for seed 42. Mean/max classification-only has 79.74% Accuracy versus
-full 79.67%, a 10-net-correct-pair difference. The
-[12 core repeats](../queues/RUN_NEXT_CORE_REPEATS.md) use seeds 123 and 231;
-all 12 are complete and verified.
-`control_progress.csv` separately records ten verified controls and ten
-remaining planned controls; the baseline roster still has 18 complete,
-four paused and seven without submitted results.
+The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) contains
+eight jobs without local outputs: four controls plus four full repeats. Check
+Kaggle for active jobs before starting duplicates. Earlier baseline continuations
+and unreported external baselines are a separate roster.
 
-**Current input-v2 results:** [all three SPECTRA full runs passed 102 checks](SPECTRA_INPUT_V2_REVIEW.md)
-and are complete: CodeNet Accuracy 79.67%, AtCoder Accuracy 78.34%,
-BigCloneBench F1 97.15%. Reuse them. The active baseline roster again has
-**18 complete, four paused and seven without submitted results**. The next
-priority is now [the core repetitions](../queues/RUN_NEXT_CORE_REPEATS.md).
+## Read the evidence
 
-[Additional GMN review](GMN_RESULTS_REVIEW.md): AtCoder GMN completed 38 epochs,
-selected epoch 28, and has 80.32% validation Accuracy / 80.76% F1. Its full
-checkpoint passed all 32 checks. The new BigCloneBench upload duplicates all
-56 files of the already verified GMN archive; it does not add a new seed/run.
+- [Six new loss controls](LOSS_CONTROLS_REVIEW.md): 216/216 checks passed; small
+  improvements after removing some terms do not establish universal loss necessity.
+- [Graph/descriptor controls](ARCHITECTURE_CONTROLS_REVIEW.md): five complete,
+  including the weak projected-DDG result retained without assuming a dataset bug.
+- [Core readout/objective comparison](CORE_CONTROLS_REVIEW.md): seed-42 core.
+- [Three-seed core results](CORE_REPEATS_PROGRESS.md): all 18 core runs including
+  seed 42; descriptive means/sample SD, not final-test superiority.
+- [Current full models](SPECTRA_INPUT_V2_REVIEW.md) and [GMN results](GMN_RESULTS_REVIEW.md).
+- [Historical input-v1 batch](BATCH_2026-11-09.md): earlier protocol, not current rankings.
 
-The three old SPECTRA ZIPs were moved to `_archive/input_v1/` in the local
-result folder, with hashes preserved. Old scores are excluded from current
-rankings and retained in `_audit/audit.json` under `historical_runs`.
-The [previous combined review](BATCH_2026-11-09.md) and the CodeNet details
-below describe historical input-v1 evidence, not current full-model scores.
+These are validation results. Keep `FINAL_TEST=False` until comparisons and
+selection are frozen. Preserve unfavorable outcomes and failed attempts.
 
-`run_progress.csv` distinguishes reported completions, verified local outputs,
-resumable budget pauses, and `output_reported_pending_review`. The latter means
-the user has a saved output but its completion and metrics have not been checked;
-it is excluded from fresh launches. `not_reported` does not establish whether a
-job has started. A verified output is not a final test result.
+## Local storage and continuation
 
-The 2026-11-08 batch is retained at
-`C:\PyProjects\spectrals\outputs\revesion\01`. Its `RESULTS_REVIEW.md` and
-`_audit/` contain validation scores, integrity checks and the archive rename
-manifest. Five CodeNet baselines are complete and verified: ASTNN, RtvNN,
-DeepSim, FA-AST-GGNN and FA-AST-GMN. CDLH must resume its saved checkpoint
-partway through epoch 9. CodeNet/full/42 is now also verified from its full
-archive: 43 completed epochs, best epoch 33, validation Accuracy 79.91% and
-F1 80.67%. DeepSim leads the completed runs at 81.33% Accuracy. These are
-single-seed validation results; final tests remain off.
+From the project root, reviewer-response ZIPs live at `../outputs/revesion/01`,
+`02` and `03`. Batch 02 has one current `RESULTS_REVIEW.md`
+and `validation_summary.csv`; earlier review/audit snapshots are archived.
+Original submitted-paper results are under `../outputs/paper/` relative to the
+project root. Use the [external results index](../../../outputs/README.md)
+for direct links.
 
-The three text summaries have now been reviewed and renamed to
-`codenet_text_seed42_session01_reports.zip`. All three paused on the session
-budget. CodeBERT and C4 have six validated epochs, with provisional Accuracy
-79.42% and 92.66%; Qwen finished epoch-1 training but has no validation result.
-All 57 summary checks passed, but their weights were not supplied or audited.
-Use [the text continuation guide](../00_plan/TEXT_RUN_CONTINUATION.md) with each
-original checkpoint and token cache. The CPU collector still handles only
-those three text outputs. CDLH also needs continuation: six CodeNet runs are
-complete and four are paused.
+Preserve the whole saved Kaggle output: `progress.pt`, `status.json`, benchmarks,
+numerical events and, for transformer jobs, the token cache and pinned model
+revision. Local `revision/results/kaggle/` is an ignored staging directory.
+Keep older saved output versions when continuing a session.
 
-Download saved output versions into this local structure when available:
-
-```text
-revision/results/kaggle/
-  codenet/codenet_full_seed42/<saved-version>/revision_full_seed42/
-  atcoder/atcoder_astnn_seed42/<saved-version>/...
-  bigclonebench/bigclonebench_codebert_seed42/<saved-version>/...
-```
-
-`kaggle/` is ignored by Git. Preserve the whole output: `progress.pt`,
-`status.json`, `benchmark.json`, numerical events and transformer token caches.
-Keep older output versions when continuing a session. Final tests are released
-later, after choices are frozen; retain their predictions and metadata too.
-
-Run the CPU validation collector on attached Kaggle outputs. Do not fill in
-unreported best metrics or final scores from an intermediate epoch log.
+CodeNet CodeBERT, C4, CDLH and Qwen still have incomplete local reports. Follow
+[the continuation guide](../00_plan/TEXT_RUN_CONTINUATION.md) with each job's own
+checkpoint/runtime; the [small-report collector](../00_plan/SMALL_REPORT_DOWNLOADS.md)
+can report large text outputs without downloading their weights. Do not infer
+completion or final scores from intermediate epoch logs.

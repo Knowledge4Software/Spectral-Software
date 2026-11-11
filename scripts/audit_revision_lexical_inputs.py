@@ -28,7 +28,7 @@ def audit(output):
     reports={}
     for dataset in ('bigclonebench','atcoder','codenet'):
         bundle=dataset+'_revision_common_support'+('' if dataset=='codenet' else '_v2')
-        corpus,frames,digest=load_pair_data(ROOT.parent/'data/benchmarks'/bundle,require_disjoint=dataset=='codenet')
+        corpus,frames,digest=load_pair_data(ROOT.parent/'data/working/revision'/bundle,require_disjoint=dataset=='codenet')
         valid=frames['valid']; ids=set(valid.left_id.astype(str))|set(valid.right_id.astype(str))
         if dataset!='bigclonebench':
             ids={i for i in ids if corpus.code_languages[i]=='java'}

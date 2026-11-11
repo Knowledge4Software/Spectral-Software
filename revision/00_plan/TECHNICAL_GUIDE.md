@@ -38,12 +38,16 @@ in one session. Each training notebook handles one model/arm, seed and condition
 Dataset preparation command, for reproducibility:
 
 ```powershell
-python -m spectral_code.revision.prepare --source-zip ../data/benchmarks/codenet.zip --output ../data/benchmarks/codenet_revision_problem_disjoint
-python -m spectral_code.revision.audit ../data/benchmarks/codenet_revision_problem_disjoint
-python -m spectral_code.revision.alignment ../data/benchmarks/codenet_revision_problem_disjoint
-python scripts/package_revision_dataset.py ../data/benchmarks/codenet_revision_problem_disjoint --output ../data/benchmarks/codenet_revision_problem_disjoint.zip
-python scripts/build_revision_notebooks.py
+python -m spectral_code.revision.prepare --source-zip ../data/archive/original_exports/codenet.zip --output ../data/working/rebuild/codenet_revision_problem_disjoint
+python -m spectral_code.revision.audit ../data/working/rebuild/codenet_revision_problem_disjoint
+python -m spectral_code.revision.alignment ../data/working/rebuild/codenet_revision_problem_disjoint
+python scripts/package_revision_dataset.py ../data/working/rebuild/codenet_revision_problem_disjoint --output ../data/working/rebuild/codenet_revision_problem_disjoint.zip
 ```
+
+These commands rebuild an intermediate preparation, not the frozen current
+uploads. Do not overwrite released datasets or regenerate the 193 frozen
+notebooks when reproducing preparation. The three released unpacked audit
+copies are under `../data/working/revision/`.
 
 The derived comparison bundles are prepared separately with
 `python -m spectral_code.revision.datasets`. CodeNet starts from the audited

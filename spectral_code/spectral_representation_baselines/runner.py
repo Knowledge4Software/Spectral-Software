@@ -41,7 +41,7 @@ from spectral_code.similarity.pss import PSSSimilarity
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUTPUTS_ROOT = PROJECT_ROOT.parent / "outputs"
-DEFAULT_RESULTS_ROOT = OUTPUTS_ROOT / "local_spectral_representation_baselines"
+DEFAULT_RESULTS_ROOT = OUTPUTS_ROOT / "paper" / "local_spectral_representation_baselines"
 DATASET_DIRS = {
     "codexglue": OUTPUTS_ROOT / "codexglue_v3" / "clean_data",
     "semanticclonebench": OUTPUTS_ROOT / "semanticclonebench_v3" / "clean_data",

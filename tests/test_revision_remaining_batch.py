@@ -40,6 +40,7 @@ def test_independent_batch_preserves_experiments_and_never_requeues_reported_job
     assert not any(j["job_id"] == "codenet_classification_only_seed123" for j in jobs)
     for job in jobs:
         path = tmp_path / job["notebook"]
+        assert b"\r\n" not in path.read_bytes()  # Raw hashes must survive an LF Git checkout on Windows.
         assert hashlib.sha256(path.read_bytes()).hexdigest() == job["notebook_sha256"]
         nb = json.loads(path.read_text(encoding="utf-8"))
         for cell in nb["cells"]:

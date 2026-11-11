@@ -116,6 +116,7 @@ revision/results/*
 !revision/results/GMN_RESULTS_REVIEW.md
 !revision/results/CORE_CONTROLS_REVIEW.md
 !revision/results/ARCHITECTURE_CONTROLS_REVIEW.md
+!revision/results/LOSS_CONTROLS_REVIEW.md
 !revision/results/control_progress.csv
 !revision/results/core_repeat_progress.csv
 !revision/results/selected_followup_progress.csv

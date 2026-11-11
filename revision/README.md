@@ -6,25 +6,23 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Current: [all 12 core repeats are verified complete](results/CORE_REPEATS_PROGRESS.md).**
-The classification-only/123 fresh restart passed all 36 checks: 53 epochs,
-best epoch 43, validation Accuracy 80.58% and F1 80.99%. The earlier failed
-attempt is retained separately, excluded from completed scores.
-[No launch or continuation is needed from this batch](queues/RUN_NEXT_CORE_REPEATS.md).
-Reuse all 12 completed repeats and the six seed-42 conditions. Five additional
-seed-42 controls are now [verified](results/ARCHITECTURE_CONTROLS_REVIEW.md);
-10 controls still have no submitted output. Final tests stay off.
+**Current: [16 of 20 CodeNet controls are verified complete](results/README.md).**
+The six newest loss controls passed [216/216 checks](results/LOSS_CONTROLS_REVIEW.md).
+All [12 core repeats](results/CORE_REPEATS_PROGRESS.md) and the six seed-42 core
+conditions are also complete. Reuse those outputs; final tests remain off.
+The earlier failed classification-only/123 attempt is retained separately.
 
-**Independent batch: [five verified complete, 14 without submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md).**
-The original 19-job roster includes 15 CodeNet controls and four full-model
-repeats on AtCoder/BigCloneBench. Projected AST+DDG, projected AST, projected DDG
-and both descriptor-component controls (energy-only, density/heat-only) are complete; reuse them. The remaining list has 10 controls
-and four full repeats. Unreported jobs may already be running; check Kaggle
-before starting a duplicate. Existing datasets and final-test hold are unchanged.
+**[Eight independent jobs have no submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md):**
+four CodeNet controls (`without_topology_reconstruction`, `without_graph`,
+`auxiliary_half`, `auxiliary_double`) and four AtCoder/BigCloneBench full-model
+repeats. Eleven jobs from the original 19-job roster are verified complete.
+Check Kaggle for live jobs before launching duplicates. The older baseline
+roster separately has 18 complete, four incomplete and seven unreported jobs.
 
-[AtCoder GMN is now verified](results/GMN_RESULTS_REVIEW.md) at 80.32% Accuracy
-and 80.76% F1. The new BigCloneBench GMN upload duplicates its existing reviewed
-result (97.77% F1), so it is archived without counting an additional run.
+The current uploads are in `../data/benchmarks/`; unpacked audit copies are in
+`../data/working/revision/`. Original paper inputs/results are grouped under
+`../data/archive/` and `../outputs/paper/`. Reviewer-response outputs remain at
+`../outputs/revesion/01`, `02` and `03`.
 
 If a text job fails with `RobertaConfig has no attribute '_commit_hash'`, use
 the updated notebook in a fresh session; see [HF setup recovery](00_plan/HF_SETUP_RECOVERY.md).

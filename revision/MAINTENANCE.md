@@ -81,3 +81,28 @@ cleaner. Before/after inventories, retained-copy restoration mappings and a
 PowerShell operation log are stored in
 `output/revision/maintenance/2026-11-11/external/`. Destructive actions were
 bounded to the two named roots and rejected linked paths or changed files.
+
+## Current storage organization and loss uploads: 2026-11-11
+
+The second pass separates current inputs, local working copies and historical
+material. `../data/benchmarks/` now holds only the three current upload ZIPs,
+their checksums and an index. Unpacked copies are in `../data/working/revision/`;
+original exports, older preparations and transfer inputs are in `../data/archive/`.
+Earlier paper outputs are grouped under `../outputs/paper/`. Active reviewer
+outputs keep the existing `../outputs/revesion/01`, `02` and `03` paths.
+
+Twenty-four path moves, including six new result renames, were planned against
+a SHA-256 inventory. No scientific data or result was deleted in this pass.
+Historical metadata paths remain intact; path consumers and current indexes
+were updated, with old documents backed up. Older audit snapshots moved to
+`_audit/history/`; batch 02 now has one current summary and a validation CSV.
+The before/move/after maps are local files under
+`output/revision/maintenance/2026-11-11/organization/`.
+
+All six newly supplied CodeNet loss controls passed 216 checks. The control
+tracker now records 16/20 completions, and the independent queue has eight
+unreported jobs: four controls and four cross-benchmark full repeats.
+See [the loss review](results/LOSS_CONTROLS_REVIEW.md) for scores and limitations.
+The independent notebook writer now emits explicit LF bytes on Windows so its
+raw notebook hashes match the repository's LF checkout policy; the existing
+queue test checks this behavior. Training code and experiment settings are unchanged.

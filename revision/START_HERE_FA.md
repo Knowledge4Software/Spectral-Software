@@ -11,10 +11,11 @@
 | --- | --- |
 | شش حالت اصلی CodeNet با seed=42 | کامل؛ نتایج قبلی را استفاده کن |
 | همان شش حالت با seedهای 123 و 231 | هر ۱۲ تکرار کامل؛ هستهٔ اصلی مجموعاً ۱۸ نتیجه دارد |
-| کنترل‌های seed=42 | ۱۰ مورد از ۲۰ کنترل کامل؛ ۱۰ خروجی loss/weight هنوز ارسال نشده |
+| کنترل‌های seed=42 | ۱۶ مورد از ۲۰ کنترل کامل؛ چهار خروجی loss/weight هنوز ارسال نشده |
 | full روی AtCoder و BigCloneBench با seedهای 123 و 231 | چهار خروجی هنوز ارسال نشده |
 | صف اولیهٔ ۲۹ baseline/full | ۱۸ کامل، چهار ناقص و هفت مورد بدون خروجی ارسالی |
 
+[گزارش شش کنترل loss جدید](results/LOSS_CONTROLS_REVIEW.md)،
 [گزارش سه‌seed هستهٔ اصلی](results/CORE_REPEATS_PROGRESS.md) و
 [گزارش کنترل‌های گراف/توصیفگر](results/ARCHITECTURE_CONTROLS_REVIEW.md) جزئیات را دارند.
 ران classification-only/123 پس از ۵۳ epoch، با بهترین epoch برابر ۴۳، دقت 80.58٪
@@ -26,9 +27,7 @@
 
 ## چه خروجی‌هایی هنوز ارسال نشده؟
 
-- CodeNet، همگی seed=42: `without_spectral`، `without_auc_ranking`،
-  `without_hard_negative`، `without_reconstruction`، `without_topology_reconstruction`،
-  `without_spectral_variance`، `without_graph`، `without_spectral_and_hard_negative`،
+- CodeNet، همگی seed=42: `without_topology_reconstruction`، `without_graph`،
   `auxiliary_half` و `auxiliary_double`.
 - AtCoder/full و BigCloneBench/full، هرکدام seedهای 123 و 231.
 - baselineهای قدیمی‌تر، همگی seed=42: AtCoder شامل CodeBERT، C4-adapted، CDLH و Qwen؛
@@ -77,3 +76,7 @@
 نوت‌بوک‌ها و manifest اصلی برای بازتولید نتایج ثابت نگه داشته می‌شوند.
 نسخه‌های تاریخی و نتایج نامطلوب، فایل بی‌استفاده محسوب نمی‌شوند.
 اسناد قدیمی شروع ران از راهنمای فعال حذف شده‌اند؛ سابقهٔ آن‌ها در Git محفوظ است.
+
+برای ممیزی محلی، پوشه‌های استخراج‌شده اکنون در `../data/working/revision/` هستند.
+بسته‌های آپلود همچنان در `../data/benchmarks/` قرار دارند. خروجی‌های مقالهٔ قبلی
+در `../outputs/paper/` و داده‌های قدیمی در `../data/archive/` گروه‌بندی شده‌اند.

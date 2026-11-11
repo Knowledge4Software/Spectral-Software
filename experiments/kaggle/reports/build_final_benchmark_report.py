@@ -1,6 +1,6 @@
 """Build publication-ready benchmark, language, and ablation report figures.
 
-The input is the collection of Kaggle result ZIPs in ``../outputs/kaggle``.
+The input is the collection of Kaggle result ZIPs in ``../outputs/paper/kaggle``.
 The builder deliberately reads ZIPs in place and writes only into this
 report's ``artifacts`` directory.  It also validates that a result embedded in
 an archive belongs to the archive's benchmark, preventing accidental copy/paste
@@ -23,7 +23,7 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 OUTPUTS_ROOT = PROJECT_ROOT.parent / "outputs"
-KAGGLE_ROOT = OUTPUTS_ROOT / "kaggle"
+KAGGLE_ROOT = OUTPUTS_ROOT / "paper" / "kaggle"
 ARTIFACTS = PROJECT_ROOT / "experiments" / "kaggle" / "reports" / "artifacts"
 
 FOLDER_TO_BENCHMARK = {

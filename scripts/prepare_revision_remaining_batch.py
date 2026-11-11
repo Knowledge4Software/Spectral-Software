@@ -42,7 +42,7 @@ def _read_csv(path):
 def _write_csv(path, rows, fields):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fields)
+        w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         w.writeheader(); w.writerows(rows)
 
 
@@ -81,7 +81,7 @@ def _fixed_copy(base, relative, target_relative, sources, description):
             compile("".join(c["source"]), target_relative, "exec")
     target = base / target_relative
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    target.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     return hashlib.sha256(target.read_bytes()).hexdigest(), assignments
 
 
@@ -164,7 +164,7 @@ def prepare(root=None):
               "CodeBERT/C4 remain important review gaps. The old CodeNet jobs need their own saved checkpoints/token caches and original archived notebooks; see [continuation instructions](../00_plan/TEXT_RUN_CONTINUATION.md). They completed only about six epochs in the first approximately 9h work session, so further 10h sessions may be needed. Starting AtCoder/BigCloneBench text baselines also needs runtime pilots; do not label them as 2-8h graph jobs.", "",
               "Qwen nearly filled a session with epoch-1 training alone, and CDLH also paused early. They remain in the roster but are outside this short batch; no convergence time is promised. Do not launch extra seeds or transfer jobs for unfinished external methods. Final tests remain off.", "",
               "See [protocol](../00_plan/EXPERIMENT_PROTOCOL.md) and [reviewer coverage](../00_plan/REVIEWER_COVERAGE.md). Check existing Kaggle jobs before launching a duplicate. Generating this queue does not mean any job has started.", ""]
-    (base/"queues/RUN_NEXT_INDEPENDENT_BATCH.md").write_text("\n".join(lines), encoding="utf-8")
+    (base/"queues/RUN_NEXT_INDEPENDENT_BATCH.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print(f"Prepared {len(jobs)} fixed notebooks; {len(fresh)} fresh launches ready. Training runtime unchanged.")
     return jobs
 

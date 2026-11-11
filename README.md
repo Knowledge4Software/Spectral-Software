@@ -57,6 +57,8 @@ submission results. No new empirical superiority is claimed before rerunning.
 | `tests/` | Numerical, protocol, resume and notebook checks |
 
 Dataset archives live outside the Git repository under `../data/benchmarks/`.
+The [storage map](revision/STORAGE.md) separates current uploads, unpacked audit
+copies, historical datasets, reviewer-response results and original paper outputs.
 Generated release ZIPs, figures, checkpoints and local audit output stay under
 ignored output directories. Notebook sources are committed without execution
 outputs. Previously embedded outputs are backed up locally under

@@ -6,7 +6,7 @@ forward pass over the validation fragments. Nothing is retrained, so it runs on
 a CPU laptop given the two inputs it needs, both of which live outside the repo:
 
   * clean data   data/benchmarks/codenet.zip
-  * checkpoint   outputs/kaggle/RQ2/codenet/CodeNet_spectra_siam_Lexical.zip
+  * checkpoint   outputs/paper/kaggle/RQ2/codenet/CodeNet_spectra_siam_Lexical.zip
 
 This script executes the notebook's own cells in order, so the model, the data
 reader, and the analysis stay defined in exactly one place. Only the Kaggle
@@ -25,14 +25,14 @@ import zipfile
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[2]
-NOTEBOOK = _ROOT / "d4/01_latent_graph_analysis.ipynb"
+NOTEBOOK = _ROOT / "experiments/d4/01_latent_graph_analysis.ipynb"
 # The dataset the RQ2 CodeNet checkpoint was trained on: its splits
 # (69,779 / 14,959 / 14,955 graph-evaluable pairs) come from here, and the
 # rest of the paper uses this same export. The smaller nonclone_12k subset
 # is a different dataset and must not be used with this checkpoint.
-CLEAN_DATA = _ROOT.parent / "data/benchmarks/codenet.zip"
+CLEAN_DATA = _ROOT.parent / "data/archive/original_exports/codenet.zip"
 CHECKPOINT_ZIP = (_ROOT.parent
-                  / "outputs/kaggle/RQ2/codenet/CodeNet_spectra_siam_Lexical.zip")
+                  / "outputs/paper/kaggle/RQ2/codenet/CodeNet_spectra_siam_Lexical.zip")
 CHECKPOINT_MEMBER = "spectra_siam_codenet-4l_input_only_lex_final.pt"
 
 
