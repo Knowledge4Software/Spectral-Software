@@ -1,7 +1,7 @@
 # Revision documentation
 
 For execution start with [the Persian workspace guide](../START_HERE_FA.md)
-and [the current launch list](../queues/LAUNCH_24.md). The CodeNet/full checkpoint
+and [the current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md). The CodeNet/full checkpoint
 is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
@@ -12,8 +12,8 @@ linked numerical-fix notebooks and existing dataset uploads; final tests stay of
 - [Full revision roadmap](REVISION_MASTER_PLAN.md): reviewer concerns, dependencies,
   experiment counts and manuscript work.
 - [Persian guide](REVISION_PLAN_FA.md): goals, rationale and planning estimates.
-- [First Kaggle run](FIRST_RUN.md): exact input,
-  notebook settings, progress and checkpoint continuation.
+- [Current execution guide](../START_HERE_FA.md): dataset versions, notebook
+  settings, completed runs and checkpoint continuation.
 - [T4 numerical checkpoint recovery](NUMERICAL_RECOVERY.md):
   AMP retry/FP32 fallback and explicit source-version upgrade with lineage.
 - [Hugging Face setup recovery](HF_SETUP_RECOVERY.md): supported dependency

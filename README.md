@@ -28,7 +28,8 @@ Detection.”** The paper is available as an
 ## Reviewer-response experiments
 
 Start with the [Persian execution guide](revision/START_HERE_FA.md) and
-the [24-job parallel launch list](revision/queues/LAUNCH_24.md).
+the [current independent run list](revision/queues/RUN_NEXT_INDEPENDENT_BATCH.md).
+The [remaining baseline roster](revision/queues/LAUNCH_24.md) is tracked separately.
 The actual notebooks are organized by stage and dataset in [revision/](revision/README.md);
 ZIP packets are optional transport copies. The complete
 [seed-42 run queue](revision/queues/stage1_run_queue.csv) has 29 jobs.
@@ -73,21 +74,27 @@ and bounded FP32 fallback, without skipping training pairs. Follow
 [numerical checkpoint recovery](revision/00_plan/NUMERICAL_RECOVERY.md)
 to continue a pre-fix checkpoint through the explicit, allowlisted upgrade.
 
-Rebuild current notebooks and manifests with:
+Refresh the current numerical-fix notebook copies and pending queue with:
 
 ```powershell
-python scripts/build_revision_notebooks.py
-python scripts/prepare_revision_stage1.py
-python scripts/prepare_revision_launch.py
+python -m scripts.prepare_revision_remaining_batch
 ```
 
-After regenerating historical/analysis notebooks, run
+The 193 original revision notebooks and their manifest are frozen references
+used by completed results and checkpoint identities. General notebook generation
+belongs to a new versioned experiment release; the guarded helper above creates
+the approved numerical-fix copies without changing those references.
+
+After regenerating historical/analysis notebooks for a new release, use
 `python scripts/sync_notebook_progress.py` to restore their cell progress bars.
-Use `scripts/package_revision_experiments.py --stage-one --output <new-zip-path>`
-for a new immutable first-stage packet. Dataset ZIPs are reused across jobs.
-Run `powershell -File scripts/clean_workspace.ps1 -DryRun` to inspect disposable
-cache/test-scratch cleanup; omit `-DryRun` to apply it. The cleaner preserves
-tracked files, links, datasets, manuscript files, results and release archives.
+Dataset ZIPs are reused across jobs.
+
+Run `powershell -NoProfile -File scripts/clean_workspace.ps1 -DryRun` to preview
+cache and known CPU test-fixture cleanup; omit `-DryRun` to apply it. The cleaner
+preserves tracked files, links, environments, datasets, manuscripts, research
+results and immutable release archives. It writes a JSON action report under
+`output/revision/maintenance/`; [maintenance instructions](revision/MAINTENANCE.md)
+explain what is disposable and how to verify the experiment fingerprints.
 
 ## Overview
 

@@ -1,99 +1,153 @@
-param([switch]$DryRun)
+param(
+    [switch]$DryRun,
+    [string]$ReportPath = 'output/revision/maintenance/cleanup-last.json'
+)
 
 $ErrorActionPreference = 'Stop'
-$revisionWorkspace = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$revisionPrefix = $revisionWorkspace.TrimEnd('\') + '\'
-$revisionTargets = [System.Collections.Generic.List[string]]::new()
-$revisionSkipped = [System.Collections.Generic.List[string]]::new()
+$cleanupRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..')).TrimEnd('\')
+$cleanupPrefix = $cleanupRoot + '\'
+$cleanupRecords = [Collections.Generic.List[object]]::new()
+$cleanupSkipped = [Collections.Generic.List[object]]::new()
+$cleanupTargets = [Collections.Generic.List[string]]::new()
 
-# Visit only project code. Never descend into a directory link or the venv.
-foreach ($revisionSource in @('create_datasets_graphs', 'experiments', 'revision', 'pipelines', 'scripts', 'spectral_code', 'tests')) {
-    $revisionStack = [System.Collections.Generic.Stack[string]]::new()
-    $revisionStack.Push((Join-Path $revisionWorkspace $revisionSource))
-    while ($revisionStack.Count -gt 0) {
-        $revisionDirectory = $revisionStack.Pop()
-        foreach ($revisionChild in (Get-ChildItem -LiteralPath $revisionDirectory -Directory -Force)) {
-            if ($revisionChild.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { continue }
-            if ($revisionChild.Name -in @('__pycache__', '.ipynb_checkpoints')) {
-                $revisionTargets.Add($revisionChild.FullName)
-            } else {
-                $revisionStack.Push($revisionChild.FullName)
+function Get-CleanupPath([string]$Path) {
+    $absolute = [IO.Path]::GetFullPath($Path)
+    if (-not $absolute.StartsWith($cleanupPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Cleanup path escapes workspace: $absolute"
+    }
+    # Reject links in every existing ancestor as well as the target itself.
+    $ancestor = $absolute
+    while ($ancestor.Length -ge $cleanupRoot.Length) {
+        $info = Get-Item -LiteralPath $ancestor -Force -ErrorAction SilentlyContinue
+        if ($null -ne $info) {
+            if ($info.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                throw "Cleanup path contains a directory/file link: $ancestor"
             }
         }
+        if ($ancestor -eq $cleanupRoot) { break }
+        $ancestor = [IO.Path]::GetDirectoryName($ancestor)
     }
+    return $absolute
 }
 
-$revisionPytest = Join-Path $revisionWorkspace '.pytest_cache'
-if (Test-Path -LiteralPath $revisionPytest) { $revisionTargets.Add($revisionPytest) }
-foreach ($revisionCheckScratch in @('output/revision/validation/generator_check', 'output/revision/validation/pytest_layout',
+function Get-CleanupRelative([string]$Path) {
+    return $Path.Substring($cleanupPrefix.Length).Replace('\', '/')
+}
+
+function Add-CleanupTarget([string]$Relative) {
+    $candidate = Join-Path $cleanupRoot $Relative
+    if (Test-Path -LiteralPath $candidate) { $cleanupTargets.Add($candidate) }
+}
+
+# Validate the report destination before any mutation.
+$cleanupReportPath = Get-CleanupPath (Join-Path $cleanupRoot $ReportPath)
+$cleanupReportPrefix = (Join-Path $cleanupRoot 'output/revision/maintenance').TrimEnd('\') + '\'
+if (-not $cleanupReportPath.StartsWith($cleanupReportPrefix, [StringComparison]::OrdinalIgnoreCase) -or
+        [IO.Path]::GetExtension($cleanupReportPath) -ne '.json') {
+    throw 'Cleanup reports must be JSON files under output/revision/maintenance/'
+}
+if (Test-Path -LiteralPath $cleanupReportPath) {
+    $priorReport = Get-Content -LiteralPath $cleanupReportPath -Raw | ConvertFrom-Json
+    if ($priorReport.schema -ne 'spectra_workspace_cleanup_v2') { throw 'Refusing to overwrite an unrelated report' }
+}
+$cleanupGitRoot = (& git -C $cleanupRoot rev-parse --show-toplevel)
+if ($LASTEXITCODE -ne 0 -or [IO.Path]::GetFullPath($cleanupGitRoot).TrimEnd('\') -ne $cleanupRoot) {
+    throw 'The cleaner must run inside its own Git workspace'
+}
+
+# Only cache directories are discovered recursively. Never traverse links or
+# environments, and never classify research files by age/extension/size.
+foreach ($source in @('create_datasets_graphs', 'experiments', 'revision', 'pipelines',
+                      'scripts', 'spectral_code', 'tests', 'output/revision')) {
+    $sourcePath = Join-Path $cleanupRoot $source
+    if (-not (Test-Path -LiteralPath $sourcePath)) { continue }
+    try { $sourcePath = Get-CleanupPath $sourcePath } catch {
+        $cleanupSkipped.Add([ordered]@{path = $source; reason = $_.Exception.Message}); continue
+    }
+    $stack = [Collections.Generic.Stack[string]]::new()
+    $stack.Push($sourcePath)
+    while ($stack.Count -gt 0) {
+        $directory = $stack.Pop()
+        foreach ($child in (Get-ChildItem -LiteralPath $directory -Directory -Force)) {
+            if ($child.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
+            if ($child.Name -in @('.git', '.venv', 'venv', 'env', 'ENV')) { continue }
+            if ($child.Name -in @('__pycache__', '.ipynb_checkpoints', '.pytest_cache', '.ruff_cache', '.mypy_cache')) {
+                $cleanupTargets.Add($child.FullName)
+            } else { $stack.Push($child.FullName) }
+        }
+    }
+}
+foreach ($relative in @('.pytest_cache', '.ruff_cache', '.mypy_cache',
+        'output/revision/input_v2/pytest_checks_retry',
+        'output/revision/core_controls_review/pytest_queues',
+        'output/revision/v2_results_review/pytest_queue',
+        'output/revision/validation/generator_check', 'output/revision/validation/pytest_layout',
         'output/revision/validation/hf_setup_generated', 'output/revision/validation/hf_setup_pytest',
-        'output/revision/validation/hf_setup_dependencies', 'output/revision/validation/hf_real_smoke')) {
-    $revisionCheckPath = Join-Path $revisionWorkspace $revisionCheckScratch
-    if (Test-Path -LiteralPath $revisionCheckPath) { $revisionTargets.Add($revisionCheckPath) }
-}
-$revisionScratch = Join-Path $revisionWorkspace 'tmp'
-if (Test-Path -LiteralPath $revisionScratch) {
-    foreach ($revisionChild in (Get-ChildItem -LiteralPath $revisionScratch -Directory)) {
-        if ($revisionChild.Name -match '^(review_pytest|revision_.+)$') {
-            $revisionTargets.Add($revisionChild.FullName)
+        'output/revision/validation/hf_setup_dependencies', 'output/revision/validation/hf_real_smoke',
+        'output/revision/validation/packaging_precheck', 'output/revision/validation/packaging_precheck_after_dedup',
+        'output/revision/validation/small_report_generator_tests', 'output/revision/validation/small_report_smoke',
+        'output/revision/validation/text_resume_snippet_smoke',
+        'output/revision/maintenance/cleanup-tests')) { Add-CleanupTarget $relative }
+
+$cleanupOutput = Join-Path $cleanupRoot 'output/revision'
+if (Test-Path -LiteralPath $cleanupOutput) {
+    foreach ($child in (Get-ChildItem -LiteralPath $cleanupOutput -Directory)) {
+        # Known CPU pytest fixtures, not arbitrary test_* experiment outputs.
+        if ($child.Name -match '^test_(validation_recovery|recovery_queue|restart|repeat_running|independent_batch|architecture_update|core_completed)_\d{4}$') {
+            $cleanupTargets.Add($child.FullName)
         }
     }
 }
 
-$revisionRemoved = [System.Collections.Generic.List[string]]::new()
-$revisionEmptyRemoved = [System.Collections.Generic.List[string]]::new()
-foreach ($revisionTarget in $revisionTargets) {
-    $revisionAbsolute = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $revisionTarget).Path)
-    if (-not $revisionAbsolute.StartsWith($revisionPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Cleanup target escapes workspace: $revisionAbsolute"
+# A parent fixture subsumes any cache targets inside it.
+$cleanupSelected = [Collections.Generic.List[string]]::new()
+foreach ($candidate in ($cleanupTargets | Sort-Object -Unique | Sort-Object Length)) {
+    $absolute = [IO.Path]::GetFullPath($candidate)
+    if (@($cleanupSelected | Where-Object { $absolute -eq $_ -or $absolute.StartsWith($_ + '\', [StringComparison]::OrdinalIgnoreCase) }).Count -eq 0) {
+        $cleanupSelected.Add($absolute)
     }
-    $revisionInfo = Get-Item -LiteralPath $revisionAbsolute -Force
-    if ($revisionInfo.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
-        $revisionSkipped.Add($revisionAbsolute); continue
-    }
-    $revisionLinks = @(Get-ChildItem -LiteralPath $revisionAbsolute -Recurse -Force |
-        Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReparsePoint })
-    if ($revisionLinks.Count -gt 0) { $revisionSkipped.Add($revisionAbsolute); continue }
-    $revisionRelative = $revisionAbsolute.Substring($revisionPrefix.Length).Replace('\', '/')
-    $revisionTracked = @(& git -C $revisionWorkspace ls-files -- $revisionRelative)
-    if ($LASTEXITCODE -ne 0 -or $revisionTracked.Count -gt 0) {
-        throw "Refusing to clean a tracked directory: $revisionAbsolute"
-    }
-    if (-not $DryRun) {
-        try {
-            Remove-Item -LiteralPath $revisionAbsolute -Recurse -Force
-        } catch {
-            $revisionSkipped.Add($revisionAbsolute); continue
+}
+foreach ($target in $cleanupSelected) {
+    try {
+        $absolute = Get-CleanupPath (Resolve-Path -LiteralPath $target).Path
+        $relative = Get-CleanupRelative $absolute
+        $children = @(Get-ChildItem -LiteralPath $absolute -Recurse -Force)
+        if (@($children | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count -gt 0) {
+            throw 'Target contains a directory/file link'
         }
-    }
-    $revisionRemoved.Add($revisionRelative)
-}
-
-# Retired revision paths contain only empty directories after the layout move.
-# Remove empty directories only; never recurse-delete an old source tree.
-foreach ($revisionRetired in @('experiments/kaggle/revision', 'docs/revision', 'docs', 'output/review', 'tmp')) {
-    $revisionRetiredAbsolute = [System.IO.Path]::GetFullPath((Join-Path $revisionWorkspace $revisionRetired))
-    if (-not $revisionRetiredAbsolute.StartsWith($revisionPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Retired path escapes workspace: $revisionRetiredAbsolute"
-    }
-    if (-not (Test-Path -LiteralPath $revisionRetiredAbsolute -PathType Container)) { continue }
-    $revisionRetiredInfo = Get-Item -LiteralPath $revisionRetiredAbsolute -Force
-    if ($revisionRetiredInfo.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { continue }
-    $revisionRetiredChildren = @(Get-ChildItem -LiteralPath $revisionRetiredAbsolute -Recurse -Force)
-    if (@($revisionRetiredChildren | Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReparsePoint }).Count -gt 0) { continue }
-    $revisionRetiredDirectories = @($revisionRetiredChildren | Where-Object { $_.PSIsContainer } | Sort-Object { $_.FullName.Length } -Descending)
-    $revisionRetiredDirectories += $revisionRetiredInfo
-    foreach ($revisionEmpty in $revisionRetiredDirectories) {
-        if (@(Get-ChildItem -LiteralPath $revisionEmpty.FullName -Force).Count -ne 0) { continue }
-        if (-not $DryRun) { Remove-Item -LiteralPath $revisionEmpty.FullName }
-        $revisionEmptyRemoved.Add($revisionEmpty.FullName.Substring($revisionPrefix.Length).Replace('\', '/'))
+        $tracked = @(& git -C $cleanupRoot ls-files -- $relative)
+        if ($LASTEXITCODE -ne 0 -or $tracked.Count -gt 0) { throw 'Target contains tracked files' }
+        $files = @($children | Where-Object { -not $_.PSIsContainer })
+        $bytes = [long](($files | Measure-Object -Property Length -Sum).Sum)
+        if (-not $DryRun) { Remove-Item -LiteralPath $absolute -Recurse -Force }
+        $cleanupRecords.Add([pscustomobject][ordered]@{path = $relative; files = $files.Count; bytes = $bytes;
+            action = $(if ($DryRun) {'would_remove'} else {'removed'})})
+    } catch {
+        $cleanupSkipped.Add([ordered]@{path = $target; reason = $_.Exception.Message})
     }
 }
 
-$revisionReport = [ordered]@{dry_run = [bool]$DryRun; targets = @($revisionRemoved.ToArray()); empty_retired_directories = @($revisionEmptyRemoved.ToArray()); skipped = @($revisionSkipped.ToArray())}
+# Empty legacy containers only. Inaccessible/nonempty folders remain intact;
+# the cleaner never changes ownership or permissions to force a deletion.
+$cleanupEmpty = [Collections.Generic.List[string]]::new()
+foreach ($relative in @('.test_tmp', 'experiments/kaggle/revision', 'docs/revision', 'docs',
+        'output/review', 'tmp', 'output/revision/core_controls_review', 'output/revision/v2_results_review')) {
+    $candidate = Join-Path $cleanupRoot $relative
+    if (-not (Test-Path -LiteralPath $candidate)) { continue }
+    try {
+        $absolute = Get-CleanupPath $candidate
+        if (@(Get-ChildItem -LiteralPath $absolute -Force).Count -eq 0) {
+            if (-not $DryRun) { Remove-Item -LiteralPath $absolute -Force }
+            $cleanupEmpty.Add($relative)
+        }
+    } catch { $cleanupSkipped.Add([ordered]@{path = $relative; reason = $_.Exception.Message}) }
+}
+$cleanupReport = [ordered]@{schema = 'spectra_workspace_cleanup_v2'; dry_run = [bool]$DryRun;
+    workspace = $cleanupRoot; records = @($cleanupRecords.ToArray()); empty_directories = @($cleanupEmpty.ToArray());
+    skipped = @($cleanupSkipped.ToArray()); total_files = [long](($cleanupRecords | Measure-Object -Property files -Sum).Sum);
+    total_bytes = [long](($cleanupRecords | Measure-Object -Property bytes -Sum).Sum)}
 if (-not $DryRun) {
-    $revisionReportDirectory = Join-Path $revisionWorkspace 'output/revision/validation'
-    New-Item -ItemType Directory -Force -Path $revisionReportDirectory | Out-Null
-    $revisionReport | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $revisionReportDirectory 'workspace_cleanup.json') -Encoding UTF8
+    New-Item -ItemType Directory -Force -Path ([IO.Path]::GetDirectoryName($cleanupReportPath)) | Out-Null
+    $cleanupReport | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $cleanupReportPath -Encoding UTF8
 }
-$revisionReport | ConvertTo-Json -Depth 4
+$cleanupReport | ConvertTo-Json -Depth 6

@@ -12,25 +12,25 @@ checkpoint. The numerical upgrade is explicit and records its source lineage.
 
 The current execution instructions are [START_HERE_FA.md](../START_HERE_FA.md)
 and the frozen [EXPERIMENT_PROTOCOL.md](EXPERIMENT_PROTOCOL.md). The CodeNet
-full/42 pilot is now reported complete; continue the 29-job baseline queue
-before adding selected repetitions. [stage1_run_queue.csv](../queues/stage1_run_queue.csv)
-gives exact files. Open notebooks directly in the stage folders. Old release
+full models and all 12 CodeNet core repeats are verified complete. The
+[independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) and
+[baseline roster](../queues/LAUNCH_24.md) identify jobs still awaiting output.
+Open their linked notebooks directly. Old release
 ZIPs are preserved as snapshots under `output/revision/archive/releases/`.
 
-1. Upload `../data/benchmarks/codenet_revision_common_support.zip` as a private
-   Kaggle dataset. Use this SAME bundle for SPECTRA and the external baselines.
-   It reuses graph exports, includes repaired Python/C# DDG alignment, and
-   freezes common graph support. Preserve the earlier AST-only revision bundle
-   as a separate experiment version; do not mix their results.
-2. Enable a T4-class GPU and attach that dataset to the notebook.
-3. Reuse the completed `01_baselines_seed42/codenet/codenet_full_seed42.ipynb`
-   output. Inspect status/runtime for each new method and continue incomplete jobs.
-4. Complete the baseline queue with seed 42 on the three datasets; keep
-   `FINAL_TEST=False`. Use the CPU validation collector for a screening summary.
-5. Then run CodeNet architecture/loss screening. Add seeds 123/231 only to
-   selected central comparisons under the frozen protocol.
+1. Reuse the matching audited dataset upload named in the current queue.
+   Existing graph exports and DDG alignment are preserved; earlier AST-only
+   bundles remain separate experiment versions.
+2. Open the exact linked notebook for a job still awaiting output. Enable its
+   stated GPU/Internet settings and preserve the encoded seed and protocol.
+3. Reuse completed full-model, core-repeat and control outputs; completion is
+   recorded in the CSV trackers, not inferred from a notebook's existence.
+4. Continue incomplete jobs with their own checkpoint and pinned runtime.
+   Transformers also need their own token cache and pretrained model commit.
+5. Keep `FINAL_TEST=False` until model/baseline/path choices are frozen. Selected
+   external repetitions and focused transfer remain gated by baseline screening.
 
-Read [RUN_ORDER.md](RUN_ORDER.md) for the staged run list and continuation steps,
+Read [the current guide](../START_HERE_FA.md) for run settings and continuation steps,
 and [REVIEWER_COVERAGE.md](REVIEWER_COVERAGE.md) for the exact limits of the fixes.
 The notebooks are an experiment library; they are not intended to run together
 in one session. Each training notebook handles one model/arm, seed and condition.
