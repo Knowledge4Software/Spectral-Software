@@ -59,3 +59,25 @@ was installed at `C:/Users/koush/.codex/skills/file-organizer/`, pinned to commi
 active/archive separation and operation logging were used within the user's
 explicit project-cleanup authorization. It contains Markdown instructions only;
 no third-party executable cleanup code was run.
+
+## External data/output cleanup: 2026-11-11
+
+The separately authorized cleanup of `../data/` and `../outputs/` inventoried
+459 files and verified their SHA-256 hashes. It removed 25 redundant files
+(1,776,384,617 bytes): an unpacked historical CodeNet preparation, three
+unpacked transfer bundles, an extracted nested RQ1 ZIP, and one duplicate GMN
+upload whose entire ZIP member set matched the retained canonical result.
+The inventory records both outer archive hashes and member-level proofs.
+
+Earlier AtCoder/BigCloneBench preparation folders and the earlier CodeNet ZIP
+and checksum moved to `../data/benchmarks/_archive/pre_common_support/`.
+Current dataset ZIPs, local audit folders, original sources, unique results,
+checkpoints, failed attempts and existing scientific audit records were retained.
+The external README indexes identify current uploads and historical material.
+The existing `../outputs/revesion/` spelling is preserved for path compatibility.
+
+This was a one-time, explicit plan, not an extension of the repository cache
+cleaner. Before/after inventories, retained-copy restoration mappings and a
+PowerShell operation log are stored in
+`output/revision/maintenance/2026-11-11/external/`. Destructive actions were
+bounded to the two named roots and rejected linked paths or changed files.
