@@ -6,16 +6,16 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Current: [16 of 20 CodeNet controls are verified complete](results/README.md).**
-The six newest loss controls passed [216/216 checks](results/LOSS_CONTROLS_REVIEW.md).
+**Current: [17 of 20 CodeNet controls are verified complete](results/README.md).**
+The seven loss controls passed [252/252 checks](results/LOSS_CONTROLS_REVIEW.md).
 All [12 core repeats](results/CORE_REPEATS_PROGRESS.md) and the six seed-42 core
 conditions are also complete. Reuse those outputs; final tests remain off.
 The earlier failed classification-only/123 attempt is retained separately.
 
-**[Eight independent jobs have no submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md):**
-four CodeNet controls (`without_topology_reconstruction`, `without_graph`,
+**[Seven independent jobs have no submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md):**
+three CodeNet controls (`without_graph`,
 `auxiliary_half`, `auxiliary_double`) and four AtCoder/BigCloneBench full-model
-repeats. Eleven jobs from the original 19-job roster are verified complete.
+repeats. Twelve jobs from the original 19-job roster are verified complete.
 Check Kaggle for live jobs before launching duplicates. The older baseline
 roster separately has 18 complete, four incomplete and seven unreported jobs.
 

@@ -11,11 +11,11 @@
 | --- | --- |
 | شش حالت اصلی CodeNet با seed=42 | کامل؛ نتایج قبلی را استفاده کن |
 | همان شش حالت با seedهای 123 و 231 | هر ۱۲ تکرار کامل؛ هستهٔ اصلی مجموعاً ۱۸ نتیجه دارد |
-| کنترل‌های seed=42 | ۱۶ مورد از ۲۰ کنترل کامل؛ چهار خروجی loss/weight هنوز ارسال نشده |
+| کنترل‌های seed=42 | ۱۷ مورد از ۲۰ کنترل کامل؛ سه خروجی loss/weight هنوز ارسال نشده |
 | full روی AtCoder و BigCloneBench با seedهای 123 و 231 | چهار خروجی هنوز ارسال نشده |
 | صف اولیهٔ ۲۹ baseline/full | ۱۸ کامل، چهار ناقص و هفت مورد بدون خروجی ارسالی |
 
-[گزارش شش کنترل loss جدید](results/LOSS_CONTROLS_REVIEW.md)،
+[گزارش هفت کنترل loss](results/LOSS_CONTROLS_REVIEW.md)،
 [گزارش سه‌seed هستهٔ اصلی](results/CORE_REPEATS_PROGRESS.md) و
 [گزارش کنترل‌های گراف/توصیفگر](results/ARCHITECTURE_CONTROLS_REVIEW.md) جزئیات را دارند.
 ران classification-only/123 پس از ۵۳ epoch، با بهترین epoch برابر ۴۳، دقت 80.58٪
@@ -27,7 +27,7 @@
 
 ## چه خروجی‌هایی هنوز ارسال نشده؟
 
-- CodeNet، همگی seed=42: `without_topology_reconstruction`، `without_graph`،
+- CodeNet، همگی seed=42: `without_graph`،
   `auxiliary_half` و `auxiliary_double`.
 - AtCoder/full و BigCloneBench/full، هرکدام seedهای 123 و 231.
 - baselineهای قدیمی‌تر، همگی seed=42: AtCoder شامل CodeBERT، C4-adapted، CDLH و Qwen؛

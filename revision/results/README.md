@@ -6,18 +6,18 @@ verified local output, not that a job is idle or has never started.
 | Tracker | Verified complete | Other status |
 | --- | ---: | --- |
 | `run_progress.csv` | 18 / 29 baseline/full seed-42 jobs | Four incomplete; seven without submitted output. |
-| `control_progress.csv` | 16 / 20 CodeNet seed-42 controls | Four without submitted output. |
+| `control_progress.csv` | 17 / 20 CodeNet seed-42 controls | Three without submitted output. |
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
 | `selected_followup_progress.csv` | 0 / 4 AtCoder/BigCloneBench full repeats | Four without submitted output. |
 
 The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) contains
-eight jobs without local outputs: four controls plus four full repeats. Check
+seven jobs without local outputs: three controls plus four full repeats. Check
 Kaggle for active jobs before starting duplicates. Earlier baseline continuations
 and unreported external baselines are a separate roster.
 
 ## Read the evidence
 
-- [Six new loss controls](LOSS_CONTROLS_REVIEW.md): 216/216 checks passed; small
+- [Seven loss controls](LOSS_CONTROLS_REVIEW.md): 252/252 checks passed; small
   improvements after removing some terms do not establish universal loss necessity.
 - [Graph/descriptor controls](ARCHITECTURE_CONTROLS_REVIEW.md): five complete,
   including the weak projected-DDG result retained without assuming a dataset bug.

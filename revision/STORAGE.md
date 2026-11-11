@@ -27,8 +27,8 @@ Spectral-Software/
 Use [the dataset index](../../data/benchmarks/README.md) for uploads and
 [the result index](../../outputs/revesion/README.md) for returned ZIPs.
 Batch 02 has [one current summary](../../outputs/revesion/02/RESULTS_REVIEW.md)
-and [a CSV of all 17 completed seed-42 reference/control results](../../outputs/revesion/02/validation_summary.csv).
-The [independent queue](queues/RUN_NEXT_INDEPENDENT_BATCH.md) lists eight jobs
+and [a CSV of all 18 completed seed-42 reference/control results](../../outputs/revesion/02/validation_summary.csv).
+The [independent queue](queues/RUN_NEXT_INDEPENDENT_BATCH.md) lists seven jobs
 without submitted output; check Kaggle for live jobs before launching duplicates.
 
 The `revesion` spelling remains for compatibility with existing analysis paths.

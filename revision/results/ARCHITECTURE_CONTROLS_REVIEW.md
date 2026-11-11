@@ -2,7 +2,7 @@
 
 **All five additional runs are complete and passed all 180 checks (the original four passed 144; density/heat passed another 36).** Their ZIPs were renamed; every archive SHA-256 is preserved. No continuation or rerun is needed for these five results.
 
-The control tracker now has **16 of 20 controls verified complete, four without submitted results**. Including the existing full reference, 17 of 21 CodeNet seed-42 arms are complete. The latest 19-job independent roster now has 11 verified completions and eight jobs without submitted outputs (four CodeNet controls plus four AtCoder/BigCloneBench full repeats). Unreported jobs may already be running; check Kaggle before launching duplicates.
+The control tracker now has **17 of 20 controls verified complete, three without submitted results**. Including the existing full reference, 18 of 21 CodeNet seed-42 arms are complete. The latest 19-job independent roster now has 12 verified completions and seven jobs without submitted outputs (three CodeNet controls plus four AtCoder/BigCloneBench full repeats). Unreported jobs may already be running; check Kaggle before launching duplicates.
 
 | Condition | Validation Accuracy | Validation F1 | Epochs / best | Parameters | Recorded hours |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -31,13 +31,13 @@ The full reference has 79.67% Accuracy. Projected AST+DDG has 78.56%, projected 
 
 The checkpoint/configuration checks found no mismatch explaining that score. Recovered training overflows are logged, including nine FP32 fallback groups; therefore do not call this proof of ideal numerical conditioning. DDG coverage, graph structure and conditioning need separate measured diagnostics before claiming a cause. A low score alone does not establish a dataset bug or justify discarding/replacing the run. Keep this unfavorable result and qualify DDG-related claims.
 
-All five graph/descriptor controls are now complete. Density/heat-only has 76.99% Accuracy / 77.61% F1, with 69 validated epochs and best epoch 59. It took 4.48h including setup/training/validation, had 18 recovered same-group AMP retries, and needed no FP32 training fallback or validation retry. It stopped normally on patience. Its primary score is 2.68 percentage points below full; energy-only is 0.52 points below full. These are exploratory single-seed component comparisons, not evidence of statistical significance or equal capacity: trainable counts differ (2,599,329 for density/heat-only, 2,910,219 for energy-only, 2,977,383 for full). Six additional loss controls are now verified in [the loss review](LOSS_CONTROLS_REVIEW.md); four controls still await outputs. These comparisons will clarify descriptor components and auxiliary losses, but individual-weight tuning and broader interactions are not exhausted by this single-seed study.
+All five graph/descriptor controls are now complete. Density/heat-only has 76.99% Accuracy / 77.61% F1, with 69 validated epochs and best epoch 59. It took 4.48h including setup/training/validation, had 18 recovered same-group AMP retries, and needed no FP32 training fallback or validation retry. It stopped normally on patience. Its primary score is 2.68 percentage points below full; energy-only is 0.52 points below full. These are exploratory single-seed component comparisons, not evidence of statistical significance or equal capacity: trainable counts differ (2,599,329 for density/heat-only, 2,910,219 for energy-only, 2,977,383 for full). Seven additional loss controls are now verified in [the loss review](LOSS_CONTROLS_REVIEW.md); three controls still await outputs. These comparisons will clarify descriptor components and auxiliary losses, but individual-weight tuning and broader interactions are not exhausted by this single-seed study.
 
 ## Files and remaining work
 
 - [Current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md): the five verified jobs are excluded from fresh launches.
 - [Original six-cell core review](CORE_CONTROLS_REVIEW.md) and [core repeat progress](CORE_REPEATS_PROGRESS.md): all 12 core repeats are now verified complete, including the successful seed-123 fresh restart. Reuse those results.
 - Local evidence: `_audit/architecture_controls_additions_audit.json` and `_audit/architecture_controls_rename_manifest.json`; the per-upload density/heat audit is `_audit/density_heat_seed42_audit.json`; original five-control core evidence remains untouched.
-- `control_progress.csv` has 16 complete and four unreported controls. The baseline and selected-followup rosters are separate.
+- `control_progress.csv` has 17 complete and three unreported controls. The baseline and selected-followup rosters are separate.
 
 No GPU training, new inference scores or final-test evaluation was performed during this audit. AUROC/AP were checked for finiteness/range but not independently reproduced without validation predictions.

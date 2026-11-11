@@ -3,8 +3,8 @@
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
 - **[RUN_NEXT_INDEPENDENT_BATCH.md](RUN_NEXT_INDEPENDENT_BATCH.md)**:
-  The original 19-job independent roster now has 11 verified completions and
-  eight jobs without submitted output: four CodeNet seed-42 loss/weight controls and four
+  The original 19-job independent roster now has 12 verified completions and
+  seven jobs without submitted output: three CodeNet seed-42 loss/weight controls and four
   AtCoder/BigCloneBench full-model repeats.
   Includes an estimate for every notebook and exact dataset/version links.
   `next_independent_roster.csv` retains all 19; `next_independent_run_queue.csv`
