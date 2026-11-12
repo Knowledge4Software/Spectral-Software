@@ -2,6 +2,13 @@
 
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
+- **[Checkpoint review: run next](../05_analysis/continuation/README_FA.md)**:
+  four GPU inference jobs, then one CPU collector. `checkpoint_review_notebooks.csv`
+  pins the five new notebooks; `checkpoint_review_inputs.csv` maps each of 21
+  existing checkpoints to its job. `checkpoint_review_manifest.json` pins their
+  bytes and identities. These reporting notebooks are separate from the 193
+  frozen original notebooks and the completed independent training roster.
+
 - **[RUN_NEXT_INDEPENDENT_BATCH.md](RUN_NEXT_INDEPENDENT_BATCH.md)**:
   The original 19-job roster has completed evidence for all 19 job identities; BCB/full/231 has two distinct attempts pending provenance. No fresh launches remain. All 20 CodeNet seed42 controls are complete.
   Includes an estimate for every notebook and exact dataset/version links.

@@ -15,7 +15,8 @@ outputs/
   revesion/                active reviewer-response results
     01/                    baselines and full models, seed 42
     02/                    CodeNet controls, seed 42
-    03/                    CodeNet core repeats, seeds 123/231
+    03/                    CodeNet core and full-model repeats, seeds 123/231
+    04_checkpoint_review/   new inference/diagnostic reports; awaiting Kaggle runs
   paper/
     kaggle/                original submitted-paper result archives/figures
     local_spectral_representation_baselines/

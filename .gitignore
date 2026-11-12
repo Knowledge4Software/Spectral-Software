@@ -118,6 +118,7 @@ revision/results/*
 !revision/results/ARCHITECTURE_CONTROLS_REVIEW.md
 !revision/results/LOSS_CONTROLS_REVIEW.md
 !revision/results/FOLLOWUP_RESULTS_REVIEW.md
+!revision/results/checkpoint_review_progress.csv
 !revision/results/control_progress.csv
 !revision/results/core_repeat_progress.csv
 !revision/results/selected_followup_progress.csv

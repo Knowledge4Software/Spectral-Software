@@ -5,9 +5,13 @@ and [the current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md). Th
 is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
-**Independent batch:** [five complete; 14 controls/repeats without submitted output, with T4 estimates](../queues/RUN_NEXT_INDEPENDENT_BATCH.md).
-All 12 CodeNet core repeats are complete; these independent jobs remain separate. Use the
-linked numerical-fix notebooks and existing dataset uploads; final tests stay off.
+**Run next:** [four checkpoint-review inference notebooks, then a CPU collector](../05_analysis/continuation/README_FA.md).
+The [independent training roster](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has completed
+evidence for all 19 identities; BCB/231 has two distinct attempts pending provenance.
+All 20 CodeNet controls and 12 core repeats are complete. Final tests stay off.
+
+- [Current continuation gates](CONTINUATION_STATUS.md): evidence, remaining scientific work and next actions.
+- [Registered F1 checkpoint reassessment](F1_CHECKPOINT_REASSESSMENT.md): fixed inputs, selection limits and diagnostics.
 
 - [Full revision roadmap](REVISION_MASTER_PLAN.md): reviewer concerns, dependencies,
   experiment counts and manuscript work.

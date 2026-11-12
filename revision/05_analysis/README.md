@@ -1,5 +1,13 @@
 # Analysis and final evaluation
 
+**Next: [checkpoint review and F1 reassessment](continuation/README_FA.md).**
+Four independent GPU inference notebooks (AtCoder three-seed diagnosis and
+CodeNet six-condition F1 calibration for each of three seeds), followed by a
+CPU collector, are ready. Use the linked new notebooks; the older spectral
+diagnostics below do not supply this complete checkpoint review workflow.
+Exact inputs and hashes are in `queues/checkpoint_review_inputs.csv` and
+`checkpoint_review_manifest.json` relative to `revision/`.
+
 - `validation_screening.ipynb`: CPU collector, usable during stage 1. Attach
   saved training notebook outputs and optionally `queues/stage1_run_queue.csv`.
   No GPU, Internet, training dataset, or model download is needed. Download only

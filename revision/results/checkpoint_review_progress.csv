@@ -1,0 +1,6 @@
+notebook,status,evidence,test_evaluated,notes
+05_analysis/continuation/01_atcoder_diagnosis.ipynb,ready_not_run,,False,Read-only validation analysis; reuse pinned checkpoints
+05_analysis/continuation/02_codenet_f1_seed42.ipynb,ready_not_run,,False,Read-only validation analysis; reuse pinned checkpoints
+05_analysis/continuation/02_codenet_f1_seed123.ipynb,ready_not_run,,False,Read-only validation analysis; reuse pinned checkpoints
+05_analysis/continuation/02_codenet_f1_seed231.ipynb,ready_not_run,,False,Read-only validation analysis; reuse pinned checkpoints
+05_analysis/continuation/03_collect_review_reports.ipynb,waiting_for_reports,,False,Run after the four GPU analysis outputs are available
