@@ -14,6 +14,8 @@ Five uploaded archives passed all 180 checkpoint/source/configuration/metric che
 
 Former `results(2).zip` and `results(4).zip` both record BigCloneBench, full, seed231, the same run identity, source hash, model/loss settings, dataset hash and benchmark support. Both have empty continuation lineage. They have different checkpoint weights and histories, starting from their first epoch, so neither is a duplicate upload nor a saved continuation of the other. F1 is 92.00% versus 92.84%. Preserve both with hash-based attempt suffixes; neither is assigned as the authoritative seed231 representative, and no three-seed BCB average is published until provenance is resolved. Two attempts at the same seed are not two independent seeds.
 
+**User confirmation, 2026-11-12:** this was an accidental second execution of the same experiment. The reason for two uploads is now known. Both are retained as attempts at one seed; run order and the primary attempt remain unspecified, so neither is selected by score. This does not block the four checkpoint-review jobs and requires no new training run.
+
 The files do not include the Kaggle notebook/version identities or enough environment detail to establish why the trajectories differ. Numerical or environment nondeterminism is a possibility, not an established diagnosis. Do not choose the higher score or reinterpret either as an AtCoder seed231 result.
 
 ## Weak AtCoder repeats retained
