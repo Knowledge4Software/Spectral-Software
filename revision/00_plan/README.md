@@ -5,7 +5,7 @@ and [the current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md). Th
 is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
-**Run next:** [four checkpoint-review inference notebooks, then a CPU collector](../05_analysis/continuation/README_FA.md).
+**Run next:** [four checkpoint-review inference notebooks, then a CPU collector](../05_analysis/continuation/README.md).
 The [independent training roster](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has completed
 evidence for all 19 identities; BCB/231 has two distinct attempts pending provenance.
 All 20 CodeNet controls and 12 core repeats are complete. Final tests stay off.

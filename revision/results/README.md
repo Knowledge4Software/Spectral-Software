@@ -4,7 +4,7 @@ Updated 2026-11-12. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
 **Next analysis batch is ready, not yet run:** [AtCoder diagnostics and CodeNet
-F1 reassessment](../05_analysis/continuation/README_FA.md). Four GPU inference
+F1 reassessment](../05_analysis/continuation/README.md). Four GPU inference
 jobs reuse the existing checkpoints; their CPU collector follows. The pinned
 inputs preserve original epoch selection and keep final tests off.
 

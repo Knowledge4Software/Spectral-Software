@@ -2,7 +2,7 @@
 
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
-- **[Checkpoint review: run next](../05_analysis/continuation/README_FA.md)**:
+- **[Checkpoint review: run next](../05_analysis/continuation/README.md)**:
   four GPU inference jobs, then one CPU collector. `checkpoint_review_notebooks.csv`
   pins the five new notebooks; `checkpoint_review_inputs.csv` maps each of 21
   existing checkpoints to its job. `checkpoint_review_manifest.json` pins their

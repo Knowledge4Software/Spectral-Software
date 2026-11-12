@@ -14,7 +14,7 @@
 | Manuscript and reviewer response | Current results limit strong superiority/generalization claims | Rewrite from completed revised evidence; disclose derived BCB support, adaptations, failed attempts and protocol changes |
 
 **Ready now:** four GPU inference notebooks and one later CPU collector in
-[the continuation guide](../05_analysis/continuation/README_FA.md). Their outputs
+[the continuation guide](../05_analysis/continuation/README.md). Their outputs
 have not yet been supplied. No new training experiment or architecture change
 has been scheduled as part of this analysis batch.
 

@@ -1,6 +1,6 @@
 # Analysis and final evaluation
 
-**Next: [checkpoint review and F1 reassessment](continuation/README_FA.md).**
+**Next: [checkpoint review and F1 reassessment](continuation/README.md).**
 Four independent GPU inference notebooks (AtCoder three-seed diagnosis and
 CodeNet six-condition F1 calibration for each of three seeds), followed by a
 CPU collector, are ready. Use the linked new notebooks; the older spectral

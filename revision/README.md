@@ -1,12 +1,14 @@
 # SPECTRA paper revision
 
+**[Start here: English guide for the next analysis runs](05_analysis/continuation/README.md)**
+
 **[از اینجا شروع کن — راهنمای فارسی](START_HERE_FA.md)**
 
 This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Run next: [four inference-only checkpoint review notebooks](05_analysis/continuation/README_FA.md),
+**Run next: [four inference-only checkpoint review notebooks](05_analysis/continuation/README.md),
 then their CPU collector.** They diagnose AtCoder's weak seeds and compare all
 18 CodeNet core checkpoints with validation F1 thresholds. Existing training
 outputs and dataset uploads are reused; new training is not requested yet.
