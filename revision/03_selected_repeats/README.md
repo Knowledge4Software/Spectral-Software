@@ -8,7 +8,7 @@ failed attempt remains historical. [No launch or continuation is needed from the
 The original notebooks remain frozen; reuse all 12 complete results. Model/loss/training settings and final-test hold remain
 unchanged. These twelve jobs are part of the 28-run follow-up below.
 
-The four cross-benchmark full-model job identities now have two unambiguous completions (AtCoder/123 and BCB/123), two distinct BCB/231 attempts needing provenance review, and one unreported AtCoder/231 output. See [the detailed review](../results/FOLLOWUP_RESULTS_REVIEW.md) and `results/selected_followup_progress.csv`. Do not repeat completed jobs or select the better seed231 attempt.
+The four cross-benchmark full-model job identities now have three unambiguous completions (AtCoder/123, AtCoder/231 and BCB/123) and two distinct BCB/231 attempts needing provenance review. No output is missing from these four job identities. See [the detailed review](../results/FOLLOWUP_RESULTS_REVIEW.md) and `results/selected_followup_progress.csv`. Do not repeat completed jobs or select the better seed231 attempt.
 
 Select comparisons using completed seed-42 validation results and the frozen
 [protocol](../00_plan/EXPERIMENT_PROTOCOL.md). Then run only their matching seed

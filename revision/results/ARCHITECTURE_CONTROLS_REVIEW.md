@@ -2,7 +2,7 @@
 
 **All five additional runs are complete and passed all 180 checks (the original four passed 144; density/heat passed another 36).** Their ZIPs were renamed; every archive SHA-256 is preserved. No continuation or rerun is needed for these five results.
 
-The control tracker now has **all 20 of 20 controls verified complete**, or 21 seed42 arms including full. The newest `without_graph`, `auxiliary_half` and `auxiliary_double` controls are included in batch 02. Only AtCoder/full/231 has no submitted output in the independent roster; BCB/full/231 has two distinct completed attempts pending provenance. See [the latest review](FOLLOWUP_RESULTS_REVIEW.md).
+The control tracker now has **all 20 of 20 controls verified complete**, or 21 seed42 arms including full. The newest `without_graph`, `auxiliary_half` and `auxiliary_double` controls are included in batch 02. All 19 independent-roster identities now have completed evidence; BCB/full/231 has two distinct completed attempts pending provenance. See [the latest review](FOLLOWUP_RESULTS_REVIEW.md).
 
 | Condition | Validation Accuracy | Validation F1 | Epochs / best | Parameters | Recorded hours |
 | --- | ---: | ---: | ---: | ---: | ---: |

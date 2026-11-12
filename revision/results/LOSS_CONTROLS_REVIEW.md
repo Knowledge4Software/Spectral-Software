@@ -33,6 +33,6 @@ AUROC/AP were checked for finite values and valid ranges; independent reproducti
 
 All 20 controls are complete. The new `without_graph`, `auxiliary_half` and `auxiliary_double` outputs passed 108 checks; their F1 scores are 79.76%, 80.61% and 79.19%, respectively, versus full 80.22%. They retain Accuracy-based checkpoint/threshold selection and remain single-seed comparisons. See [the latest review](FOLLOWUP_RESULTS_REVIEW.md) and batch 02 `validation_summary.csv` for the complete 21-arm table.
 
-The independent queue now has only AtCoder/full/231 without submitted output. BCB/full/231 has two completed attempts pending provenance; no representative is selected. Expensive baseline/transfer work is separate.
+The independent queue now has zero fresh launches; AtCoder/full/231 is complete with F1 47.43%. BCB/full/231 has two completed attempts pending provenance; no representative is selected. Expensive baseline/transfer work is separate.
 
 The seven-loss combined evidence remains batch 02 `_audit/loss_controls_seed42_audit.json`; final three controls are in `_audit/final_three_controls_2026-11-12_audit.json`. Original audit snapshots and ZIPs are preserved.

@@ -8,9 +8,9 @@ verified local output, not that a job is idle or has never started.
 | `run_progress.csv` | 18 / 29 baseline/full seed-42 jobs | Four incomplete; seven without submitted output. |
 | `control_progress.csv` | 20 / 20 CodeNet seed-42 controls | Complete; no control reruns needed. |
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
-| `selected_followup_progress.csv` | 2 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; AtCoder/231 has no output. |
+| `selected_followup_progress.csv` | 3 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; all four identities have completed evidence. |
 
-The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) contains only AtCoder/full/231 without a supplied output. The other 18 of 19 job identities have completed evidence; BCB/full/231 has two distinct completed attempts, so its representative remains unresolved and excluded from seed averages. Check Kaggle before launching duplicates. External baselines and transfer remain separate work.
+The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has **zero fresh launches**. All 19 planned independent job identities have completed evidence; BCB/full/231 has two distinct attempts pending provenance, excluded from seed averages. AtCoder/full/231 completed with F1 47.43% and AUROC 0.5125; both extra AtCoder seeds performed poorly. Investigate before scheduling further training. External baselines and transfer remain separate work.
 
 ## Read the evidence
 

@@ -3,7 +3,7 @@
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
 - **[RUN_NEXT_INDEPENDENT_BATCH.md](RUN_NEXT_INDEPENDENT_BATCH.md)**:
-  The original 19-job roster has completed evidence for 18 job identities; BCB/full/231 has two distinct attempts pending provenance. Only AtCoder/full/231 has no submitted output. All 20 CodeNet seed42 controls are complete.
+  The original 19-job roster has completed evidence for all 19 job identities; BCB/full/231 has two distinct attempts pending provenance. No fresh launches remain. All 20 CodeNet seed42 controls are complete.
   Includes an estimate for every notebook and exact dataset/version links.
   `next_independent_roster.csv` retains all 19; `next_independent_run_queue.csv`
   excludes jobs already reported running/complete. Use the linked numerical-fix

@@ -1,6 +1,6 @@
 # Next independent batch: controls and full-model repeats
 
-**1 fresh jobs ready from a 19-job preplanned roster.** All 12 CodeNet core repeats are complete; do not repeat them.
+**0 fresh jobs ready from a 19-job preplanned roster.** All 12 CodeNet core repeats are complete; do not repeat them.
 
 The original roster contains 15 CodeNet seed-42 controls and four full-model repeats on AtCoder/BigCloneBench. Verified completions are excluded from the fresh list below. All were already in the revision plan. The four full repeats are independent of external-finalist selection. The other selected external repeats and transfer study still wait for completed baseline screening. Nothing is selected using test results.
 
@@ -8,7 +8,6 @@ The original roster contains 15 CodeNet seed-42 controls and four full-model rep
 
 | Slot | Dataset | Condition | Seed | Hours per notebook | Notebook |
 | ---: | --- | --- | ---: | --- | --- |
-| 17 | atcoder | full | 231 | 2-6 | [atcoder_full_seed231_validation_recovery.ipynb](../03_selected_repeats/atcoder/validation_recovery/atcoder_full_seed231_validation_recovery.ipynb) |
 
 Multiple completed attempts need provenance review: bigclonebench_full_seed231. These jobs are excluded from fresh launches and seed averages; do not select an attempt by its score. See [the follow-up review](../results/FOLLOWUP_RESULTS_REVIEW.md).
 
@@ -32,7 +31,7 @@ AtCoder full/42 took 4.00h for 60 epochs, with 3.96h training/validation. Its ex
 
 Each session still has a 10h internal budget with a 45-minute reserve (work stops around 9h15). Keep the 100-epoch ceiling, minimum 10 and patience 10. Numerical retries or slower hardware can require another session; preserve progress rather than shortening the schedule. Each job's own runtime forecast becomes more informative after its first completed epochs.
 
-The 1 listed jobs require 1 GPU-job slots; account for any other active jobs within your 24-slot limit. Check existing Kaggle jobs before starting duplicates. Allow roughly 8-10h for the parallel batch if no job needs continuation; this is not an estimate for completing the entire revision.
+No fresh launches remain in this independent roster. The timing ranges above describe the original plan; no additional GPU time is requested here. Resolve any duplicate-attempt provenance before computing seed averages. External baselines and transfer remain separate work.
 
 ## Modern baselines are still pending
 

@@ -8,7 +8,7 @@ ZIP packets are optional copies for transport; extraction is not required here.
 
 **[All 20 CodeNet controls are verified complete](results/README.md).** All 12 CodeNet core repeats are also complete. The latest seven uploads passed 252/252 checks. Reuse completed results; final tests remain off.
 
-**[Only AtCoder/full/231 has no submitted output in the independent roster](queues/RUN_NEXT_INDEPENDENT_BATCH.md).** Two distinct BCB/full/231 attempts are preserved pending provenance; neither is selected for a seed average. AtCoder/full/123 completed with weak F1 56.10%, which is retained. See [the follow-up review](results/FOLLOWUP_RESULTS_REVIEW.md). Older baseline and transfer work remains separate.
+**[No fresh launches remain in the independent roster](queues/RUN_NEXT_INDEPENDENT_BATCH.md).** All 19 job identities have completed evidence. Two distinct BCB/full/231 attempts remain pending provenance; neither is selected for a seed average. AtCoder/full/123 and /231 completed with weak F1 56.10% and 47.43%; both are retained. See [the follow-up review](results/FOLLOWUP_RESULTS_REVIEW.md). Diagnose this instability before more training. Older baseline and transfer work remains separate.
 
 The current uploads are in `../data/benchmarks/`; unpacked audit copies are in
 `../data/working/revision/`. Original paper inputs/results are grouped under
@@ -30,7 +30,7 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
 | [01_baselines_seed42](01_baselines_seed42/README.md) | Original 29-job roster; consult tracker before starting a job |
 | [02_controls_seed42](02_controls_seed42/README.md) | All 20 CodeNet controls verified complete |
-| [03_selected_repeats](03_selected_repeats/README.md) | All 12 core repeats complete; follow-up ambiguity and one missing output |
+| [03_selected_repeats](03_selected_repeats/README.md) | All 12 core repeats complete; all full-repeat identities supplied; BCB/231 provenance unresolved |
 | [04_transfer](04_transfer/README.md) | Later: generate the focused conditions after choosing comparators |
 | [05_analysis](05_analysis/README.md) | Validation screening, spectral diagnostics and paired uncertainty |
 | [datasets](datasets/README_FA.md) | Exact dataset versions, checksums and reuse rules |

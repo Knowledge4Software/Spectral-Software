@@ -28,8 +28,8 @@ Use [the dataset index](../../data/benchmarks/README.md) for uploads and
 [the result index](../../outputs/revesion/README.md) for returned ZIPs.
 Batch 02 has [one current summary](../../outputs/revesion/02/RESULTS_REVIEW.md)
 and [a CSV of all 21 completed seed-42 reference/control results](../../outputs/revesion/02/validation_summary.csv).
-The [independent queue](queues/RUN_NEXT_INDEPENDENT_BATCH.md) lists only AtCoder/full/231
-without submitted output; check Kaggle for live jobs before launching duplicates.
+The [independent queue](queues/RUN_NEXT_INDEPENDENT_BATCH.md) has zero fresh launches. All 19 job identities have completed evidence; BCB/231
+has two distinct attempts awaiting provenance review.
 
 The `revesion` spelling remains for compatibility with existing analysis paths.
 Current Kaggle uploads need no rename, rebuild or replacement. Raw metadata and

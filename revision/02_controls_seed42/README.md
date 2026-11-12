@@ -6,7 +6,7 @@ input-v2 full model they form the completed seed-42 six-cell core. Reuse them.
 All 12 core repeats are verified complete, including the seed-123 fresh restart.
 **All five additional graph/descriptor controls are [verified complete](../results/ARCHITECTURE_CONTROLS_REVIEW.md)**:
 projected AST+DDG, projected AST, projected DDG, energy-only and density/heat-only.
-**All 20 CodeNet seed42 controls are now complete.** The latest `without_graph`, `auxiliary_half` and `auxiliary_double` outputs passed all 108 checks. No further control launch or continuation is needed. Consult [the current results](../results/README.md) and `../results/control_progress.csv`. The [independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) now contains only the unreported AtCoder/full/231 follow-up.
+**All 20 CodeNet seed42 controls are now complete.** The latest `without_graph`, `auxiliary_half` and `auxiliary_double` outputs passed all 108 checks. No further control launch or continuation is needed. Consult [the current results](../results/README.md) and `../results/control_progress.csv`. The [independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) now has zero fresh launches; all full-repeat identities also have completed evidence.
 
 Use the **updated input-v2 notebooks** in [the current run list](../queues/RUN_NOW_INPUT_V2.md).
 CodeNet/full/42 with that corrected input is now verified complete; reuse it.
