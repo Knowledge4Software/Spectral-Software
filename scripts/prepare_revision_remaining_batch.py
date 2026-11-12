@@ -141,6 +141,7 @@ def prepare(root=None):
                  "Run independently of the CodeNet classification-only/123 restart; do not launch a duplicate of any live job.")
     _write_csv(base/"queues/next_independent_roster.csv", jobs, list(jobs[0]))
     _write_csv(base/"queues/next_independent_run_queue.csv", fresh, list(jobs[0]))
+    ambiguous = [r["job_id"] for r in followups if r["status"] == "complete_verified_selection_pending"]
     lines = ["# Next independent batch: controls and full-model repeats", "",
              f"**{len(fresh)} fresh jobs ready from a 19-job preplanned roster.** {core_note}", "",
              "The original roster contains 15 CodeNet seed-42 controls and four full-model repeats on AtCoder/BigCloneBench. Verified completions are excluded from the fresh list below. All were already in the revision plan. The four full repeats are independent of external-finalist selection. The other selected external repeats and transfer study still wait for completed baseline screening. Nothing is selected using test results.", "",
@@ -149,6 +150,8 @@ def prepare(root=None):
              "| ---: | --- | --- | ---: | --- | --- |"]
     for j in fresh:
         lines.append(f"| {j['slot']} | {j['dataset']} | {j['arm']} | {j['seed']} | {j['estimated_hours_low']}-{j['estimated_hours_high']} | [{Path(j['notebook']).name}](../{j['notebook']}) |")
+    if ambiguous:
+        lines += ["", "Multiple completed attempts need provenance review: " + ", ".join(ambiguous) + ". These jobs are excluded from fresh launches and seed averages; do not select an attempt by its score. See [the follow-up review](../results/FOLLOWUP_RESULTS_REVIEW.md)."]
     lines += ["", "The 15 CodeNet controls address spectral attribution, learned/projected graph views, descriptor components, loss contributions and coarse auxiliary-weight sensitivity (especially R6.2/R6.5). Full-model repeats measure variability beyond CodeNet; they do not prove superiority or complete baseline comparisons.", "",
               "## Inputs and settings", "", "Reuse the existing uploads; no dataset rebuild or upload is needed:", "",
               "- CodeNet controls: `codenet_revision_common_support.zip`.",

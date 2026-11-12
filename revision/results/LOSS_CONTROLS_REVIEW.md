@@ -1,6 +1,6 @@
 # CodeNet loss controls: seven verified loss-ablation runs
 
-**All seven audited seed-42 loss uploads passed 252/252 checks and stopped normally on validation patience.** The control tracker now has 17 of 20 controls complete; three controls still have no submitted output. Final tests remain off.
+**All seven audited seed-42 loss uploads passed 252/252 checks and stopped normally on validation patience.** The control tracker now has all 20 controls complete, including the three additions reviewed on 2026-11-12 below. Final tests remain off.
 
 | Condition | Validation Accuracy | Validation F1 | Change from full, Accuracy points | Epochs / best | Recorded hours |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -29,12 +29,10 @@ Current/best weights strictly load. Weights, optimizer/scaler/history values are
 
 AUROC/AP were checked for finite values and valid ranges; independent reproduction requires validation predictions. Timings are single-run compute measurements with the recorded benchmark scope, not uncertainty estimates. No new training or final-test evaluation was performed.
 
-## Still awaiting outputs
+## Latest status: 2026-11-12
 
-- `without_graph`
-- `auxiliary_half`
-- `auxiliary_double`
+All 20 controls are complete. The new `without_graph`, `auxiliary_half` and `auxiliary_double` outputs passed 108 checks; their F1 scores are 79.76%, 80.61% and 79.19%, respectively, versus full 80.22%. They retain Accuracy-based checkpoint/threshold selection and remain single-seed comparisons. See [the latest review](FOLLOWUP_RESULTS_REVIEW.md) and batch 02 `validation_summary.csv` for the complete 21-arm table.
 
-The four AtCoder/BigCloneBench full-model repeats are tracked separately. The original independent 19-job roster now has 12 verified completions and seven jobs without local output. Check Kaggle for live jobs before launching duplicates.
+The independent queue now has only AtCoder/full/231 without submitted output. BCB/full/231 has two completed attempts pending provenance; no representative is selected. Expensive baseline/transfer work is separate.
 
-Exact notebooks: [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md). The combined local evidence is batch 02 `_audit/loss_controls_seed42_audit.json` with its rename manifest. The new per-upload evidence is `_audit/topology_reconstruction_seed42_audit.json`; the original six-run snapshot is retained under `_audit/history/`.
+The seven-loss combined evidence remains batch 02 `_audit/loss_controls_seed42_audit.json`; final three controls are in `_audit/final_three_controls_2026-11-12_audit.json`. Original audit snapshots and ZIPs are preserved.

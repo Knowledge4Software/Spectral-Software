@@ -8,10 +8,7 @@ failed attempt remains historical. [No launch or continuation is needed from the
 The original notebooks remain frozen; reuse all 12 complete results. Model/loss/training settings and final-test hold remain
 unchanged. These twelve jobs are part of the 28-run follow-up below.
 
-Four more prespecified full-model repeats are now [ready independently](../queues/RUN_NEXT_INDEPENDENT_BATCH.md):
-AtCoder and BigCloneBench with seeds 123 and 231. Use the linked numerical-fix
-copies. Bringing these forward does not select external finalists or release tests.
-Their progress is tracked separately in `results/selected_followup_progress.csv`.
+The four cross-benchmark full-model job identities now have two unambiguous completions (AtCoder/123 and BCB/123), two distinct BCB/231 attempts needing provenance review, and one unreported AtCoder/231 output. See [the detailed review](../results/FOLLOWUP_RESULTS_REVIEW.md) and `results/selected_followup_progress.csv`. Do not repeat completed jobs or select the better seed231 attempt.
 
 Select comparisons using completed seed-42 validation results and the frozen
 [protocol](../00_plan/EXPERIMENT_PROTOCOL.md). Then run only their matching seed

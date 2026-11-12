@@ -6,18 +6,9 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Current: [17 of 20 CodeNet controls are verified complete](results/README.md).**
-The seven loss controls passed [252/252 checks](results/LOSS_CONTROLS_REVIEW.md).
-All [12 core repeats](results/CORE_REPEATS_PROGRESS.md) and the six seed-42 core
-conditions are also complete. Reuse those outputs; final tests remain off.
-The earlier failed classification-only/123 attempt is retained separately.
+**[All 20 CodeNet controls are verified complete](results/README.md).** All 12 CodeNet core repeats are also complete. The latest seven uploads passed 252/252 checks. Reuse completed results; final tests remain off.
 
-**[Seven independent jobs have no submitted output](queues/RUN_NEXT_INDEPENDENT_BATCH.md):**
-three CodeNet controls (`without_graph`,
-`auxiliary_half`, `auxiliary_double`) and four AtCoder/BigCloneBench full-model
-repeats. Twelve jobs from the original 19-job roster are verified complete.
-Check Kaggle for live jobs before launching duplicates. The older baseline
-roster separately has 18 complete, four incomplete and seven unreported jobs.
+**[Only AtCoder/full/231 has no submitted output in the independent roster](queues/RUN_NEXT_INDEPENDENT_BATCH.md).** Two distinct BCB/full/231 attempts are preserved pending provenance; neither is selected for a seed average. AtCoder/full/123 completed with weak F1 56.10%, which is retained. See [the follow-up review](results/FOLLOWUP_RESULTS_REVIEW.md). Older baseline and transfer work remains separate.
 
 The current uploads are in `../data/benchmarks/`; unpacked audit copies are in
 `../data/working/revision/`. Original paper inputs/results are grouped under
@@ -38,8 +29,8 @@ explain how to retain checkpoints on Kaggle while sending small validation repor
 | --- | --- |
 | [00_plan](00_plan/README.md) | Full roadmap, Persian plan, protocol and reviewer coverage |
 | [01_baselines_seed42](01_baselines_seed42/README.md) | Original 29-job roster; consult tracker before starting a job |
-| [02_controls_seed42](02_controls_seed42/README.md) | Five central controls verified; 15 other planned controls remain |
-| [03_selected_repeats](03_selected_repeats/README.md) | All 12 core repeats complete; four cross-benchmark repeats still unreported |
+| [02_controls_seed42](02_controls_seed42/README.md) | All 20 CodeNet controls verified complete |
+| [03_selected_repeats](03_selected_repeats/README.md) | All 12 core repeats complete; follow-up ambiguity and one missing output |
 | [04_transfer](04_transfer/README.md) | Later: generate the focused conditions after choosing comparators |
 | [05_analysis](05_analysis/README.md) | Validation screening, spectral diagnostics and paired uncertainty |
 | [datasets](datasets/README_FA.md) | Exact dataset versions, checksums and reuse rules |

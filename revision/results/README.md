@@ -1,21 +1,20 @@
 # Current revision results and remaining work
 
-Updated 2026-11-11. CSV trackers are authoritative; `not_reported` means no
+Updated 2026-11-12. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
 | Tracker | Verified complete | Other status |
 | --- | ---: | --- |
 | `run_progress.csv` | 18 / 29 baseline/full seed-42 jobs | Four incomplete; seven without submitted output. |
-| `control_progress.csv` | 17 / 20 CodeNet seed-42 controls | Three without submitted output. |
+| `control_progress.csv` | 20 / 20 CodeNet seed-42 controls | Complete; no control reruns needed. |
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
-| `selected_followup_progress.csv` | 0 / 4 AtCoder/BigCloneBench full repeats | Four without submitted output. |
+| `selected_followup_progress.csv` | 2 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; AtCoder/231 has no output. |
 
-The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) contains
-seven jobs without local outputs: three controls plus four full repeats. Check
-Kaggle for active jobs before starting duplicates. Earlier baseline continuations
-and unreported external baselines are a separate roster.
+The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) contains only AtCoder/full/231 without a supplied output. The other 18 of 19 job identities have completed evidence; BCB/full/231 has two distinct completed attempts, so its representative remains unresolved and excluded from seed averages. Check Kaggle before launching duplicates. External baselines and transfer remain separate work.
 
 ## Read the evidence
+
+- [New controls and cross-benchmark follow-ups](FOLLOWUP_RESULTS_REVIEW.md): all seven uploads passed 252 checks; weak AtCoder/123 retained, two BCB/231 attempts preserved.
 
 - [Seven loss controls](LOSS_CONTROLS_REVIEW.md): 252/252 checks passed; small
   improvements after removing some terms do not establish universal loss necessity.

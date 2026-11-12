@@ -11,8 +11,8 @@
 | --- | --- |
 | شش حالت اصلی CodeNet با seed=42 | کامل؛ نتایج قبلی را استفاده کن |
 | همان شش حالت با seedهای 123 و 231 | هر ۱۲ تکرار کامل؛ هستهٔ اصلی مجموعاً ۱۸ نتیجه دارد |
-| کنترل‌های seed=42 | ۱۷ مورد از ۲۰ کنترل کامل؛ سه خروجی loss/weight هنوز ارسال نشده |
-| full روی AtCoder و BigCloneBench با seedهای 123 و 231 | چهار خروجی هنوز ارسال نشده |
+| کنترل‌های seed=42 | هر ۲۰ کنترل کامل؛ خروجی دیگری برای این مرحله لازم نیست |
+| full روی AtCoder و BigCloneBench با seedهای 123 و 231 | AtCoder/123 و BCB/123 کامل؛ BCB/231 دو اجرای متفاوت دارد؛ فقط AtCoder/231 نرسیده |
 | صف اولیهٔ ۲۹ baseline/full | ۱۸ کامل، چهار ناقص و هفت مورد بدون خروجی ارسالی |
 
 [گزارش هفت کنترل loss](results/LOSS_CONTROLS_REVIEW.md)،
@@ -27,9 +27,10 @@
 
 ## چه خروجی‌هایی هنوز ارسال نشده؟
 
-- CodeNet، همگی seed=42: `without_graph`،
-  `auxiliary_half` و `auxiliary_double`.
-- AtCoder/full و BigCloneBench/full، هرکدام seedهای 123 و 231.
+- در صف مستقل فقط AtCoder/full/seed231 هنوز خروجی ندارد؛ قبل از شروع، اجرای قبلی Kaggle را بررسی کن.
+- دو فایل BCB/full/seed231 با F1 برابر 92.00٪ و 92.84٪ متفاوت‌اند؛ هر دو حفظ شده‌اند و تا روشن‌شدن سابقهٔ اجرا، هیچ‌کدام نمایندهٔ این seed نیست.
+- AtCoder/full/seed123 با F1 برابر 56.10٪ کامل شده؛ ضعیف‌بودن نتیجه به‌تنهایی مجوز حذف یا جایگزینی آن نیست.
+- هر ۲۰ کنترل CodeNet کامل است. [گزارش جدید](results/FOLLOWUP_RESULTS_REVIEW.md) جزئیات را دارد.
 - baselineهای قدیمی‌تر، همگی seed=42: AtCoder شامل CodeBERT، C4-adapted، CDLH و Qwen؛
   BigCloneBench شامل CodeBERT، CDLH و Qwen.
 

@@ -2,7 +2,7 @@
 
 **All five new input-v2 controls are complete and verified. All 175 new checks passed. Together with the already completed full model, the six-condition core is complete for seed 42. None needs continuation or a seed-42 rerun.**
 
-**Current batch status:** [17/20 controls are verified](README.md), including [seven loss controls](LOSS_CONTROLS_REVIEW.md). All [12 core repeats](CORE_REPEATS_PROGRESS.md) are also complete. The seed-42 evidence and batch counts below describe the original core audit.
+**Current batch status:** [20/20 controls are verified](README.md), including [seven loss controls](LOSS_CONTROLS_REVIEW.md). All [12 core repeats](CORE_REPEATS_PROGRESS.md) are also complete. The seed-42 evidence and batch counts below describe the original core audit.
 
 The five ZIPs in `C:\PyProjects\spectrals\outputs\revesion\02` were renamed by dataset, arm, seed, input version and status. All archive hashes were preserved. The reference full model remains in batch `01`; its old input-v1 result is not used.
 
