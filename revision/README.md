@@ -2,6 +2,11 @@
 
 **[Start here: English guide for the next analysis runs](05_analysis/continuation/README.md)**
 
+**Next requires Kaggle:** [six matched AtCoder F1 confirmation jobs](06_atcoder_confirmation_v1/README.md).
+The additional local healthy-seed/FP32 controls completed in 4m44s; objective
+effects vary by seed and FP32 did not rescue the tiny seed231 case. The six
+full-data jobs are prepared, not run. Use the existing AtCoder v2 dataset only.
+
 **[از اینجا شروع کن — راهنمای فارسی](START_HERE_FA.md)**
 
 This is the single workspace for the new reviewer-response experiments.

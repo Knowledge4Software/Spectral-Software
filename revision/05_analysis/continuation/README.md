@@ -2,6 +2,12 @@
 
 [Persian guide](README_FA.md)
 
+**Next work is on Kaggle:** [full-data AtCoder objective confirmation](../../06_atcoder_confirmation_v1/README.md).
+The follow-up local controls finished in 4m44s. [Their results](../../results/ATCODER_LEARNING_CONTROLS.md)
+show seed-dependent objective effects and no tiny-probe rescue from FP32.
+The six new full-data jobs need hours, exceed the local ten-minute limit,
+and require only the existing AtCoder v2 dataset.
+
 **AtCoder tiny learning probe completed locally:** four fresh diagnostic cases,
 60 updates each, finished in **5m39s**. [Results and limitations](../../results/ATCODER_LEARNING_PROBE.md)
 are separate from the main experiments. No Kaggle rerun is needed for this probe.

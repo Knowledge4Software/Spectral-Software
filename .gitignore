@@ -120,6 +120,8 @@ revision/results/*
 !revision/results/FOLLOWUP_RESULTS_REVIEW.md
 !revision/results/CHECKPOINT_REVIEW_RESULTS.md
 !revision/results/ATCODER_LEARNING_PROBE.md
+!revision/results/ATCODER_LEARNING_CONTROLS.md
+!revision/results/atcoder_confirmation_progress.csv
 !revision/results/learning_probe_progress.csv
 !revision/results/checkpoint_review_progress.csv
 !revision/results/control_progress.csv

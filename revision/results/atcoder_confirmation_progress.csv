@@ -1,0 +1,7 @@
+job_id,status,evidence,selection_metric,test_evaluated,notes
+atcoder_full_seed42_f1_confirmation_v1,ready_not_run,,F1,False,Fresh matched objective confirmation; old Accuracy checkpoints cannot be resumed into this phase
+atcoder_classification_only_seed42_f1_confirmation_v1,ready_not_run,,F1,False,Fresh matched objective confirmation; old Accuracy checkpoints cannot be resumed into this phase
+atcoder_full_seed123_f1_confirmation_v1,ready_not_run,,F1,False,Fresh matched objective confirmation; old Accuracy checkpoints cannot be resumed into this phase
+atcoder_classification_only_seed123_f1_confirmation_v1,ready_not_run,,F1,False,Fresh matched objective confirmation; old Accuracy checkpoints cannot be resumed into this phase
+atcoder_full_seed231_f1_confirmation_v1,ready_not_run,,F1,False,Fresh matched objective confirmation; old Accuracy checkpoints cannot be resumed into this phase
+atcoder_classification_only_seed231_f1_confirmation_v1,ready_not_run,,F1,False,Fresh matched objective confirmation; old Accuracy checkpoints cannot be resumed into this phase

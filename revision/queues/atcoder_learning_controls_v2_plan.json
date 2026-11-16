@@ -1,0 +1,30 @@
+{
+  "version": "atcoder_tiny_learning_controls_v2",
+  "cases": [
+    {
+      "seed": 42,
+      "objective": "full",
+      "amp": true
+    },
+    {
+      "seed": 42,
+      "objective": "classification_only",
+      "amp": true
+    },
+    {
+      "seed": 231,
+      "objective": "full",
+      "amp": false
+    }
+  ],
+  "steps": 60,
+  "train_pairs": 64,
+  "valid_pairs": 256,
+  "sample_seed": 9173,
+  "local_seconds_cap": 540,
+  "source_sha256": "e98a3e5cc8b426e3805f79f0ef97f1cd79103d7ea2ef89f1bab7b09d58d4c721",
+  "purpose": "Healthy-seed control and precision control; compare seed231 FP32 against retained v1 AMP counterpart; not benchmark repair",
+  "status": "complete_verified_local",
+  "wall_seconds": 284.35899999999674,
+  "evidence": "../outputs/revesion/05/atcoder_learning_controls_v2_local/probe_status.json"
+}

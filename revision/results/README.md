@@ -3,6 +3,12 @@
 Updated 2026-11-16. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
+**Kaggle handoff:** [six fresh AtCoder full/classification-only F1 jobs](../06_atcoder_confirmation_v1/README.md),
+all three seeds and a common prospective F1-selection policy. They remain unrun.
+[The extra local controls](ATCODER_LEARNING_CONTROLS.md) completed in 4m44s:
+healthy-seed ordering reversed the v1 objective ordering, and FP32 did not
+rescue seed231. This supports matched full-data confirmation, not a declared fix.
+
 **AtCoder tiny training diagnostic also completed locally in 5m39s:**
 [four matched fresh cases](ATCODER_LEARNING_PROBE.md) show stronger tiny-sample
 learning without auxiliary losses, but no case met the strict prespecified
@@ -17,6 +23,7 @@ memorization criterion. These are diagnostic results, not repaired benchmark sco
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
 | `selected_followup_progress.csv` | 3 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; all four identities have completed evidence. |
 | `checkpoint_review_progress.csv` | 4 / 4 analysis goals complete | Three CodeNet seeds reviewed in one local environment; AtCoder diagnostics retained; CPU collector complete locally. |
+| `atcoder_confirmation_progress.csv` | 0 / 6 new F1 confirmation jobs | Prepared for Kaggle; separate from all original runs and tiny diagnostics. |
 
 The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has **zero fresh launches**. All 19 planned independent job identities have completed evidence; BCB/full/231 has two distinct attempts pending provenance, excluded from seed averages. AtCoder/full/231 completed with F1 47.43% and AUROC 0.5125; both extra AtCoder seeds performed poorly. Investigate before scheduling further training. External baselines and transfer remain separate work.
 

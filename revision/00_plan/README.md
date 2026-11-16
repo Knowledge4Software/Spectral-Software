@@ -1,5 +1,9 @@
 # Revision documentation
 
+**Next: [AtCoder F1 confirmation on Kaggle](../06_atcoder_confirmation_v1/README.md).**
+Six fresh matched jobs are prepared. All local checkpoint reviews and both
+short diagnostic phases are complete; no full-data confirmation has run yet.
+
 For execution start with [the Persian workspace guide](../START_HERE_FA.md)
 and [the current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md). The CodeNet/full checkpoint
 is verified complete; reuse it. Original roadmap dates and checklists are retained below

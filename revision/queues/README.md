@@ -49,3 +49,5 @@ available for reproduction; see [the current results](../results/CHECKPOINT_REVI
 The launch allocation is a planning aid. Update [results/run_progress.csv](../results/run_progress.csv)
 as outputs arrive. Machine validation uses actual `status.json`, not this manual
 tracker. A model that reaches the session guard needs continuation before ranking.
+
+- **Next Kaggle batch:** [AtCoder F1 confirmation v1](../06_atcoder_confirmation_v1/README.md), six fresh training jobs in `atcoder_f1_confirmation_v1.csv`; original source snapshots and old runs remain unchanged. `atcoder_f1_confirmation_v1.json` pins all training notebooks and their CPU collector. These six jobs are registered but unrun.
