@@ -2,7 +2,7 @@
 
 | Work | Evidence now | Next action |
 | --- | --- | --- |
-| Readout attribution / reviewer 6 | All six CodeNet core conditions x three seeds complete; consistent spectral superiority is not established | Seed42 F1 verified (spectral 80.69%, mean/max 80.61% with auxiliary losses); await seed123/231 analysis outputs |
+| Readout attribution / reviewer 6 | All six CodeNet core conditions x three seeds complete; consistent spectral superiority is not established | All 18 reviewed locally; mean F1 full 80.46%, mean/max 80.59% with auxiliaries; no demonstrated spectral advantage |
 | Auxiliary-loss contribution | All 20 CodeNet seed42 controls complete; some loss removals outperform full | Retain every result and narrow necessity claims; no further weight search scheduled |
 | AtCoder robustness | Full/123 and /231 near chance; full/42 substantially higher | Diagnosis complete: both weak seeds are also near chance on a fixed train sample, with near-constant scores and low-rank descriptors; investigate training before changes |
 | BCB repeated results | Full/123 complete; user confirmed accidental repeat of full/231 | Preserve both as one seed; primary attempt unspecified, neither selected by score; no new run needed |
@@ -13,9 +13,7 @@
 | Final tests / uncertainty | Final tests remain off | Freeze design, then evaluate matched sets with fixed thresholds and dependent-pair uncertainty |
 | Manuscript and reviewer response | Current results limit strong superiority/generalization claims | Rewrite from completed revised evidence; disclose derived BCB support, adaptations, failed attempts and protocol changes |
 
-**Current:** two GPU analyses verified complete (AtCoder and CodeNet/42); await CodeNet/123 and /231 reports, followed by the CPU collector in
-[the continuation guide](../05_analysis/continuation/README.md). The detailed findings are in [the reviewed results](../results/CHECKPOINT_REVIEW_RESULTS.md). No new training experiment or architecture change
-has been scheduled as part of this analysis batch.
+**Current:** the CodeNet three-seed checkpoint review and CPU collector completed locally; AtCoder diagnostics were already verified. No additional Kaggle F1 or collector run is needed. See [the reviewed results](../results/CHECKPOINT_REVIEW_RESULTS.md). AtCoder training/representation checks and the remaining external-baseline/transfer work remain separate gates.
 
 Analysis reports go under `../outputs/revesion/04_checkpoint_review` relative to
 the repository root. [The registered analysis plan](F1_CHECKPOINT_REASSESSMENT.md)

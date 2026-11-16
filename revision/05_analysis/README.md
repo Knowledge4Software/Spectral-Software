@@ -1,8 +1,6 @@
 # Analysis and final evaluation
 
-**Reviewed 2026-11-16:** [AtCoder and CodeNet F1 seed42](../results/CHECKPOINT_REVIEW_RESULTS.md)
-are complete. Await CodeNet seed123/231 analysis outputs before the CPU
-collector; do not rerun the two verified analyses.
+**Complete 2026-11-16:** [all 18 CodeNet checkpoint reviews and the CPU collector](../results/CHECKPOINT_REVIEW_RESULTS.md) ran locally in a shared RTX3060 environment. AtCoder diagnostic reports remain the earlier verified Kaggle results. No additional Kaggle analysis or collector run is needed for this batch.
 
 The [checkpoint review and F1 reassessment guide](continuation/README.md)
 lists all original inputs and notebooks.

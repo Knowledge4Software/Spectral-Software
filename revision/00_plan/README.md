@@ -5,7 +5,9 @@ and [the current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md). Th
 is verified complete; reuse it. Original roadmap dates and checklists are retained below
 as planning history, while the protocol and current guide describe execution.
 
-**Run next:** [four checkpoint-review inference notebooks, then a CPU collector](../05_analysis/continuation/README.md).
+**Checkpoint review complete:** [all 18 CodeNet models and the collector ran locally](../results/CHECKPOINT_REVIEW_RESULTS.md).
+The [reproduction guide](../05_analysis/continuation/README.md) includes the local CUDA command.
+No additional Kaggle F1 or collector run is needed; use the continuation gates below for the remaining work.
 The [independent training roster](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has completed
 evidence for all 19 identities; BCB/231 has two distinct attempts pending provenance.
 All 20 CodeNet controls and 12 core repeats are complete. Final tests stay off.

@@ -2,6 +2,11 @@
 
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
+**2026-11-16 update:** all 18 CodeNet checkpoint reviews and the CPU collector
+completed locally. AtCoder diagnostics were already verified. No additional
+Kaggle checkpoint-review job is needed. The notebook manifests below remain
+available for reproduction; see [the current results](../results/CHECKPOINT_REVIEW_RESULTS.md).
+
 - **[Checkpoint review: run next](../05_analysis/continuation/README.md)**:
   four GPU inference jobs, then one CPU collector. `checkpoint_review_notebooks.csv`
   pins the five new notebooks; `checkpoint_review_inputs.csv` maps each of 21

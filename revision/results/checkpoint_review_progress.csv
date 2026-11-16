@@ -1,6 +1,6 @@
 notebook,status,evidence,test_evaluated,notes
 05_analysis/continuation/01_atcoder_diagnosis.ipynb,complete_verified,../outputs/revesion/05/01_atcoder_diagnosis_complete.zip,False,Six completed weight views verified; all metrics recomputed from predictions; no training or final tests. Received 2026-11-16.
-05_analysis/continuation/02_codenet_f1_seed42.ipynb,complete_verified,../outputs/revesion/05/02_codenet_f1_seed42_complete.zip,False,Six completed weight views verified; all metrics recomputed from predictions; no training or final tests. Received 2026-11-16.
-05_analysis/continuation/02_codenet_f1_seed123.ipynb,ready_not_run,,False,Read-only validation analysis; reuse pinned checkpoints
-05_analysis/continuation/02_codenet_f1_seed231.ipynb,ready_not_run,,False,Read-only validation analysis; reuse pinned checkpoints
-05_analysis/continuation/03_collect_review_reports.ipynb,waiting_for_reports,,False,Run after the four GPU analysis outputs are available
+05_analysis/continuation/02_codenet_f1_seed42.ipynb,complete_verified_local,../outputs/revesion/05/local_codenet_f1_seeds42_123_231,False,All 18 CodeNet checkpoints reviewed in one local environment; original Kaggle seed42 retained; no training/final tests.
+05_analysis/continuation/02_codenet_f1_seed123.ipynb,complete_verified_local,../outputs/revesion/05/local_codenet_f1_seeds42_123_231,False,All 18 CodeNet checkpoints reviewed in one local environment; original Kaggle seed42 retained; no training/final tests.
+05_analysis/continuation/02_codenet_f1_seed231.ipynb,complete_verified_local,../outputs/revesion/05/local_codenet_f1_seeds42_123_231,False,All 18 CodeNet checkpoints reviewed in one local environment; original Kaggle seed42 retained; no training/final tests.
+05_analysis/continuation/03_collect_review_reports.ipynb,complete_verified_local,../outputs/revesion/05/local_review_collection/collection_status.json,False,CPU collector completed locally: 18 local CodeNet reports and six verified Kaggle AtCoder views.

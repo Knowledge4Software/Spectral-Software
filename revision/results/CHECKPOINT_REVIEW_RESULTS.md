@@ -1,4 +1,40 @@
+# Local CodeNet checkpoint review: 2026-11-16
+
+All **18 CodeNet core checkpoints** (six conditions x seeds42/123/231) were evaluated locally on the RTX3060 Laptop GPU. All weights and datasets were reused. No training updates or final-test predictions were made. The CPU collector also completed using these local core reports and the previously verified Kaggle AtCoder diagnostics, analyzed separately by dataset.
+
+The laptop used Torch2.5.1+cu121; Kaggle used Torch2.11.0+cu130. All 18 core reports share the same local environment. The original Kaggle seed42 reports are retained separately. Checkpoint epochs are still Accuracy-selected; F1 thresholds below were fitted post hoc on validation, not selected on held-out tests.
+
+| Condition | Seed42 F1 | Seed123 F1 | Seed231 F1 | Mean F1 +/- sample SD |
+| --- | ---: | ---: | ---: | ---: |
+| full | 80.69% | 80.31% | 80.39% | 80.46% +/- 0.20 pp |
+| mean_max | 80.61% | 80.67% | 80.48% | 80.59% +/- 0.10 pp |
+| attention | 79.51% | 79.96% | 79.55% | 79.67% +/- 0.25 pp |
+| classification_only | 79.06% | 81.61% | 81.72% | 80.80% +/- 1.51 pp |
+| mean_max_classification_only | 80.67% | 81.05% | 80.94% | 80.89% +/- 0.19 pp |
+| attention_classification_only | 80.94% | 80.25% | 80.62% | 80.60% +/- 0.35 pp |
+
+Matched spectral-minus-mean/max mean F1 differences are -0.122 percentage points with auxiliaries and -0.090 points with classification only. Sample SD is descriptive, not a confidence interval or significance test. Report all six conditions and all three seeds; no model or seed was selected to favor the spectral branch.
+
+Local/Kaggle seed42 differences: maximum absolute calibrated-F1 difference 0.0074 percentage points; maximum per-pair probability difference 0.00291115. Full values are in `local_vs_kaggle_seed42.csv`. Across all local models, maximum original-threshold F1 drift from saved training metrics is 0.0209 points. Numerical environment differences do not modify the checkpoints.
+
+Total saved per-model evaluation time was 14.58 minutes; mean 48.6 seconds/model. The initial graph read took about 5.6 minutes separately. These inference timings do not estimate training speed.
+
+Validation checked pinned checkpoint identities/hashes, artifact hashes, ordered support, recomputed metrics and F1 thresholds, 18 distinct conditions, a shared core environment and a complete collector status with six AtCoder diagnostic views. No additional Kaggle F1 analysis or collector run is needed for these reports.
+
+Files under `../outputs/revesion/05/`, relative to the repository:
+
+- `local_codenet_f1_seeds42_123_231/`: all local reports and pair predictions.
+- `local_codenet_f1_seeds42_123_231_small_reports.zip`: portable local reports.
+- `local_review_collection/`: complete by-seed results, means/sample SD, paired differences, AtCoder summary and local/Kaggle comparison.
+- `_audit/local_checkpoint_review_verification.json`: validation and environment details.
+
+AtCoder's failed learning remains unresolved. Its earlier diagnostics and all weak outcomes are preserved. Further scientific work needs targeted training/representation checks, remaining baseline/transfer evidence, frozen final tests and manuscript revisions.
+
+---
+
 # Checkpoint-review results received 2026-11-16
+
+Historical intake snapshot: the pending CodeNet/123, /231 and collector actions below were subsequently completed locally, as reported above.
 
 **Two analyses are verified complete: AtCoder diagnosis and CodeNet F1 seed42. All 198 audit checks passed.** No training update, final-test evaluation, missing input, numerical recovery or failed diagnostic probe was reported. Each archive contains six completed weight views: six CodeNet models or best/last weights for three AtCoder seeds.
 

@@ -2,12 +2,7 @@
 
 [Persian guide](README_FA.md)
 
-**Reviewed 2026-11-16:** AtCoder diagnosis and CodeNet F1 seed42 are complete;
-reuse their outputs. Only the CodeNet seed123/231 analysis outputs remain
-unreported, followed by the CPU collector. See [verified results](../../results/CHECKPOINT_REVIEW_RESULTS.md).
-The received reports are stored in `outputs/revesion/05`, the user's arrival
-folder; the earlier suggested `04_checkpoint_review` destination below remains
-an available staging folder.
+**Completed 2026-11-16:** all 18 CodeNet checkpoints were evaluated locally on the RTX3060, including seed42 for a common environment. The CPU collector completed with these local reports and the earlier verified Kaggle AtCoder diagnostics. You do not need to run CodeNet/123, /231 or the collector on Kaggle now. [Verified results](../../results/CHECKPOINT_REVIEW_RESULTS.md) are under `outputs/revesion/05`. Instructions below are retained for reproduction.
 
 **Yes: attach the saved outputs of the previous training runs.** Each required
 saved output must contain its original `progress.pt`. The old `.ipynb` files
@@ -176,6 +171,27 @@ defines the comparison rules. The [continuation status](../../00_plan/CONTINUATI
 tracks the remaining baseline, transfer, final-test and manuscript work.
 
 ## Runtime and resuming
+
+### Local CUDA option
+
+These inference analyses can also run on the laptop using the existing CUDA
+environment and local audited dataset/checkpoint ZIPs. From the project root:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.run_checkpoint_review_local --seeds 123 231
+```
+
+For a consistent local comparison of all three seeds, use `--seeds 42 123 231`.
+The runner loads the dataset once for the requested seeds, verifies the same
+pinned inputs, and writes reports under `outputs/revesion/05` outside the
+repository. It uses four CPU threads by default and performs no training.
+Repeating the command reuses completed matching analysis views. Keep local
+and Kaggle attempts separate when collecting reports, and compare their
+recorded environments and original-threshold score drift before interpretation.
+
+Measured local inference: 14.6 minutes for all 18 models (48.6 seconds/model), plus about 5.6 minutes for the initial graph-file read. These timings do not estimate training speed.
+
+### Kaggle planning estimates
 
 The initial planning estimate is **30-90 minutes per GPU analysis**, not a
 measured Kaggle runtime. Input reading and GPU conditions can change this.

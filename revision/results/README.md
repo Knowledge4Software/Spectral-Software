@@ -3,9 +3,7 @@
 Updated 2026-11-16. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
-**Two analyses verified:** [AtCoder diagnostics and CodeNet F1 seed42](CHECKPOINT_REVIEW_RESULTS.md),
-with all 198 audit checks passed. Awaiting CodeNet F1 seed123/231 outputs;
-the CPU collector follows those reports. Reuse the two completed analyses.
+**Analysis batch complete:** [all 18 CodeNet checkpoints were reviewed locally](CHECKPOINT_REVIEW_RESULTS.md) using a common RTX3060/Torch environment, and the CPU collector completed with the previously verified AtCoder diagnostics. No additional Kaggle F1 or collector job is required. Existing model epochs remain Accuracy-selected; all new F1 thresholds are validation calibrations.
 
 | Tracker | Verified complete | Other status |
 | --- | ---: | --- |
@@ -13,7 +11,7 @@ the CPU collector follows those reports. Reuse the two completed analyses.
 | `control_progress.csv` | 20 / 20 CodeNet seed-42 controls | Complete; no control reruns needed. |
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
 | `selected_followup_progress.csv` | 3 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; all four identities have completed evidence. |
-| `checkpoint_review_progress.csv` | 2 / 4 GPU analyses | AtCoder and CodeNet/42 complete; awaiting CodeNet/123 and /231; CPU collector waits. |
+| `checkpoint_review_progress.csv` | 4 / 4 analysis goals complete | Three CodeNet seeds reviewed in one local environment; AtCoder diagnostics retained; CPU collector complete locally. |
 
 The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has **zero fresh launches**. All 19 planned independent job identities have completed evidence; BCB/full/231 has two distinct attempts pending provenance, excluded from seed averages. AtCoder/full/231 completed with F1 47.43% and AUROC 0.5125; both extra AtCoder seeds performed poorly. Investigate before scheduling further training. External baselines and transfer remain separate work.
 
