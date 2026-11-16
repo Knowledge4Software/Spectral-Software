@@ -3,6 +3,11 @@
 Updated 2026-11-16. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
+**AtCoder tiny training diagnostic also completed locally in 5m39s:**
+[four matched fresh cases](ATCODER_LEARNING_PROBE.md) show stronger tiny-sample
+learning without auxiliary losses, but no case met the strict prespecified
+memorization criterion. These are diagnostic results, not repaired benchmark scores.
+
 **Analysis batch complete:** [all 18 CodeNet checkpoints were reviewed locally](CHECKPOINT_REVIEW_RESULTS.md) using a common RTX3060/Torch environment, and the CPU collector completed with the previously verified AtCoder diagnostics. No additional Kaggle F1 or collector job is required. Existing model epochs remain Accuracy-selected; all new F1 thresholds are validation calibrations.
 
 | Tracker | Verified complete | Other status |

@@ -1,0 +1,5 @@
+seed,objective,status,optimizer_updates,train_F1,train_AUROC,train_BCE,strict_criterion_met,evidence
+123,full,complete_verified_local,60,0.8484848484848485,0.8896484375,0.49561926009514945,False,../outputs/revesion/05/atcoder_learning_probe_v1_local/probe_status.json
+123,classification_only,complete_verified_local,60,0.9375,0.978515625,0.21608911077887494,False,../outputs/revesion/05/atcoder_learning_probe_v1_local/probe_status.json
+231,full,complete_verified_local,60,0.5964912280701754,0.763671875,0.6023527217528513,False,../outputs/revesion/05/atcoder_learning_probe_v1_local/probe_status.json
+231,classification_only,complete_verified_local,60,0.9523809523809523,0.9775390625,0.20155913441954187,False,../outputs/revesion/05/atcoder_learning_probe_v1_local/probe_status.json

@@ -1,0 +1,22 @@
+{
+  "version": "atcoder_tiny_learning_probe_v1",
+  "notebook": "05_analysis/continuation/04_atcoder_learning_probe.ipynb",
+  "sha256": "b83a0560fd48065f15fd3bbca5e04fe86c885f2a266e9acd18069857b2052b91",
+  "steps": 60,
+  "seeds": [
+    123,
+    231
+  ],
+  "objectives": [
+    "full",
+    "classification_only"
+  ],
+  "train_pairs": 64,
+  "valid_pairs": 256,
+  "sample_seed": 9173,
+  "criterion": "train AUROC >= 0.95 and train BCE < 0.2",
+  "changes": "Fresh tiny diagnostic; original main model/data/training code unchanged",
+  "status": "complete_verified_local",
+  "wall_seconds": 338.6869999999908,
+  "local_output": "../outputs/revesion/05/atcoder_learning_probe_v1_local"
+}

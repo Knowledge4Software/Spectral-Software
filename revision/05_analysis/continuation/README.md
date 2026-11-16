@@ -2,6 +2,14 @@
 
 [Persian guide](README_FA.md)
 
+**AtCoder tiny learning probe completed locally:** four fresh diagnostic cases,
+60 updates each, finished in **5m39s**. [Results and limitations](../../results/ATCODER_LEARNING_PROBE.md)
+are separate from the main experiments. No Kaggle rerun is needed for this probe.
+The [fallback notebook](04_atcoder_learning_probe.ipynb) requires only the existing
+AtCoder v2 dataset, with GPU on and Internet off; no old checkpoints are needed.
+Local reproduction: `.\.venv\Scripts\python.exe -m scripts.run_learning_probe_local`
+from the repository root. The local compute budget is nine minutes.
+
 **Completed 2026-11-16:** all 18 CodeNet checkpoints were evaluated locally on the RTX3060, including seed42 for a common environment. The CPU collector completed with these local reports and the earlier verified Kaggle AtCoder diagnostics. You do not need to run CodeNet/123, /231 or the collector on Kaggle now. [Verified results](../../results/CHECKPOINT_REVIEW_RESULTS.md) are under `outputs/revesion/05`. Instructions below are retained for reproduction.
 
 **Yes: attach the saved outputs of the previous training runs.** Each required
