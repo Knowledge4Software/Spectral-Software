@@ -8,10 +8,10 @@ This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
 ZIP packets are optional copies for transport; extraction is not required here.
 
-**Run next: [four inference-only checkpoint review notebooks](05_analysis/continuation/README.md),
-then their CPU collector.** They diagnose AtCoder's weak seeds and compare all
-18 CodeNet core checkpoints with validation F1 thresholds. Existing training
-outputs and dataset uploads are reused; new training is not requested yet.
+**Current analysis status, 2026-11-16:** [AtCoder diagnosis and CodeNet F1 seed42 are verified complete](results/CHECKPOINT_REVIEW_RESULTS.md).
+Await CodeNet F1 seed123/231 outputs, then run their CPU collector. Reuse the
+two completed analyses. [Exact analysis inputs](05_analysis/continuation/README.md)
+remain unchanged; no new training is requested yet.
 
 **[All 20 CodeNet controls are verified complete](results/README.md).** All 12 CodeNet core repeats are also complete. The latest seven uploads passed 252/252 checks. Reuse completed results; final tests remain off.
 

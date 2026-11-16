@@ -1,12 +1,11 @@
 # Current revision results and remaining work
 
-Updated 2026-11-12. CSV trackers are authoritative; `not_reported` means no
+Updated 2026-11-16. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
-**Next analysis batch is ready, not yet run:** [AtCoder diagnostics and CodeNet
-F1 reassessment](../05_analysis/continuation/README.md). Four GPU inference
-jobs reuse the existing checkpoints; their CPU collector follows. The pinned
-inputs preserve original epoch selection and keep final tests off.
+**Two analyses verified:** [AtCoder diagnostics and CodeNet F1 seed42](CHECKPOINT_REVIEW_RESULTS.md),
+with all 198 audit checks passed. Awaiting CodeNet F1 seed123/231 outputs;
+the CPU collector follows those reports. Reuse the two completed analyses.
 
 | Tracker | Verified complete | Other status |
 | --- | ---: | --- |
@@ -14,7 +13,7 @@ inputs preserve original epoch selection and keep final tests off.
 | `control_progress.csv` | 20 / 20 CodeNet seed-42 controls | Complete; no control reruns needed. |
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
 | `selected_followup_progress.csv` | 3 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; all four identities have completed evidence. |
-| `checkpoint_review_progress.csv` | 0 / 4 GPU analyses | New inference notebooks ready; CPU collector waits for their reports. |
+| `checkpoint_review_progress.csv` | 2 / 4 GPU analyses | AtCoder and CodeNet/42 complete; awaiting CodeNet/123 and /231; CPU collector waits. |
 
 The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has **zero fresh launches**. All 19 planned independent job identities have completed evidence; BCB/full/231 has two distinct attempts pending provenance, excluded from seed averages. AtCoder/full/231 completed with F1 47.43% and AUROC 0.5125; both extra AtCoder seeds performed poorly. Investigate before scheduling further training. External baselines and transfer remain separate work.
 

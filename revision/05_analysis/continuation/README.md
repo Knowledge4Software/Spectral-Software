@@ -2,6 +2,13 @@
 
 [Persian guide](README_FA.md)
 
+**Reviewed 2026-11-16:** AtCoder diagnosis and CodeNet F1 seed42 are complete;
+reuse their outputs. Only the CodeNet seed123/231 analysis outputs remain
+unreported, followed by the CPU collector. See [verified results](../../results/CHECKPOINT_REVIEW_RESULTS.md).
+The received reports are stored in `outputs/revesion/05`, the user's arrival
+folder; the earlier suggested `04_checkpoint_review` destination below remains
+an available staging folder.
+
 **Yes: attach the saved outputs of the previous training runs.** Each required
 saved output must contain its original `progress.pt`. The old `.ipynb` files
 alone do not contain the trained weights and are not sufficient inputs.

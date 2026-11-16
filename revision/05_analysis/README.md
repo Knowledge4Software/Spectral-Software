@@ -1,6 +1,11 @@
 # Analysis and final evaluation
 
-**Next: [checkpoint review and F1 reassessment](continuation/README.md).**
+**Reviewed 2026-11-16:** [AtCoder and CodeNet F1 seed42](../results/CHECKPOINT_REVIEW_RESULTS.md)
+are complete. Await CodeNet seed123/231 analysis outputs before the CPU
+collector; do not rerun the two verified analyses.
+
+The [checkpoint review and F1 reassessment guide](continuation/README.md)
+lists all original inputs and notebooks.
 Four independent GPU inference notebooks (AtCoder three-seed diagnosis and
 CodeNet six-condition F1 calibration for each of three seeds), followed by a
 CPU collector, are ready. Use the linked new notebooks; the older spectral
