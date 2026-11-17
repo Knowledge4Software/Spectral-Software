@@ -24,3 +24,5 @@ of the reviewer response.
 The [tiny AtCoder learning probe](../results/ATCODER_LEARNING_PROBE.md) is complete. Its 240 fresh diagnostic updates do not replace any main training run. The Kaggle fallback is retained for reproduction, not required again now.
 
 **Kaggle handoff:** [six matched AtCoder F1 confirmations](../06_atcoder_confirmation_v1/README.md). The local v2 controls took4m44s; longer full-data confirmation exceeds the ten-minute local limit. The [v2 report](../results/ATCODER_LEARNING_CONTROLS.md) preserves the revised interpretation; removing auxiliaries is not declared a fix.
+
+**2026-11-17 confirmation update:** five complete runs passed130 checks. All three full objectives are near chance; classification-only/42 and /231 reach approximately81.7% F1. Await classification-only/123 before a complete three-seed comparison. The new failure of full/42, previously successful, is a reproducibility concern with cause unresolved. See [the confirmation review](../results/ATCODER_CONFIRMATION_RESULTS.md). No prior result is replaced.

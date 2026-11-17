@@ -2,12 +2,7 @@
 
 **[Start here: English guide for the next analysis runs](05_analysis/continuation/README.md)**
 
-**Next requires Kaggle:** [six matched AtCoder F1 confirmation jobs](06_atcoder_confirmation_v1/README.md).
-The additional local healthy-seed/FP32 controls completed in 4m44s; objective
-effects vary by seed and FP32 did not rescue the tiny seed231 case. The six
-full-data jobs are prepared, not run. Use the existing AtCoder v2 dataset only.
-
-**[از اینجا شروع کن — راهنمای فارسی](START_HERE_FA.md)**
+**2026-11-17:** [five AtCoder F1 confirmation runs verified](results/ATCODER_CONFIRMATION_RESULTS.md). Only classification-only/seed123 remains without output. All three full runs are near chance; the two submitted classification-only runs reach approximately81.7% F1. Do not rerun completed jobs to replace unfavorable results.
 
 This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.

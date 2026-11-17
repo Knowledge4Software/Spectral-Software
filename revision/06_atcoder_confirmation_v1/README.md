@@ -1,5 +1,12 @@
 # Next Kaggle runs: matched AtCoder objective confirmation
 
+**2026-11-17: five runs are verified complete.** Only the output of
+`atcoder_classification_only_seed123_f1_confirmation_v1` is still missing.
+Do not repeat the five completed jobs. [Reviewed results](../results/ATCODER_CONFIRMATION_RESULTS.md)
+show near-chance full runs and approximately81.7% F1 for the two submitted
+classification-only runs. The instructions below remain for reproduction
+and the one unreported job; check Kaggle before launching a duplicate.
+
 The short local diagnostics are complete. The next useful experiment trains
 on the full audited AtCoder support and needs hours rather than ten minutes.
 The six jobs below can run in parallel using six GPU slots.
