@@ -1,0 +1,67 @@
+{
+  "version": "atcoder_readout_check_v1",
+  "jobs": [
+    {
+      "job_id": "atcoder_mean_max_classification_only_seed42_readout_check_v1",
+      "seed": 42,
+      "arm": "mean_max_classification_only",
+      "notebook": "07_atcoder_readout_check_v1/atcoder_mean_max_classification_only_seed42_readout_check_v1.ipynb",
+      "sha256": "65700af8a5e7d98cbead08755f42a4d3f0f40891616f80a84928bea3ef346f4b",
+      "reference_job_id": "atcoder_classification_only_seed42_f1_confirmation_v1",
+      "metric": "F1",
+      "dataset_zip": "atcoder_revision_common_support_v2.zip",
+      "max_epochs": 100,
+      "min_epochs": 10,
+      "patience": 10,
+      "physical_batch": 32,
+      "effective_batch": 128,
+      "amp": true,
+      "status": "ready_not_run"
+    },
+    {
+      "job_id": "atcoder_mean_max_classification_only_seed123_readout_check_v1",
+      "seed": 123,
+      "arm": "mean_max_classification_only",
+      "notebook": "07_atcoder_readout_check_v1/atcoder_mean_max_classification_only_seed123_readout_check_v1.ipynb",
+      "sha256": "37c408c23aa959a9360dcb124977eaabcaed89a0181c601d0da6decc86be584c",
+      "reference_job_id": "atcoder_classification_only_seed123_f1_confirmation_v1",
+      "metric": "F1",
+      "dataset_zip": "atcoder_revision_common_support_v2.zip",
+      "max_epochs": 100,
+      "min_epochs": 10,
+      "patience": 10,
+      "physical_batch": 32,
+      "effective_batch": 128,
+      "amp": true,
+      "status": "ready_not_run"
+    },
+    {
+      "job_id": "atcoder_mean_max_classification_only_seed231_readout_check_v1",
+      "seed": 231,
+      "arm": "mean_max_classification_only",
+      "notebook": "07_atcoder_readout_check_v1/atcoder_mean_max_classification_only_seed231_readout_check_v1.ipynb",
+      "sha256": "a9fc7e7fb76b56f48cbc63f5fbf67998902c962c0d07e104d7994bd67db78445",
+      "reference_job_id": "atcoder_classification_only_seed231_f1_confirmation_v1",
+      "metric": "F1",
+      "dataset_zip": "atcoder_revision_common_support_v2.zip",
+      "max_epochs": 100,
+      "min_epochs": 10,
+      "patience": 10,
+      "physical_batch": 32,
+      "effective_batch": 128,
+      "amp": true,
+      "status": "ready_not_run"
+    }
+  ],
+  "status": "registered_not_run",
+  "source_hash": "bc9d583ca609c7929cf4373737e07a53b1bfdc79e14a23672e40cb3d8d02e00b",
+  "selection_basis": "Mean/max classification-only had the highest three-seed mean validation F1 among simple CodeNet readouts; selected before new AtCoder readout results.",
+  "scope": "Three-seed confirmation under classification-only objective; original full-objective failures retained; not universal spectral attribution.",
+  "reuse": "All three completed AtCoder spectral classification-only F1 runs; no spectral retraining requested.",
+  "estimates": "Approximately2-6h per T4 notebook if patience stops early; extrapolated cap around8h; budget stop requires continuation.",
+  "collector": {
+    "notebook": "07_atcoder_readout_check_v1/collect_atcoder_readout_check_v1.ipynb",
+    "sha256": "43622fb71068e6ce67d789ec92fbb7a372d53bdf5c1c176e1f83cd3c95f61cdf",
+    "gpu": false
+  }
+}

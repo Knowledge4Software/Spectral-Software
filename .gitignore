@@ -123,6 +123,7 @@ revision/results/*
 !revision/results/ATCODER_LEARNING_CONTROLS.md
 !revision/results/ATCODER_CONFIRMATION_RESULTS.md
 !revision/results/atcoder_confirmation_progress.csv
+!revision/results/atcoder_readout_progress.csv
 !revision/results/learning_probe_progress.csv
 !revision/results/checkpoint_review_progress.csv
 !revision/results/control_progress.csv

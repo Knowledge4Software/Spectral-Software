@@ -1,5 +1,10 @@
 # SPECTRA paper revision
 
+**Run next: [three AtCoder mean/max classification-only controls](07_atcoder_readout_check_v1/README.md).**
+Reuse the completed spectral classification-only references; no spectral
+retraining or dataset upload is required. These controls test readout value
+under matched F1 selection and address reviewer6's attribution concern.
+
 **[Start here: English guide for the next analysis runs](05_analysis/continuation/README.md)**
 
 **2026-11-17:** [all six AtCoder F1 confirmation runs verified](results/ATCODER_CONFIRMATION_RESULTS.md). Classification-only/seed123 has arrived; the batch is complete. All three full runs are near chance; classification-only averages81.89% F1 across all three seeds. Do not rerun completed jobs to replace unfavorable results.

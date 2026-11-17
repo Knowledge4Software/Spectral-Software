@@ -3,6 +3,11 @@
 Updated 2026-11-17. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
+**Next:** [three AtCoder mean/max classification-only controls](../07_atcoder_readout_check_v1/README.md),
+selected from completed CodeNet evidence before the new AtCoder readout results.
+The spectral references already exist. This is a conditional readout comparison,
+not adoption of a different proposed method. New runs remain unreported.
+
 **AtCoder confirmation: all six runs verified.** [Current results](ATCODER_CONFIRMATION_RESULTS.md): all full runs are near chance; classification-only reaches81.70-82.25% F1 across all three seeds. No job remains unreported. Preserve completed runs; final tests remain off.
 
 **AtCoder tiny training diagnostic also completed locally in 5m39s:**

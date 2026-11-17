@@ -1,5 +1,10 @@
 # Queues and provenance
 
+**Current next batch:** [three AtCoder mean/max controls](../07_atcoder_readout_check_v1/README.md).
+`atcoder_readout_check_v1.csv` lists the three new training jobs; its JSON
+manifest pins the notebooks and the CPU collector. The three completed
+spectral classification-only F1 runs are reused, not requeued.
+
 Notebook paths in these CSVs are relative to the `revision/` directory.
 
 **2026-11-16 update:** all 18 CodeNet checkpoint reviews and the CPU collector
