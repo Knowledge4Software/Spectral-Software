@@ -3,7 +3,7 @@
 Updated 2026-11-17. CSV trackers are authoritative; `not_reported` means no
 verified local output, not that a job is idle or has never started.
 
-**AtCoder confirmation: five of six runs verified.** [Current results](ATCODER_CONFIRMATION_RESULTS.md): all full runs are near chance; classification-only/42 and /231 reach approximately81.7% F1. Only classification-only/123 is unreported. Preserve completed runs; final tests remain off.
+**AtCoder confirmation: all six runs verified.** [Current results](ATCODER_CONFIRMATION_RESULTS.md): all full runs are near chance; classification-only reaches81.70-82.25% F1 across all three seeds. No job remains unreported. Preserve completed runs; final tests remain off.
 
 **AtCoder tiny training diagnostic also completed locally in 5m39s:**
 [four matched fresh cases](ATCODER_LEARNING_PROBE.md) show stronger tiny-sample
@@ -19,7 +19,7 @@ memorization criterion. These are diagnostic results, not repaired benchmark sco
 | `core_repeat_progress.csv` | 12 / 12 core repeats at seeds 123/231 | Complete; do not rerun. |
 | `selected_followup_progress.csv` | 3 / 4 unambiguous full repeats | BCB/231 has two verified attempts pending provenance; all four identities have completed evidence. |
 | `checkpoint_review_progress.csv` | 4 / 4 analysis goals complete | Three CodeNet seeds reviewed in one local environment; AtCoder diagnostics retained; CPU collector complete locally. |
-| `atcoder_confirmation_progress.csv` | 5 / 6 verified complete | Only classification-only/123 output missing; no completed run needs continuation. |
+| `atcoder_confirmation_progress.csv` | 6 / 6 verified complete | Batch complete; no reruns or continuation required. |
 
 The [current independent queue](../queues/RUN_NEXT_INDEPENDENT_BATCH.md) has **zero fresh launches**. All 19 planned independent job identities have completed evidence; BCB/full/231 has two distinct attempts pending provenance, excluded from seed averages. AtCoder/full/231 completed with F1 47.43% and AUROC 0.5125; both extra AtCoder seeds performed poorly. Investigate before scheduling further training. External baselines and transfer remain separate work.
 

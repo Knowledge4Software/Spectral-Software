@@ -2,7 +2,7 @@
 
 **[Start here: English guide for the next analysis runs](05_analysis/continuation/README.md)**
 
-**2026-11-17:** [five AtCoder F1 confirmation runs verified](results/ATCODER_CONFIRMATION_RESULTS.md). Only classification-only/seed123 remains without output. All three full runs are near chance; the two submitted classification-only runs reach approximately81.7% F1. Do not rerun completed jobs to replace unfavorable results.
+**2026-11-17:** [all six AtCoder F1 confirmation runs verified](results/ATCODER_CONFIRMATION_RESULTS.md). Classification-only/seed123 has arrived; the batch is complete. All three full runs are near chance; classification-only averages81.89% F1 across all three seeds. Do not rerun completed jobs to replace unfavorable results.
 
 This is the single workspace for the new reviewer-response experiments.
 Open the `.ipynb` files directly in the folders below and import them into Kaggle.
