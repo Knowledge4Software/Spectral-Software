@@ -1,0 +1,27 @@
+[Unit]
+Description=SPECTRA Kaggle experiment queue and report monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/spectral-kaggle
+ExecStart=/opt/spectral-kaggle/venv/bin/python /opt/spectral-kaggle/kaggle_queue_manager.py --watch --interval 180
+Restart=on-failure
+RestartSec=60
+Nice=19
+CPUQuota=10%
+MemoryHigh=128M
+MemoryMax=192M
+TasksMax=24
+IOSchedulingClass=idle
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/spectral-kaggle
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,17 @@
 # Run next: three AtCoder mean/max controls
 
-Upload these three new notebooks to Kaggle. They may run in parallel.
+These three notebooks were submitted from Spain on2026-11-21. **Do not upload
+and run duplicate copies.** The server monitor checks them every3min and
+collects small reports. See the [server guide](../queues/KAGGLE_SERVER.md).
+
+| Seed | Live notebook | Status at submission check |
+| --- | --- | --- |
+| 42 | [account01 / version1](https://www.kaggle.com/code/koushamoeini/spectra-atcoder-meanmax-f1-seed42-v1) | Running |
+| 123 | [account02 / version1](https://www.kaggle.com/code/drmorgan00/spectra-atcoder-meanmax-f1-seed123-v1) | Running |
+| 231 | [account03 / version1](https://www.kaggle.com/code/frankarianpour/spectra-atcoder-meanmax-f1-seed231-v1) | Queued |
+
+These are a snapshot, not live statuses. `/opt/spectral-kaggle/state.json` on
+Spain is the current monitoring ledger. Scientific completion remains pending.
 
 | Seed | Notebook |
 | --- | --- |
@@ -66,9 +77,11 @@ C:\PyProjects\spectrals\outputs\revesion\07_atcoder_readout_check_v1
 ```
 
 Keep the full saved outputs on Kaggle. The small report supports status/metric
-review but does not independently verify weights. All new training jobs are
-prepared, **not yet run**. The [queue](../queues/atcoder_readout_check_v1.csv)
-and its JSON manifest retain the input/reference links and notebook hashes.
+review but does not independently verify weights. All three training jobs were
+submitted; the [progress tracker](../results/atcoder_readout_progress.csv)
+records their submission evidence. The original
+[queue](../queues/atcoder_readout_check_v1.csv) and JSON manifest remain the
+pre-run registration, retaining input/reference links and notebook hashes.
 
 Modern baselines, controlled transfer and final-test uncertainty remain further
 review gaps. These three controls do not complete the entire revision.
