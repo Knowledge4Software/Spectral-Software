@@ -13,7 +13,6 @@ import io
 import json
 import os
 from pathlib import Path, PurePosixPath
-import re
 import shutil
 import time
 from datetime import datetime, timezone
@@ -102,7 +101,8 @@ def classify_report(report, job):
             or report.get("implementation_hash") != job["implementation_hash"]
             or report.get("arm") != job["arm"]
             or report.get("training", {}).get("seed") != job["seed"]
-            or report.get("training", {}).get("selection_metric") != "F1"
+            or report.get("training", {}).get("selection_metric") != job.get("metric", "F1")
+            or (job.get("identity") and report.get("identity") != job["identity"])
             or report.get("test_evaluated") is not False):
         return "needs_review_protocol"
     if report.get("status") == "complete" and report.get("complete") is True:
@@ -119,7 +119,8 @@ def check_sources(root, job):
     if hashlib.sha256(code.read_bytes()).hexdigest() != job["sha256"]:
         raise ValueError("Frozen notebook hash mismatch")
     if (meta["id"] != job["kernel"] or meta.get("dataset_sources") != [job["dataset"]]
-            or meta.get("kernel_sources") or meta.get("enable_internet") is not False
+            or meta.get("kernel_sources", []) != job.get("kernel_sources", [])
+            or meta.get("enable_internet") is not job.get("enable_internet", False)
             or meta.get("is_private") is not True or meta.get("enable_gpu") is not True
             or meta.get("docker_image") != job["docker_image"]):
         raise ValueError("Submission metadata does not match registration")
@@ -145,24 +146,49 @@ def submit_once(api, root, job, state, save):
 
 def collect(api, root, job, state):
     # Each job has a dedicated slug and is never overwritten by this manager.
-    ref = f"{job['kernel']}/{state['version']}"
-    rows, token = [], None
-    for _ in range(100):
-        response = as_dict(api.kernels_list_files(ref, page_token=token, page_size=100))
-        rows.extend(response.get("files", []))
-        token = response.get("nextPageToken")
-        if not token:
-            break
-    else:
-        raise ValueError("Output listing exceeded page bound")
+    import requests
+    from kagglesdk.kernels.types.kernels_api_service import ApiListKernelSessionOutputRequest
+
+    request = ApiListKernelSessionOutputRequest()
+    request.user_name, request.kernel_slug = job["kernel"].split("/")
+    request.version_label = f"v{state['version']}"
+    request.page_size = 100
+    files = []
+    with api.build_kaggle_client() as client:
+        for _ in range(100):
+            response = client.kernels.kernels_api_client.list_kernel_session_output(request)
+            files.extend(response.files or [])
+            if not response.next_page_token:
+                break
+            request.page_token = response.next_page_token
+        else:
+            raise ValueError("Output listing exceeded page bound")
     dest = root / "reports" / job["job_id"] / str(state["version"])
     dest.mkdir(parents=True, exist_ok=True)
-    write_json(dest / "output_manifest.json", rows)
-    selected = report_files(rows)
-    if selected:
-        pattern = "^(?:" + "|".join(re.escape(x) for x in selected) + ")$"
-        with contextlib.redirect_stdout(io.StringIO()):
-            api.kernels_output(ref, str(dest), file_pattern=pattern, force=True, quiet=True)
+    rows = [{"name": item.file_name, "size": 0} for item in files]
+    selected = set(report_files(rows))
+    write_json(dest / "output_manifest.json", [{"name": row["name"]} for row in rows])
+    total = 0
+    for item in files:
+        if item.file_name not in selected:
+            continue
+        target = dest / item.file_name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_suffix(".json.part")
+        size = 0
+        try:
+            with requests.get(item.url, stream=True, timeout=(10, 30)) as download:
+                download.raise_for_status()
+                with temporary.open("wb") as stream:
+                    for chunk in download.iter_content(64 * 1024):
+                        size += len(chunk)
+                        total += len(chunk)
+                        if size > MAX_REPORT_BYTES or total > MAX_BATCH_BYTES:
+                            raise ValueError("Report exceeds download allowance")
+                        stream.write(chunk)
+            temporary.replace(target)
+        finally:
+            temporary.unlink(missing_ok=True)
     reports = list(dest.rglob("status.json"))
     state["report_directory"] = str(dest)
     if len(reports) != 1:

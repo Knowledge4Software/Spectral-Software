@@ -1,17 +1,16 @@
 # Run next: three AtCoder mean/max controls
 
-These three notebooks were submitted from Spain on2026-11-21. **Do not upload
-and run duplicate copies.** The server monitor checks them every3min and
-collects small reports. See the [server guide](../queues/KAGGLE_SERVER.md).
+All three notebooks completed by validation patience. Spain collected the reports
+on 2026-11-22. See the [server guide](../queues/KAGGLE_SERVER.md).
 
-| Seed | Live notebook | Status at submission check |
-| --- | --- | --- |
-| 42 | [account01 / version1](https://www.kaggle.com/code/koushamoeini/spectra-atcoder-meanmax-f1-seed42-v1) | Running |
-| 123 | [account02 / version1](https://www.kaggle.com/code/drmorgan00/spectra-atcoder-meanmax-f1-seed123-v1) | Running |
-| 231 | [account03 / version1](https://www.kaggle.com/code/frankarianpour/spectra-atcoder-meanmax-f1-seed231-v1) | Queued |
+| Seed | Kaggle notebook | Validation F1 |
+| --- | --- | ---: |
+| 42 | [Account 1](https://www.kaggle.com/code/koushamoeini/spectra-atcoder-meanmax-f1-seed42-v1) | 82.46% |
+| 123 | [Account 2](https://www.kaggle.com/code/drmorgan00/spectra-atcoder-meanmax-f1-seed123-v1) | 81.74% |
+| 231 | [Account 3](https://www.kaggle.com/code/frankarianpour/spectra-atcoder-meanmax-f1-seed231-v1) | 82.97% |
 
-These are a snapshot, not live statuses. `/opt/spectral-kaggle/state.json` on
-Spain is the current monitoring ledger. Scientific completion remains pending.
+Mean validation F1 was 82.39% for mean/max and 81.89% for the matched spectral
+classification-only runs. The difference varied by seed. Final tests are pending.
 
 | Seed | Notebook |
 | --- | --- |

@@ -1,10 +1,12 @@
 # Spain Kaggle manager
 
-The server orchestrates Kaggle jobs; it does not train models. This deployment
-registers only the three phase07 AtCoder mean/max classification-only controls,
-seeds42/123/231, on accounts01/02/03 respectively. The other five accounts are
-authenticated and available but have no jobs assigned. Do not repeat completed
-spectral references or launch historical optional notebooks just to fill GPUs.
+Spain orchestrates jobs that train on Kaggle. The three AtCoder mean/max
+controls completed and their reports were collected. The queue now includes
+one continuation session each for CodeNet C4-adapted, CodeBERT, Qwen3-LoRA,
+and CDLH. C4-adapted and CDLH use account 7, so CDLH waits for that account's
+active job. CodeBERT uses account 3 and Qwen3-LoRA uses account 8. The
+continuations attach saved Kaggle outputs and use the original Accuracy
+selection protocol.
 
 ## Files and credentials
 
@@ -19,7 +21,7 @@ spectral references or launch historical optional notebooks just to fill GPUs.
 - `state.json`: submission receipts, version numbers, quota snapshots and status.
 - `reports/<job_id>/<version>/`: output inventory and selected small reports.
 
-All three notebooks remain private, Internet off and final test off. They use
+All three AtCoder notebooks remain private, Internet off and final test off. They use
 the existing `koushamoeini/atcoder-revision-common-support-v2` dataset and the
 same T4 container image recorded by their completed spectral references.
 T4 API allocation is a T4x2 machine; the frozen training code uses one device.
@@ -60,11 +62,10 @@ one manager-owned job per account, not an assumed platform concurrency limit.
 
 Checkpoints, graph caches, embeddings and token files stay on Kaggle. Only
 `status.json`, `benchmark.json`, `cost.json`, and `summary.json` are selected;
-each is capped at8MiB and their total at32MiB per job. All output filenames and
-sizes are retained in a small inventory. No20GB download is scheduled.
+each is capped at8MiB and their total at32MiB per job. The inventory records full relative paths from the Kaggle session output endpoint.
 
 Worker COMPLETE does not establish scientific completion: the manager checks
-the saved experiment status, completed flag, seed, F1 selection, arm, source
+the saved experiment status, completed flag, seed, selection metric, arm, source
 hash, data hash and final-test flag. Collected reports still need scientific
 review; they are not independent verification of checkpoint weights.
 
