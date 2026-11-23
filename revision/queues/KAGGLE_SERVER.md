@@ -23,6 +23,14 @@ readouts under the full objective, using the existing BigCloneBench full
 runs as references. Both existing full seed 231 attempts remain in the evidence.
 The live submission receipts and job phases are in the Spain ledger.
 
+Accounts 6, 12 and 13 also have second slots for the AtCoder mean/max full
+objective controls, paired by seeds 42, 123 and 231. These jobs reuse the
+verified phase 07 notebooks with the arm set to `mean_max` and a distinct
+output directory. The F1 selection protocol and frozen runtime stay the
+same. Compare them with the spectral full objective references from phase
+06 and the two classification-only readouts to assess the readout under
+each objective.
+
 ## Files and credentials
 
 - SSH alias: `cloudfpsspain`, in Ubuntu WSL's SSH configuration.
