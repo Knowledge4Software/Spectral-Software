@@ -17,7 +17,10 @@ On 2026-11-23, CodeNet CDLH finished by validation patience. Seven CodeNet
 and AtCoder runs saved checkpoints at their session limits, and the queue
 registered a new continuation for each. BigCloneBench CodeBERT, CDLH and
 Qwen3-LoRA were assigned to accounts 9, 10 and 11 using the audited v2
-dataset and F1 selection. Accounts 12 and 13 authenticated and are available.
+dataset and F1 selection. The prepared BigCloneBench mean/max readout controls
+for seeds 42, 123 and 231 use accounts 6, 12 and 13, respectively. They compare
+readouts under the full objective, using the existing BigCloneBench full
+runs as references. Both existing full seed 231 attempts remain in the evidence.
 The live submission receipts and job phases are in the Spain ledger.
 
 ## Files and credentials
