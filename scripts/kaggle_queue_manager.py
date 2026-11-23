@@ -240,7 +240,19 @@ def tick(root, credentials):
                 # Do not overwrite an existing notebook, including a prior run
                 # whose ledger was lost. Search all pages of this specific slug.
                 existing = api.kernels_list(mine=True, search=job["kernel"].split("/")[1], page_size=100)
-                if any(k.ref == job["kernel"] for k in existing):
+                if item.get("cancelled_attempt"):
+                    cancelled = item["cancelled_attempt"]
+                    latest = api.kernels_status(job["kernel"])
+                    if latest.status.name != "CANCEL_ACKNOWLEDGED":
+                        item["phase"] = "needs_reconciliation_cancelled_kernel"
+                        save()
+                        continue
+                    versioned = api.kernels_status(f"{job['kernel']}/{cancelled['version']}")
+                    if versioned.status.name != "CANCEL_ACKNOWLEDGED":
+                        item["phase"] = "needs_reconciliation_cancelled_kernel"
+                        save()
+                        continue
+                elif any(k.ref == job["kernel"] for k in existing):
                     item["phase"] = "needs_reconciliation_existing_kernel"
                     save()
                     continue
@@ -250,7 +262,17 @@ def tick(root, credentials):
                 # QUEUED is enum zero and generic SDK serialization omits it.
                 kaggle_status = status.get("status", "QUEUED")
                 item.update(phase="monitoring", kaggle_status=kaggle_status, checked_at=now())
-                if kaggle_status in TERMINAL:
+                if kaggle_status == "RUNNING":
+                    item["observed_running"] = True
+                if (kaggle_status == "CANCEL_ACKNOWLEDGED"
+                        and job.get("restart_after_cancel_version") == item["version"]
+                        and not item.get("observed_running")
+                        and not item.get("cancelled_attempt")):
+                    cancelled = dict(item)
+                    item.clear()
+                    item.update(phase="registered", cancelled_attempt=cancelled)
+                    save()
+                elif kaggle_status in TERMINAL:
                     collect(api, root, job, item)
                 elif kaggle_status not in ACTIVE and kaggle_status != "CANCEL_REQUESTED":
                     item["phase"] = "needs_review_unknown_kaggle_status"

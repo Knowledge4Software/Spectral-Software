@@ -98,6 +98,13 @@ change any experiment. A submission timeout becomes `submission_uncertain`
 and must be reconciled with Kaggle before another launch. Read/API collection
 failures can be checked again on later polls. No retry depends on F1 performance.
 
+For an explicitly selected queued version, `restart_after_cancel_version`
+enables one replacement submission. Cancel the queued version in Kaggle.
+The manager waits for cancellation acknowledgement, checks that the latest
+version is cancelled, records the old attempt, then submits the original
+notebook and inputs as a new version if quota permits. An observed running
+version is excluded from this restart rule.
+
 The six-input CPU collector remains a later step: the three new outputs plus
 three phase06 spectral classification-only outputs. No collector is autoqueued
 before all six references and cross-account permissions are verified.
