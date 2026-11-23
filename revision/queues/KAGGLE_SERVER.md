@@ -3,10 +3,22 @@
 Spain orchestrates jobs that train on Kaggle. The three AtCoder mean/max
 controls completed and their reports were collected. The queue now includes
 one continuation session each for CodeNet C4-adapted, CodeBERT, Qwen3-LoRA,
-and CDLH. C4-adapted and CDLH use account 7, so CDLH waits for that account's
-active job. CodeBERT uses account 3 and Qwen3-LoRA uses account 8. The
+and CDLH. C4-adapted and CDLH use account 7, which has two manager slots.
+CodeBERT uses account 3 and Qwen3-LoRA uses account 8. The
 continuations attach saved Kaggle outputs and use the original Accuracy
 selection protocol.
+
+Four seed 42 AtCoder external baselines were also submitted on 2026-11-22.
+C4-adapted, CodeBERT, CDLH, and Qwen3-LoRA use accounts 1, 2, 4, and 5,
+respectively. They use the audited AtCoder v2 dataset and their registered
+Accuracy selection protocol. Final testing stays off.
+
+On 2026-11-23, CodeNet CDLH finished by validation patience. Seven CodeNet
+and AtCoder runs saved checkpoints at their session limits, and the queue
+registered a new continuation for each. BigCloneBench CodeBERT, CDLH and
+Qwen3-LoRA were assigned to accounts 9, 10 and 11 using the audited v2
+dataset and F1 selection. Accounts 12 and 13 authenticated and are available.
+The live submission receipts and job phases are in the Spain ledger.
 
 ## Files and credentials
 
@@ -57,8 +69,8 @@ overwrites. A process lock prevents two manager instances from submitting.
 
 GPU hours used **and reserved** count against admission. Each new job requires
 at least11h remaining at submission; actual training can stop earlier. Kaggle
-enforces any other account/session admission limits. This deployment permits
-one manager-owned job per account, not an assumed platform concurrency limit.
+enforces any other account/session admission limits. The manager defaults to one job per account. The queue configuration can
+set a different limit for an individual account.
 
 Checkpoints, graph caches, embeddings and token files stay on Kaggle. Only
 `status.json`, `benchmark.json`, `cost.json`, and `summary.json` are selected;

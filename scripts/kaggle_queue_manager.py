@@ -207,6 +207,7 @@ def tick(root, credentials):
     config = json.loads((root / "queue.json").read_text())
     state_path = root / "state.json"
     state = json.loads(state_path.read_text()) if state_path.exists() else {"jobs": {}, "accounts": {}}
+    accounts_by_job = {job["job_id"]: job["account"] for job in config["jobs"]}
     def save():
         state["updated_at"] = now()
         write_json(state_path, state)
@@ -226,11 +227,14 @@ def tick(root, credentials):
                     item["phase"] = "waiting_quota"
                     save()
                     continue
-                # Enforce one manager-owned job per account; unrelated interactive
-                # sessions remain subject to Kaggle's own admission checks.
-                if any(v.get("phase") in {"submitted", "monitoring", "submission_uncertain"}
-                       for k, v in state["jobs"].items() if k != job["job_id"]
-                       and next(j for j in config["jobs"] if j["job_id"] == k)["account"] == job["account"]):
+                # Kaggle still checks accelerator capacity and interactive sessions.
+                limit = int(config.get("account_concurrency", {}).get(job["account"], 1))
+                active = sum(
+                    entry.get("phase") in {"submitted", "monitoring", "submission_uncertain"}
+                    for job_id, entry in state["jobs"].items()
+                    if accounts_by_job.get(job_id) == job["account"]
+                )
+                if active >= limit:
                     continue
                 api.dataset_list_files(job["dataset"], page_size=1)
                 # Do not overwrite an existing notebook, including a prior run
