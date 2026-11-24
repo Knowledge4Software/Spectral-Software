@@ -210,6 +210,14 @@ def tick(root, credentials):
     accounts_by_job = {job["job_id"]: job["account"] for job in config["jobs"]}
     submission_accounts = config.get("submission_accounts")
     minimum_gap = float(config.get("submission_gap_seconds", 0))
+    # Importing the Kaggle package authenticates once as a side effect.
+    # Use the permitted submission account for that import when configured.
+    bootstrap_account = next(iter(submission_accounts or credentials))
+    os.environ["KAGGLE_API_TOKEN"] = credentials[bootstrap_account]
+    try:
+        from kaggle.api.kaggle_api_extended import KaggleApi
+    finally:
+        os.environ.pop("KAGGLE_API_TOKEN", None)
     def save():
         state["updated_at"] = now()
         write_json(state_path, state)
@@ -219,7 +227,6 @@ def tick(root, credentials):
             continue
         try:
             os.environ["KAGGLE_API_TOKEN"] = credentials[job["account"]]
-            from kaggle.api.kaggle_api_extended import KaggleApi
             api = KaggleApi()
             api.authenticate()
             quota = api.quota_view()
@@ -290,7 +297,7 @@ def tick(root, credentials):
                 elif kaggle_status not in ACTIVE and kaggle_status != "CANCEL_REQUESTED":
                     item["phase"] = "needs_review_unknown_kaggle_status"
             item.pop("last_error", None)
-        except Exception as exc:
+        except (Exception, SystemExit) as exc:
             item["last_error"] = safe_error(exc)
             item["last_error_at"] = now()
         finally:
