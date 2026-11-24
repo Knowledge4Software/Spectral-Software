@@ -32,7 +32,7 @@ same. Compare them with the spectral full objective references from phase
 each objective.
 
 On 2026-11-24 the submission queue was limited to the primary account,
-`koushamoeini`. The manager allows one active job on it and waits at least
+`koushamoeini`. The manager allows two active jobs on it and waits at least
 900 seconds between submission attempts. It still monitors existing jobs.
 Three exploratory AtCoder spectral runs halve the auxiliary loss weights
 with seeds 42, 123 and 231. Compare them against the completed full and
