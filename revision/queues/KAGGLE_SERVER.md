@@ -31,6 +31,14 @@ same. Compare them with the spectral full objective references from phase
 06 and the two classification-only readouts to assess the readout under
 each objective.
 
+On 2026-11-24 the submission queue was limited to the primary account,
+`koushamoeini`. The manager allows one active job on it and waits at least
+900 seconds between submission attempts. It still monitors existing jobs.
+Three exploratory AtCoder spectral runs halve the auxiliary loss weights
+with seeds 42, 123 and 231. Compare them against the completed full and
+classification-only spectral runs, keeping the same F1 selection protocol.
+The weekly GPU quota can delay a job beyond the 15-minute minimum gap.
+
 ## Files and credentials
 
 - SSH alias: `cloudfpsspain`, in Ubuntu WSL's SSH configuration.

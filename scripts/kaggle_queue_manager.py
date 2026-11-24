@@ -208,6 +208,8 @@ def tick(root, credentials):
     state_path = root / "state.json"
     state = json.loads(state_path.read_text()) if state_path.exists() else {"jobs": {}, "accounts": {}}
     accounts_by_job = {job["job_id"]: job["account"] for job in config["jobs"]}
+    submission_accounts = config.get("submission_accounts")
+    minimum_gap = float(config.get("submission_gap_seconds", 0))
     def save():
         state["updated_at"] = now()
         write_json(state_path, state)
@@ -223,6 +225,17 @@ def tick(root, credentials):
             quota = api.quota_view()
             state["accounts"][job["account"]] = {"checked_at": now(), "quota": quota_snapshot(quota)}
             if item["phase"] in {"registered", "waiting_quota"}:
+                if submission_accounts is not None and job["account"] not in submission_accounts:
+                    continue
+                if minimum_gap > 0:
+                    attempts = [
+                        datetime.fromisoformat(attempt.get("submitted_at") or attempt["submission_attempted_at"])
+                        for entry in state["jobs"].values()
+                        for attempt in (entry, entry.get("cancelled_attempt") or {})
+                        if attempt.get("submission_attempted_at")
+                    ]
+                    if attempts and (datetime.now(timezone.utc) - max(attempts)).total_seconds() < minimum_gap:
+                        continue
                 if remaining_seconds(quota) < job.get("quota_reservation_seconds", 39600):
                     item["phase"] = "waiting_quota"
                     save()
