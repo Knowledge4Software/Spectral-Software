@@ -1,0 +1,11 @@
+-r requirements-transformers.txt
+numpy
+scipy
+pandas
+pyarrow
+networkx
+scikit-learn
+tqdm
+packaging
+ipython
+matplotlib

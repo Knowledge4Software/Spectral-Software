@@ -1,5 +1,8 @@
 # SPECTRA paper revision
 
+**[Linux GPU server runbook](SERVER_RUNBOOK.md)** covers the full experiment
+inventory, data staging, checkpoint resume, and multi-GPU queue.
+
 **Run next: [three AtCoder mean/max classification-only controls](07_atcoder_readout_check_v1/README.md).**
 Reuse the completed spectral classification-only references; no spectral
 retraining or dataset upload is required. These controls test readout value

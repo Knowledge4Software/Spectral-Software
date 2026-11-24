@@ -27,6 +27,11 @@ wheels/
 venv/
 .env/
 .venv/
+.venv-server/
+server-data/
+server-output/
+server-input/
+benchmark-zips/
 env/
 ENV/
 
