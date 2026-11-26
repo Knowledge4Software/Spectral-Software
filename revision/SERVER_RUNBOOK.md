@@ -45,6 +45,7 @@ Each experiment still uses its own notebook's dataset loader and data identity.
 | `remaining` | Seven baseline identities without a verified completed report. Fresh defaults are included. Import any recovered checkpoints separately. |
 | `training` | The checked-in training suite and newer AtCoder follow-ups. Includes old and new protocol variants where both have an explicit notebook. |
 | `focused` | Five conditions × three models × three seeds. Defaults to full SPECTRA, mean/max, and C4-adapted. Pass `--sibling` and `--external` to record the validation-selected comparators. |
+| `lease` | [Three-hour B300 batch](THREE_HOUR_BATCH.md). Prioritizes eight jobs, then fills available GPU slots from the 52-job queue. |
 | `matrix` | Training suite, additional architecture and loss controls on AtCoder and BigCloneBench, and the 45 selected transfer jobs. The additional cross-dataset controls are exploratory. |
 | `all` | Inventory of the matrix, transfer candidates and optional reinforcement, analysis, frozen Qwen probe stages, historical starters, and archived checkpoint-compatible variants. Select the entries you want by ID or glob. |
 

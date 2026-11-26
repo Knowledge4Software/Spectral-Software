@@ -9,6 +9,10 @@ def test_inventory_spans_all_seeds_and_preserves_transfer_budget():
     assert len(selected_jobs(catalog, "remaining", [])) == 7
     focused = selected_jobs(catalog, "focused", [])
     assert len(focused) == 45
+    lease = selected_jobs(catalog, "lease", [])
+    assert len(lease) == 52 and len({j["id"] for j in lease}) == 52
+    assert sum(j["group"] == "focused" for j in lease[:8]) == 4
+    assert all(j["gpu"] for j in lease)
     assert {j["id"].rsplit("seed", 1)[-1] for j in focused} == {"42", "123", "231"}
     for dataset in ("codenet", "atcoder", "bigclonebench"):
         for seed in (42, 123, 231):

@@ -36,6 +36,7 @@ OVERRIDES = {
     "RESUME_CHECKPOINT", "RESUME_TOKENS_DIR", "MODEL_REVISION", "INPUT_ROOT",
     "QUEUE_CSV", "EMBEDDINGS_DIR", "RESUME_EMBEDDINGS_DIR", "RESUME_PROBE_DIR",
     "CLEAN_DATA_DIR",
+    "NOTEBOOK_VARIANT",
 }
 
 
@@ -303,6 +304,21 @@ def selected_jobs(catalog, profile, patterns):
         return [job for job_id, job in catalog.items() if job_id in PENDING]
     if profile == "focused":
         return [job for job in catalog.values() if job["group"] == "focused"]
+    if profile == "lease":
+        focused = [job for job in catalog.values() if job["group"] == "focused"]
+        first = [
+            "codenet_codebert_seed42", "atcoder_codebert_seed42",
+            "bigclonebench_codebert_seed42", "bigclonebench_cdlh_seed42",
+            *[job["id"] for job in focused
+              if job["id"].endswith("_seed42")
+              and job["id"].startswith(("focused_source_only_", "focused_direct_"))
+              and job["settings"].get("ARM")],
+        ]
+        next_wave = [job["id"] for job in focused if job["id"].endswith("_seed42")]
+        qwen = sorted(job_id for job_id in PENDING if "qwen" in job_id)
+        repeats = [job["id"] for job in focused if not job["id"].endswith("_seed42")]
+        order = dict.fromkeys(first + next_wave + qwen + repeats)
+        return [catalog[job_id] for job_id in order]
     if profile in {"training", "matrix"}:
         groups = {
             "01_baselines_seed42", "02_controls_seed42", "03_selected_repeats",
@@ -334,6 +350,12 @@ def launch(job, args, inputs, device):
     unknown = set(overrides) - OVERRIDES
     if unknown:
         raise ValueError(f"{job['id']}: unknown input setting {sorted(unknown)}")
+    variant = overrides.pop("NOTEBOOK_VARIANT", None)
+    if variant is not None:
+        if variant != job["id"] + "__input_v1":
+            raise ValueError(f"{job['id']}: unsupported checkpoint variant {variant!r}")
+        archived = make_catalog()[variant]
+        job = {**archived, "id": job["id"]}
     for key, value in overrides.items():
         if value is not None and key != "MODEL_REVISION":
             overrides[key] = str((args.config.resolve().parent / value).resolve())
@@ -413,7 +435,7 @@ def cli():
         return run_worker(load_json(Path(sys.argv[2])))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("list", "verify", "unpack", "run"))
-    parser.add_argument("--profile", choices=("remaining", "focused", "training", "matrix", "all"), default="remaining")
+    parser.add_argument("--profile", choices=("remaining", "focused", "lease", "training", "matrix", "all"), default="remaining")
     parser.add_argument("--jobs", nargs="+", default=(), metavar="JOB_OR_GLOB")
     parser.add_argument("--external", choices=EXTERNAL, default="c4_adapted")
     parser.add_argument("--sibling", choices=("mean_max", "attention"), default="mean_max")
@@ -436,6 +458,8 @@ def cli():
         return 0
     if args.command == "run" and args.profile == "all" and not args.jobs:
         parser.error("Select explicit jobs or a run profile. The inventory contains alternative and archived jobs.")
+    if args.command == "run" and args.profile == "lease" and args.lease_hours is None:
+        parser.error("Set --lease-hours to the actual remaining paid time")
     if args.session_hours is not None and args.session_hours <= 0.75:
         parser.error("--session-hours must exceed the 45-minute checkpoint reserve")
     if args.lease_hours is not None and args.lease_hours <= 1:
