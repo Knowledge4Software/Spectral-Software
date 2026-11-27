@@ -51,8 +51,15 @@ transfer design. The `all` inventory also includes analysis, optional
 transfer candidates, and archived variants. Those are alternatives and
 prerequisite-dependent jobs, so the paid batch does not rerun the full inventory.
 
-After the GPU batch, collect validation evidence on CPU using the output tree
-or a directory containing both old and new status reports:
+The lease profile automatically performs CPU validation screening after
+training. It stages readable status reports and writes the collector outputs
+under `server-output/_analysis/`. It stops training workers by the start of
+a 10-minute analysis window before the existing 15-minute export buffer.
+Workers with no log activity for 25 minutes are stopped and their GPU moves
+to the next job. Use `--idle-minutes` to adjust this watchdog. A timed-out job
+keeps its last saved checkpoint and gets a `server-interrupted.json` record.
+
+To collect again on CPU using both old and new status reports:
 
 ```bash
 python scripts/run_revision_server.py run --jobs validation_screening \
@@ -65,6 +72,15 @@ Run selected IDs with `--final` to produce test predictions. The
 analysis notebooks are in the full inventory and need their documented
 checkpoint or report inputs. Run the frozen Qwen extraction before fitting its
 three CPU probes. Export checkpoints and reports before the lease ends.
+
+To include final evaluation in the automatic tail of a lease, pass
+`--final-jobs` followed by the frozen job IDs. A job with an incomplete or
+missing checkpoint is deferred. Pass `--paired-methods full mean_max`
+(`--paired-metric F1` by default) to request uncertainty analysis once
+both methods have matching conditions and predictions for all three seeds.
+The statistical notebook still validates pair support and compatible
+protocols before computing the interval. Evaluation and analysis are bounded
+by the remaining analysis window.
 
 ## Live GitHub summaries
 

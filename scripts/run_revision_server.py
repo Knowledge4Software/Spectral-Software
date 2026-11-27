@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import copy
 import concurrent.futures
 import fnmatch
 import hashlib
@@ -11,6 +12,7 @@ import os
 from pathlib import Path, PurePosixPath
 from queue import Empty, Queue
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -226,6 +228,34 @@ def write_record(path, value):
     temp.replace(path)
 
 
+def usable_json(path):
+    try:
+        value = load_json(path, {})
+    except (OSError, ValueError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def paired_inputs_ready(root, methods):
+    groups = {method: [] for method in methods}
+    for path in root.glob("*/*/final_test.json"):
+        result = usable_json(path)
+        arm = result.get("arm", "")
+        if arm.startswith("transfer/"):
+            pieces = arm.split("/", 2)
+            arm = pieces[1] if len(pieces) == 3 else "full"
+        elif arm.startswith("baseline/"):
+            arm = "/".join(arm.split("/")[:2])
+        if arm not in groups or not (path.parent / "test_predictions.csv.gz").is_file():
+            continue
+        condition = usable_json(path.parent / "transfer_metadata.json").get("key", "main")
+        groups[arm].append((condition, result.get("seed")))
+    a, b = (groups[method] for method in methods)
+    conditions = {condition for condition, _ in a}
+    expected = {(condition, seed) for condition in conditions for seed in SEEDS}
+    return bool(expected) and len(a) == len(b) == len(expected) and set(a) == set(b) == expected
+
+
 def restore_inputs(settings, work):
     if settings.get("RESUME_CHECKPOINT"):
         checkpoint = Path(settings["RESUME_CHECKPOINT"])
@@ -330,6 +360,45 @@ def selected_jobs(catalog, profile, patterns):
     return list(catalog.values())
 
 
+def watch_worker(command, *, work, stream, env, deadline, idle_seconds):
+    """Bound a hung worker and its child processes, leaving saved files intact."""
+    worker = subprocess.Popen(command, cwd=work, stdout=stream, stderr=subprocess.STDOUT,
+                              env=env, start_new_session=(os.name == "posix"))
+    last_size = -1
+    last_activity = time.monotonic()
+    while True:
+        try:
+            return worker.wait(timeout=1), None
+        except subprocess.TimeoutExpired:
+            now = time.monotonic()
+            size = os.fstat(stream.fileno()).st_size
+            if size != last_size:
+                last_activity, last_size = now, size
+            reason = ("lease_cutoff" if deadline and now >= deadline else
+                      "idle_timeout" if idle_seconds and now - last_activity >= idle_seconds else None)
+            if not reason:
+                continue
+            if os.name == "posix":
+                try:
+                    os.killpg(worker.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+            else:
+                worker.terminate()
+            try:
+                worker.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                pass
+            if os.name == "posix":
+                try:
+                    os.killpg(worker.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            elif worker.poll() is None:
+                worker.kill()
+            return worker.wait(), reason
+
+
 def launch(job, args, inputs, device):
     work = args.output / job["id"]
     work.mkdir(parents=True, exist_ok=True)
@@ -341,11 +410,15 @@ def launch(job, args, inputs, device):
         if not dependency.get("complete"):
             return job["id"], "waiting_for_embeddings"
     session_hours = args.session_hours
+    if args.hard_deadline and time.monotonic() >= args.hard_deadline:
+        return job["id"], "waiting_for_next_lease"
     if args.deadline:
         available = (args.deadline - time.monotonic()) / 3600
         if available <= 0.75:
             return job["id"], "waiting_for_next_lease"
         session_hours = min(available, session_hours or 10)
+    elif args.hard_deadline:
+        session_hours = min(10, 0.75 + (args.hard_deadline - time.monotonic()) / 3600)
     overrides = dict(inputs.get(job["id"], {}))
     unknown = set(overrides) - OVERRIDES
     if unknown:
@@ -369,19 +442,26 @@ def launch(job, args, inputs, device):
     spec_path = work / "server-job.json"
     write_record(spec_path, spec)
     env = os.environ.copy()
+    env["PYTHONUNBUFFERED"] = "1"
     env["CUDA_VISIBLE_DEVICES"] = device if job["gpu"] else ""
     for k in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
         env[k] = str(args.threads)
     print(f"{job['id']}: starting on {'GPU ' + device if job['gpu'] else 'CPU'}", flush=True)
     log = work / f"session-{time.time_ns()}.log"
     with log.open("wb") as stream:
-        process = subprocess.run([sys.executable, __file__, "_worker", str(spec_path)],
-                                 cwd=work, stdout=stream, stderr=subprocess.STDOUT, env=env)
-    result = load_json(result_path, {}) if process.returncode == 0 else {}
+        exit_code, reason = watch_worker(
+            [sys.executable, __file__, "_worker", str(spec_path)], work=work, stream=stream,
+            env=env, deadline=args.hard_deadline, idle_seconds=args.idle_minutes * 60,
+        )
+    if reason:
+        write_record(work / "server-interrupted.json", {"reason": reason, "log": log.name,
+                                                        "finished_at": time.time()})
+        return job["id"], f"failed ({reason}; {log})"
+    result = load_json(result_path, {}) if exit_code == 0 else {}
     return job["id"], result.get("status", f"failed ({log})")
 
 
-def run_queue(jobs, args):
+def run_queue(jobs, args, catalog):
     if args.config and not args.config.is_file():
         raise FileNotFoundError(args.config)
     inputs = load_json(args.config, {}) if args.config else {}
@@ -401,8 +481,10 @@ def run_queue(jobs, args):
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         args.deadline = (time.monotonic() + (args.lease_hours - 0.25) * 3600
                          if args.lease_hours is not None else None)
+        auto_analysis = args.profile == "lease" and not args.final
+        args.hard_deadline = args.deadline - 600 if auto_analysis else args.deadline
         failures = 0
-        def lane(device, queue):
+        def lane(device, queue, settings=args):
             results = []
             while True:
                 try:
@@ -410,7 +492,7 @@ def run_queue(jobs, args):
                 except Empty:
                     break
                 try:
-                    results.append(launch(job, args, inputs, device))
+                    results.append(launch(job, settings, inputs, device))
                 except Exception as exc:
                     results.append((job["id"], f"failed ({exc})"))
                 print(*results[-1], flush=True)
@@ -427,6 +509,50 @@ def run_queue(jobs, args):
                 failures += sum(status.startswith("failed") for future in futures
                                 for _, status in future.result())
         failures += sum(status.startswith("failed") for _, status in lane("", pending(cpu_jobs)))
+        if auto_analysis:
+            post = copy.copy(args)
+            post.deadline, post.hard_deadline = None, args.deadline
+            post.inputs = args.output
+            collection = copy.copy(post)
+            collection.output = args.output / "_analysis"
+            collection.inputs = collection.output / f"validation-inputs-{time.time_ns()}"
+            for report in args.output.glob("*/*/status.json"):
+                data = usable_json(report)
+                if data:
+                    target = collection.inputs / report.relative_to(args.output)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    write_record(target, data)
+            if collection.inputs.exists():
+                collector = {**catalog["validation_screening"], "id": f"validation_screening_{time.time_ns()}"}
+                failures += sum(status.startswith("failed")
+                                for _, status in lane("", pending([collector]), collection))
+            post.final = True
+            finals = []
+            for job_id in args.final_jobs:
+                job = catalog[job_id]
+                complete = [p for p in (args.output / job_id).rglob("status.json")
+                            if usable_json(p).get("complete") and p.with_name("progress.pt").is_file()]
+                if len(complete) == 1:
+                    finals.append(job)
+                else:
+                    print(job_id, "waiting_for_completed_checkpoint", flush=True)
+            if finals:
+                queue = pending(finals)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=len(devices)) as pool:
+                    futures = [pool.submit(lane, device, queue, post) for device in devices]
+                    failures += sum(status.startswith("failed") for future in futures
+                                    for _, status in future.result())
+            post.final = False
+            post.output = args.output / "_analysis"
+            if args.paired_methods:
+                analysis = {**catalog["paired_problem_uncertainty"],
+                            "settings": {**dict(zip(("METHOD_A", "METHOD_B"), args.paired_methods)),
+                                         "METRIC": args.paired_metric}}
+                if paired_inputs_ready(args.output, args.paired_methods):
+                    failures += sum(status.startswith("failed")
+                                    for _, status in lane("", pending([analysis]), post))
+                else:
+                    print("paired_problem_uncertainty waiting_for_test_predictions", flush=True)
     return int(bool(failures))
 
 
@@ -448,6 +574,13 @@ def cli():
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--session-hours", type=float)
     parser.add_argument("--lease-hours", type=float, help="remaining rental time; leave 15 minutes for export")
+    parser.add_argument("--idle-minutes", type=float, default=25,
+                        help="stop a worker that produces no log output; zero disables this check")
+    parser.add_argument("--final-jobs", nargs="*", default=(), metavar="FROZEN_JOB_ID",
+                        help="after a lease, evaluate only these explicitly selected completed jobs")
+    parser.add_argument("--paired-methods", nargs=2, metavar=("METHOD_A", "METHOD_B"),
+                        help="after a lease, attempt the selected paired test analysis if predictions exist")
+    parser.add_argument("--paired-metric", choices=("F1", "Accuracy"), default="F1")
     parser.add_argument("--final", action="store_true")
     parser.add_argument("--hardware", action="store_true", help="also verify CUDA and the data bundle paths")
     args = parser.parse_args()
@@ -465,6 +598,15 @@ def cli():
     if args.lease_hours is not None and args.lease_hours <= 1:
         parser.error("--lease-hours must exceed the combined one-hour reserve")
     catalog = make_catalog(args.external, args.sibling)
+    if args.idle_minutes < 0:
+        parser.error("--idle-minutes cannot be negative")
+    if args.final_jobs or args.paired_methods:
+        if args.command != "run" or args.profile != "lease" or args.final:
+            parser.error("Post-training selections require run --profile lease")
+        if any(j not in catalog or not catalog[j]["gpu"] for j in args.final_jobs):
+            parser.error("--final-jobs requires known GPU experiment IDs")
+        if args.paired_methods and len(set(args.paired_methods)) != 2:
+            parser.error("--paired-methods requires two distinct methods")
     jobs = selected_jobs(catalog, args.profile, args.jobs)
     if args.command == "list":
         print(json.dumps(jobs, indent=2))
