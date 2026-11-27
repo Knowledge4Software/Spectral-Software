@@ -82,7 +82,7 @@ python3 /data/workspace/spectra/scripts/publish_server_results.py \
   /home/ubuntu/spectra-lease/server-output \
   --ssh ubuntu@NODE --remote-script /home/ubuntu/spectra-lease/spectra/scripts/publish_server_results.py \
   --work /data/workspace/public-research/results/spectra/publish-RUN_ID \
-  --remote git@github.com:Knowledge4Software/Spectral-Software.git \
+  --remote git@github.com:koushamoeini/spectral-results.git \
   --run-id RUN_ID --interval 30
 ```
 
