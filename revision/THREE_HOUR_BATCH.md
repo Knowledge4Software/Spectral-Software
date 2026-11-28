@@ -52,6 +52,13 @@ of the transfer study. The queue contains 52 jobs. Completion in one lease
 depends on measured runtimes and checkpoint availability. It stores progress
 for the next lease and leaves time for output export.
 
+Use `--profile fresh` with a new, empty output directory when starting
+without old checkpoints. It schedules the five missing source-only/direct
+transfer jobs and three exploratory AtCoder loss controls. The AtCoder
+controls use the spectral readout and remove the spectral auxiliary loss at
+seeds 42, 123 and 231. Keep the old evidence separately. Inspect the Qwen
+failure logs before using another paid slot for it.
+
 The `matrix` profile carries the complete training matrix and the focused
 transfer design. The `all` inventory also includes analysis, optional
 transfer candidates, and archived variants. Those are alternatives and

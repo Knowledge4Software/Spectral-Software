@@ -370,6 +370,14 @@ def selected_jobs(catalog, profile, patterns):
         return [job for job_id, job in catalog.items() if job_id in PENDING]
     if profile == "focused":
         return [job for job in catalog.values() if job["group"] == "focused"]
+    if profile == "fresh":
+        ids = (
+            "focused_source_only_c4_adapted_seed231",
+            "focused_direct_c4_adapted_seed123", "focused_direct_c4_adapted_seed231",
+            "focused_direct_full_seed231", "focused_direct_mean_max_seed231",
+            *(f"atcoder_without_spectral_seed{seed}_f1_v1" for seed in SEEDS),
+        )
+        return [catalog[job_id] for job_id in ids]
     if profile == "lease":
         focused = [job for job in catalog.values() if job["group"] == "focused"]
         first = [
@@ -517,7 +525,7 @@ def run_queue(jobs, args, catalog):
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         args.deadline = (time.monotonic() + (args.lease_hours - 0.25) * 3600
                          if args.lease_hours is not None else None)
-        auto_analysis = args.profile == "lease" and not args.final
+        auto_analysis = args.profile in {"lease", "fresh"} and not args.final
         args.hard_deadline = args.deadline - 600 if auto_analysis else args.deadline
         failures = 0
         def lane(device, queue, settings=args):
@@ -599,7 +607,7 @@ def cli():
         return run_worker(load_json(Path(sys.argv[2])))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("list", "verify", "unpack", "run"))
-    parser.add_argument("--profile", choices=("remaining", "focused", "lease", "training", "matrix", "all"), default="remaining")
+    parser.add_argument("--profile", choices=("remaining", "focused", "lease", "fresh", "training", "matrix", "all"), default="remaining")
     parser.add_argument("--jobs", nargs="+", default=(), metavar="JOB_OR_GLOB")
     parser.add_argument("--external", choices=EXTERNAL, default="c4_adapted")
     parser.add_argument("--sibling", choices=("mean_max", "attention"), default="mean_max")
@@ -633,7 +641,7 @@ def cli():
         return 0
     if args.command == "run" and args.profile == "all" and not args.jobs:
         parser.error("Select explicit jobs or a run profile. The inventory contains alternative and archived jobs.")
-    if args.command == "run" and args.profile == "lease" and args.lease_hours is None:
+    if args.command == "run" and args.profile in {"lease", "fresh"} and args.lease_hours is None:
         parser.error("Set --lease-hours to the actual remaining paid time")
     if args.session_hours is not None and args.session_hours <= 0.75:
         parser.error("--session-hours must exceed the 45-minute checkpoint reserve")
@@ -664,7 +672,7 @@ def cli():
             print(torch.__version__, torch.version.cuda, torch.cuda.device_count())
         print(f"Verified {len(jobs)} experiment entries")
     else:
-        return run_queue(jobs, args)
+        return run_queue(jobs, args, catalog)
     return 0
 
 

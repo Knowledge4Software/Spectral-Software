@@ -51,6 +51,21 @@ def test_worker_cutoff_returns_without_erasing_checkpoint(tmp_path):
     assert marker.read_bytes() == b"saved"
 
 
+def test_cli_passes_fresh_jobs_and_catalog_to_runner(monkeypatch):
+    from scripts import run_revision_server as runner
+
+    monkeypatch.setattr(sys, "argv", ["runner", "run", "--profile", "fresh", "--lease-hours", "3"])
+    def run(jobs, args, catalog):
+        assert args.profile == "fresh"
+        assert len(jobs) == 8
+        assert sum(job["group"] == "focused" for job in jobs) == 5
+        assert sum(job["group"] == "loss_experiment" for job in jobs) == 3
+        assert all(job["id"] in catalog for job in jobs)
+        return 0
+    monkeypatch.setattr(runner, "run_queue", run)
+    assert runner.cli() == 0
+
+
 def test_paired_analysis_waits_for_both_methods_and_three_seeds(tmp_path):
     for method in ("full", "mean_max"):
         for seed in (42, 123, 231):
