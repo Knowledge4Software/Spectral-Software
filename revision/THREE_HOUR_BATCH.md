@@ -20,6 +20,12 @@ seven baseline entries default to fresh runs when given no checkpoints. For
 an original input-v1 checkpoint, set `NOTEBOOK_VARIANT` in the config for
 the queued job. For example, set it to `codenet_codebert_seed42__input_v1`
 under `codenet_codebert_seed42` alongside the checkpoint and token paths.
+For another lease, restore the last copied `server-output` tree at the same
+job-relative paths and add `--resume-first --gpu-telemetry`. This prioritizes
+resumable work and fixed-budget transfers that are closer to their scheduled
+step count. Completed jobs with their server result records are skipped.
+The telemetry CSV stays with the checkpoint export and records GPU utilization,
+memory use and power every five seconds.
 At handover, confirm CUDA can execute a kernel on all eight devices before the
 batch. This catches driver and CUDA architecture problems that a device list
 alone can miss:

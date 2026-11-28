@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import ast
 import copy
+from contextlib import contextmanager
 import concurrent.futures
 import fnmatch
 import hashlib
@@ -12,6 +13,7 @@ import os
 from pathlib import Path, PurePosixPath
 from queue import Empty, Queue
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -92,9 +94,11 @@ def make_catalog(external="c4_adapted", sibling="mean_max"):
 
     for seed in SEEDS:
         path = Path(f"07_atcoder_readout_check_v1/atcoder_mean_max_classification_only_seed{seed}_readout_check_v1.ipynb")
-        for arm, tag in (("mean_max", "full_objective_v1"), ("auxiliary_half", "f1_v1")):
+        for arm, tag in (("mean_max", "full_objective_v1"), ("auxiliary_half", "f1_v1"),
+                         ("without_spectral", "f1_v1")):
             job_id = f"atcoder_{arm}_seed{seed}_{tag}"
-            jobs[job_id] = row(path, "atcoder_followup", {"ARM": arm}, job_id=job_id)
+            group = "loss_experiment" if arm == "without_spectral" else "atcoder_followup"
+            jobs[job_id] = row(path, group, {"ARM": arm}, job_id=job_id)
 
     # Complete the exploratory architecture/loss matrix on the other two datasets
     # using their own full-model templates, pair supports and selection metrics.
@@ -234,6 +238,38 @@ def usable_json(path):
     except (OSError, ValueError):
         return {}
     return value if isinstance(value, dict) else {}
+
+
+def resume_priority(job, root):
+    work = root / job["id"]
+    if usable_json(work / "server-result.json").get("complete"):
+        return (2, 0)
+    for report in work.glob("*/status.json"):
+        state = usable_json(report)
+        if (state.get("status") == "incomplete_session_budget"
+                and report.with_name("progress.pt").is_file()
+                and state.get("optimizer_steps", 0) > 0):
+            fixed = job["group"] == "focused"
+            return (0, -state["optimizer_steps"] / 1410 if fixed else 0)
+    return (1, 0)
+
+
+@contextmanager
+def gpu_telemetry(output, enabled):
+    if not enabled or shutil.which("nvidia-smi") is None:
+        if enabled:
+            print("GPU telemetry unavailable: nvidia-smi is missing", flush=True)
+        yield
+        return
+    with (output / f"gpu-telemetry-{time.time_ns()}.csv").open("wb") as stream:
+        command = ["nvidia-smi", "--query-gpu=timestamp,index,utilization.gpu,"
+                   "utilization.memory,memory.used,memory.total,power.draw",
+                   "--format=csv", "--loop=5"]
+        with subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT) as monitor:
+            try:
+                yield
+            finally:
+                monitor.terminate()
 
 
 def paired_inputs_ready(root, methods):
@@ -503,8 +539,10 @@ def run_queue(jobs, args, catalog):
                 queue.put(job)
             return queue
         if gpu_jobs:
+            if args.resume_first and not args.final:
+                gpu_jobs.sort(key=lambda job: resume_priority(job, args.output))
             queue = pending(gpu_jobs)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=len(devices)) as pool:
+            with gpu_telemetry(args.output, args.gpu_telemetry), concurrent.futures.ThreadPoolExecutor(max_workers=len(devices)) as pool:
                 futures = [pool.submit(lane, device, queue) for device in devices]
                 failures += sum(status.startswith("failed") for future in futures
                                 for _, status in future.result())
@@ -572,6 +610,10 @@ def cli():
     parser.add_argument("--config", type=Path)
     parser.add_argument("--gpus", default="0")
     parser.add_argument("--threads", type=int, default=4)
+    parser.add_argument("--resume-first", action="store_true",
+                        help="prioritize incomplete local checkpoints before fresh jobs")
+    parser.add_argument("--gpu-telemetry", action="store_true",
+                        help="sample NVIDIA utilization, VRAM and power every five seconds")
     parser.add_argument("--session-hours", type=float)
     parser.add_argument("--lease-hours", type=float, help="remaining rental time; leave 15 minutes for export")
     parser.add_argument("--idle-minutes", type=float, default=25,
